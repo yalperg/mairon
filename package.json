@@ -1,0 +1,43 @@
+{
+  "name": "sauron",
+  "version": "1.0.0",
+  "keywords": [],
+  "description": "One engine to rule them all: A JSON based rule engine",
+  "license": "MIT",
+  "author": "Yunus Alper Göl <yalperg>",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rm -rf ./dist && node esbuild.config.js",
+    "dev": "rm -rf ./dist && NODE_ENV=development node esbuild.config.js",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write .",
+    "test": "jest --testPathIgnorePatterns='perf'",
+    "test:watch": "jest --watch --testPathIgnorePatterns='perf'",
+    "test:coverage": "jest --coverage --testPathIgnorePatterns='perf'",
+    "test:perf": "DFA_SIM_THRESH=0.01 NFA2DFA_SIM_THRESH=13 LARGE_ALPHA_THRESH=8 jest '.*perf.*\\.test\\.ts$'"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.15.29",
+    "esbuild": "^0.25.5",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.5",
+    "jest": "^29.7.0",
+    "prettier": "^3.5.3",
+    "ts-jest": "^29.3.4",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.33.1"
+  }
+}

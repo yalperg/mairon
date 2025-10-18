@@ -1,16 +1,16 @@
-type EventListener = (...args: unknown[]) => void;
+type GenericListener<T> = (data: T) => void;
 
-export class EventEmitter {
-  private listeners: Map<string, Set<EventListener>> = new Map();
+export class EventEmitter<E extends string = string, M extends Record<E, unknown> = Record<E, unknown>> {
+  private listeners: Map<E, Set<GenericListener<M[E]>>> = new Map();
 
-  on(event: string, listener: EventListener): void {
+  on(event: E, listener: GenericListener<M[E]>): void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }
     this.listeners.get(event)!.add(listener);
   }
 
-  off(event: string, listener: EventListener): boolean {
+  off(event: E, listener: GenericListener<M[E]>): boolean {
     const eventListeners = this.listeners.get(event);
     if (!eventListeners) {
       return false;
@@ -18,7 +18,9 @@ export class EventEmitter {
     return eventListeners.delete(listener);
   }
 
-  emit(event: string, data?: unknown): void {
+  emit(event: E): void;
+  emit(event: E, data: M[E]): void;
+  emit(event: E, data?: M[E]): void {
     const eventListeners = this.listeners.get(event);
     if (!eventListeners || eventListeners.size === 0) {
       return;
@@ -26,14 +28,14 @@ export class EventEmitter {
 
     for (const listener of eventListeners) {
       try {
-        listener(data);
+        listener(data as M[E]);
       } catch (error) {
-        console.error(`Error in event listener for "${event}":`, error);
+        console.error(`Error in event listener for "${String(event)}":`, error);
       }
     }
   }
 
-  removeAllListeners(event?: string): void {
+  removeAllListeners(event?: E): void {
     if (event) {
       this.listeners.delete(event);
     } else {
@@ -41,11 +43,11 @@ export class EventEmitter {
     }
   }
 
-  listenerCount(event: string): number {
+  listenerCount(event: E): number {
     return this.listeners.get(event)?.size ?? 0;
   }
 
-  eventNames(): string[] {
+  eventNames(): E[] {
     return Array.from(this.listeners.keys());
   }
 }

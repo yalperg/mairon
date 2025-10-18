@@ -5,7 +5,9 @@ export class Indexer {
   private priorityIndex: Map<number, Set<string>> = new Map();
 
   indexRule(rule: Rule): void {
-    const indexableConditions = this.extractIndexableConditions(rule.conditions);
+    const indexableConditions = this.extractIndexableConditions(
+      rule.conditions,
+    );
 
     for (const condition of indexableConditions) {
       this.indexCondition(condition, rule.id);
@@ -62,7 +64,11 @@ export class Indexer {
     this.priorityIndex.clear();
   }
 
-  getStats(): { fieldCount: number; priorityCount: number; totalRules: number } {
+  getStats(): {
+    fieldCount: number;
+    priorityCount: number;
+    totalRules: number;
+  } {
     const allRuleIds = new Set<string>();
 
     for (const ruleSet of this.priorityIndex.values()) {
@@ -150,7 +156,9 @@ export class Indexer {
     return current;
   }
 
-  private isSimpleCondition(condition: Condition): condition is SimpleCondition {
+  private isSimpleCondition(
+    condition: Condition,
+  ): condition is SimpleCondition {
     return 'field' in condition && 'operator' in condition;
   }
 }

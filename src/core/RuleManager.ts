@@ -10,7 +10,10 @@ export class RuleManager<T = unknown> {
   private indexer: Indexer;
   private validator: Validator;
 
-  constructor(config?: RuleEngineConfig, deps?: { indexer?: Indexer; validator?: Validator }) {
+  constructor(
+    config?: RuleEngineConfig,
+    deps?: { indexer?: Indexer; validator?: Validator },
+  ) {
     this.config = config ?? {};
     this.indexer = deps?.indexer ?? new Indexer();
     this.validator = deps?.validator ?? new Validator();
@@ -20,7 +23,9 @@ export class RuleManager<T = unknown> {
     if (this.config.validateSchema) {
       const result = this.validator.validate(rule);
       if (!result.valid) {
-        throw new Error(`Rule validation failed: ${JSON.stringify(result.errors)}`);
+        throw new Error(
+          `Rule validation failed: ${JSON.stringify(result.errors)}`,
+        );
       }
     }
 
@@ -77,7 +82,9 @@ export class RuleManager<T = unknown> {
     if (this.config.validateSchema) {
       const result = this.validator.validate(updated);
       if (!result.valid) {
-        throw new Error(`Rule validation failed: ${JSON.stringify(result.errors)}`);
+        throw new Error(
+          `Rule validation failed: ${JSON.stringify(result.errors)}`,
+        );
       }
     }
 

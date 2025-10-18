@@ -63,7 +63,7 @@ export interface ActionContext<T = unknown> {
 
 export type ActionHandler<T = unknown> = (
   context: ActionContext<T>,
-  params: Record<string, unknown>
+  params: Record<string, unknown>,
 ) => void | Promise<void> | unknown;
 
 export type EngineEvent =

@@ -25,14 +25,24 @@ describe('Executor', () => {
 
   test('executeAction with missing handler returns failure (non-strict)', async () => {
     const ex = new Executor();
-    const res = await ex.executeAction({ type: 'missing' }, makeRule(), { data: {}, context: {} });
+    const res = await ex.executeAction({ type: 'missing' }, makeRule(), {
+      data: {},
+      context: {},
+    });
     expect(res.success).toBe(false);
     expect(res.type).toBe('missing');
   });
 
   test('executeAction with missing handler throws in strict mode', async () => {
     const ex = new Executor();
-    await expect(ex.executeAction({ type: 'missing' }, makeRule(), { data: {}, context: {} }, true)).rejects.toThrow();
+    await expect(
+      ex.executeAction(
+        { type: 'missing' },
+        makeRule(),
+        { data: {}, context: {} },
+        true,
+      ),
+    ).rejects.toThrow();
   });
 
   test('executes handler and returns result', async () => {
@@ -45,7 +55,7 @@ describe('Executor', () => {
     const res = await ex.executeAction(
       { type: 'sum', params: { a: 2, b: 3 } },
       makeRule(),
-      { data: {}, context: {} }
+      { data: {}, context: {} },
     );
     expect(res.success).toBe(true);
     expect(res.result).toBe(5);
@@ -57,7 +67,7 @@ describe('Executor', () => {
     const res = await ex.executeAction(
       { type: 'greet', params: { name: '{{ data.user }}' } },
       makeRule(),
-      { data: { user: 'Alice' }, context: {} }
+      { data: { user: 'Alice' }, context: {} },
     );
     expect(res.success).toBe(true);
     expect(res.result).toBe('Hello Alice');
@@ -74,7 +84,7 @@ describe('Executor', () => {
       [{ type: 'fail' }, { type: 'ok' }],
       makeRule(),
       { data: {}, context: {} },
-      true
+      true,
     );
     expect(results.length).toBe(1);
     expect(results[0].success).toBe(false);

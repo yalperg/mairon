@@ -3,7 +3,11 @@ import { Indexer } from '../../src/utils/Indexer';
 import { Validator } from '../../src/utils/Validator';
 import { Rule } from '../../src/core/types';
 
-function sampleRule(id: string, enabled?: boolean, priority?: number): Rule<unknown> {
+function sampleRule(
+  id: string,
+  enabled?: boolean,
+  priority?: number,
+): Rule<unknown> {
   const rule: Rule<unknown> = {
     id,
     name: `R-${id}`,
@@ -21,8 +25,11 @@ function sampleRule(id: string, enabled?: boolean, priority?: number): Rule<unkn
 
 describe('RuleManager', () => {
   test('add/get rule with defaults and validation/indexing', () => {
-  const manager = new RuleManager({ validateSchema: true, enableIndexing: true }, { indexer: new Indexer(), validator: new Validator() });
-  const rule = sampleRule('r1', undefined, undefined);
+    const manager = new RuleManager(
+      { validateSchema: true, enableIndexing: true },
+      { indexer: new Indexer(), validator: new Validator() },
+    );
+    const rule = sampleRule('r1', undefined, undefined);
     manager.addRule(rule);
 
     const fetched = manager.getRule('r1')!;
@@ -49,9 +56,12 @@ describe('RuleManager', () => {
   });
 
   test('updateRule with reindex', () => {
-  const manager = new RuleManager({ validateSchema: true, enableIndexing: true });
-  manager.addRule(sampleRule('u', true, 1));
-  manager.updateRule('u', { enabled: false, priority: 5, name: 'U' });
+    const manager = new RuleManager({
+      validateSchema: true,
+      enableIndexing: true,
+    });
+    manager.addRule(sampleRule('u', true, 1));
+    manager.updateRule('u', { enabled: false, priority: 5, name: 'U' });
     const updated = manager.getRule('u')!;
     expect(updated.enabled).toBe(false);
     expect(updated.priority).toBe(5);

@@ -27,7 +27,7 @@ describe('Validator', () => {
 
     const res = validator.validate(rule);
     expect(res.valid).toBe(false);
-    expect(res.errors?.some(e => e.field.includes('id'))).toBe(true);
+    expect(res.errors?.some((e) => e.field.includes('id'))).toBe(true);
   });
 
   it('fails between without array', () => {
@@ -40,7 +40,9 @@ describe('Validator', () => {
 
     const res = validator.validate(rule);
     expect(res.valid).toBe(false);
-    expect(res.errors?.some(e => e.code === 'BETWEEN_VALUE_INVALID')).toBe(true);
+    expect(res.errors?.some((e) => e.code === 'BETWEEN_VALUE_INVALID')).toBe(
+      true,
+    );
   });
 
   it('fails changedFromTo without from/to', () => {
@@ -53,20 +55,28 @@ describe('Validator', () => {
 
     const res = validator.validate(rule);
     expect(res.valid).toBe(false);
-    expect(res.errors?.some(e => e.code === 'CHANGED_FROM_TO_REQUIRED')).toBe(true);
+    expect(res.errors?.some((e) => e.code === 'CHANGED_FROM_TO_REQUIRED')).toBe(
+      true,
+    );
   });
 
   it('requires array value for includesAll', () => {
     const rule: Rule = {
       id: 'rule-4',
       name: 'Array value required',
-      conditions: { field: 'tags', operator: 'includesAll', value: 'x' as unknown },
+      conditions: {
+        field: 'tags',
+        operator: 'includesAll',
+        value: 'x' as unknown,
+      },
       actions: [{ type: 'notify' }],
     };
 
     const res = validator.validate(rule);
     expect(res.valid).toBe(false);
-    expect(res.errors?.some(e => e.code === 'ARRAY_VALUE_REQUIRED')).toBe(true);
+    expect(res.errors?.some((e) => e.code === 'ARRAY_VALUE_REQUIRED')).toBe(
+      true,
+    );
   });
 
   it('validates logical group with all/any', () => {
@@ -76,10 +86,16 @@ describe('Validator', () => {
       conditions: {
         all: [
           { field: 'status', operator: 'equals', value: 'done' },
-          { any: [
-            { field: 'priority', operator: 'in', value: ['high', 'critical'] },
-            { field: 'assignee', operator: 'exists' },
-          ] },
+          {
+            any: [
+              {
+                field: 'priority',
+                operator: 'in',
+                value: ['high', 'critical'],
+              },
+              { field: 'assignee', operator: 'exists' },
+            ],
+          },
         ],
       },
       actions: [{ type: 'notify' }],

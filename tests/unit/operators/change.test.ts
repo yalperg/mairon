@@ -17,7 +17,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(changed('active', { field: 'status', operator: 'changed' }, ctx)).toBe(true);
+      expect(
+        changed('active', { field: 'status', operator: 'changed' }, ctx),
+      ).toBe(true);
     });
 
     test('returns false when no change', () => {
@@ -28,7 +30,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(changed('active', { field: 'status', operator: 'changed' }, ctx)).toBe(false);
+      expect(
+        changed('active', { field: 'status', operator: 'changed' }, ctx),
+      ).toBe(false);
     });
 
     test('returns false without previousData', () => {
@@ -38,7 +42,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(changed('active', { field: 'status', operator: 'changed' }, ctx)).toBe(false);
+      expect(
+        changed('active', { field: 'status', operator: 'changed' }, ctx),
+      ).toBe(false);
     });
   });
 
@@ -51,7 +57,13 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(changedFrom('active', { field: 'status', operator: 'changedFrom', value: 'pending' }, ctx)).toBe(true);
+      expect(
+        changedFrom(
+          'active',
+          { field: 'status', operator: 'changedFrom', value: 'pending' },
+          ctx,
+        ),
+      ).toBe(true);
     });
 
     test('returns false if not from specified value', () => {
@@ -62,7 +74,13 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(changedFrom('active', { field: 'status', operator: 'changedFrom', value: 'pending' }, ctx)).toBe(false);
+      expect(
+        changedFrom(
+          'active',
+          { field: 'status', operator: 'changedFrom', value: 'pending' },
+          ctx,
+        ),
+      ).toBe(false);
     });
 
     test('returns false without previousData', () => {
@@ -72,7 +90,13 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(changedFrom('active', { field: 'status', operator: 'changedFrom', value: 'pending' }, ctx)).toBe(false);
+      expect(
+        changedFrom(
+          'active',
+          { field: 'status', operator: 'changedFrom', value: 'pending' },
+          ctx,
+        ),
+      ).toBe(false);
     });
   });
 
@@ -85,7 +109,13 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(changedTo('active', { field: 'status', operator: 'changedTo', value: 'active' }, ctx)).toBe(true);
+      expect(
+        changedTo(
+          'active',
+          { field: 'status', operator: 'changedTo', value: 'active' },
+          ctx,
+        ),
+      ).toBe(true);
     });
 
     test('returns false if not to specified value', () => {
@@ -96,7 +126,13 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(changedTo('active', { field: 'status', operator: 'changedTo', value: 'inactive' }, ctx)).toBe(false);
+      expect(
+        changedTo(
+          'active',
+          { field: 'status', operator: 'changedTo', value: 'inactive' },
+          ctx,
+        ),
+      ).toBe(false);
     });
 
     test('returns false if no change', () => {
@@ -107,7 +143,13 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(changedTo('active', { field: 'status', operator: 'changedTo', value: 'active' }, ctx)).toBe(false);
+      expect(
+        changedTo(
+          'active',
+          { field: 'status', operator: 'changedTo', value: 'active' },
+          ctx,
+        ),
+      ).toBe(false);
     });
 
     test('returns false without previousData', () => {
@@ -117,7 +159,13 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(changedTo('active', { field: 'status', operator: 'changedTo', value: 'active' }, ctx)).toBe(false);
+      expect(
+        changedTo(
+          'active',
+          { field: 'status', operator: 'changedTo', value: 'active' },
+          ctx,
+        ),
+      ).toBe(false);
     });
   });
 
@@ -130,7 +178,18 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(changedFromTo('active', { field: 'status', operator: 'changedFromTo', from: 'pending', to: 'active' }, ctx)).toBe(true);
+      expect(
+        changedFromTo(
+          'active',
+          {
+            field: 'status',
+            operator: 'changedFromTo',
+            from: 'pending',
+            to: 'active',
+          },
+          ctx,
+        ),
+      ).toBe(true);
     });
 
     test('returns false for wrong transition', () => {
@@ -141,7 +200,18 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(changedFromTo('active', { field: 'status', operator: 'changedFromTo', from: 'pending', to: 'active' }, ctx)).toBe(false);
+      expect(
+        changedFromTo(
+          'active',
+          {
+            field: 'status',
+            operator: 'changedFromTo',
+            from: 'pending',
+            to: 'active',
+          },
+          ctx,
+        ),
+      ).toBe(false);
     });
 
     test('returns false without previousData', () => {
@@ -151,7 +221,18 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(changedFromTo('active', { field: 'status', operator: 'changedFromTo', from: 'pending', to: 'active' }, ctx)).toBe(false);
+      expect(
+        changedFromTo(
+          'active',
+          {
+            field: 'status',
+            operator: 'changedFromTo',
+            from: 'pending',
+            to: 'active',
+          },
+          ctx,
+        ),
+      ).toBe(false);
     });
   });
 
@@ -164,7 +245,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(increased(10, { field: 'count', operator: 'increased' }, ctx)).toBe(true);
+      expect(
+        increased(10, { field: 'count', operator: 'increased' }, ctx),
+      ).toBe(true);
     });
 
     test('returns false for decrease', () => {
@@ -175,7 +258,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(increased(5, { field: 'count', operator: 'increased' }, ctx)).toBe(false);
+      expect(increased(5, { field: 'count', operator: 'increased' }, ctx)).toBe(
+        false,
+      );
     });
 
     test('returns false for no change', () => {
@@ -186,7 +271,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(increased(5, { field: 'count', operator: 'increased' }, ctx)).toBe(false);
+      expect(increased(5, { field: 'count', operator: 'increased' }, ctx)).toBe(
+        false,
+      );
     });
 
     test('returns false for non-numeric values', () => {
@@ -197,7 +284,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(increased('high', { field: 'value', operator: 'increased' }, ctx)).toBe(false);
+      expect(
+        increased('high', { field: 'value', operator: 'increased' }, ctx),
+      ).toBe(false);
     });
 
     test('returns false without previousData', () => {
@@ -207,7 +296,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(increased(10, { field: 'count', operator: 'increased' }, ctx)).toBe(false);
+      expect(
+        increased(10, { field: 'count', operator: 'increased' }, ctx),
+      ).toBe(false);
     });
   });
 
@@ -220,7 +311,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(decreased(5, { field: 'count', operator: 'decreased' }, ctx)).toBe(true);
+      expect(decreased(5, { field: 'count', operator: 'decreased' }, ctx)).toBe(
+        true,
+      );
     });
 
     test('returns false for increase', () => {
@@ -231,7 +324,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(decreased(10, { field: 'count', operator: 'decreased' }, ctx)).toBe(false);
+      expect(
+        decreased(10, { field: 'count', operator: 'decreased' }, ctx),
+      ).toBe(false);
     });
 
     test('returns false for no change', () => {
@@ -242,7 +337,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(decreased(5, { field: 'count', operator: 'decreased' }, ctx)).toBe(false);
+      expect(decreased(5, { field: 'count', operator: 'decreased' }, ctx)).toBe(
+        false,
+      );
     });
 
     test('returns false without previousData', () => {
@@ -252,7 +349,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(decreased(5, { field: 'count', operator: 'decreased' }, ctx)).toBe(false);
+      expect(decreased(5, { field: 'count', operator: 'decreased' }, ctx)).toBe(
+        false,
+      );
     });
   });
 });

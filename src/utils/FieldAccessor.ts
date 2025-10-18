@@ -41,7 +41,7 @@ export class FieldAccessor {
 
   get(obj: unknown, path: string): unknown {
     const cacheKey = this.getCacheKey(obj, path);
-    
+
     if (this.cache.has(cacheKey)) {
       return this.cache.get(cacheKey);
     }

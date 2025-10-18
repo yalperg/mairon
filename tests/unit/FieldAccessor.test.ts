@@ -37,7 +37,9 @@ describe('FieldAccessor', () => {
           },
         },
       };
-      expect(accessor.resolvePath(obj, 'company.department.team.lead.name')).toBe('John');
+      expect(
+        accessor.resolvePath(obj, 'company.department.team.lead.name'),
+      ).toBe('John');
     });
 
     it('should resolve array index access', () => {

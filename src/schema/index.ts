@@ -67,7 +67,7 @@ export const conditionSchema: z.ZodType<{
     simpleConditionSchema,
     z.object({ all: z.array(conditionSchema).min(1) }),
     z.object({ any: z.array(conditionSchema).min(1) }),
-  ])
+  ]),
 );
 
 export const actionSchema = z.object({
@@ -78,7 +78,11 @@ export const actionSchema = z.object({
 });
 
 export const ruleSchema = z.object({
-  id: z.string().min(1).max(100).regex(/^[a-zA-Z0-9_-]+$/),
+  id: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-zA-Z0-9_-]+$/),
   name: z.string().min(1).max(200),
   description: z.string().max(1000).optional(),
   enabled: z.boolean().optional(),
@@ -88,7 +92,10 @@ export const ruleSchema = z.object({
   actions: z.array(actionSchema).min(1),
   metadata: z.record(z.string(), z.unknown()).optional(),
   tags: z.array(z.string()).optional(),
-  version: z.string().regex(/^\d+\.\d+\.\d+$/).optional(),
+  version: z
+    .string()
+    .regex(/^\d+\.\d+\.\d+$/)
+    .optional(),
 });
 
 export const evaluationContextSchema = z.object({
@@ -145,10 +152,12 @@ export const ruleEngineConfigSchema = z.object({
 
 export const ruleFilterSchema = z.object({
   enabled: z.boolean().optional(),
-  priority: z.object({
-    min: z.number().optional(),
-    max: z.number().optional(),
-  }).optional(),
+  priority: z
+    .object({
+      min: z.number().optional(),
+      max: z.number().optional(),
+    })
+    .optional(),
   tags: z.array(z.string()).optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
   ids: z.array(z.string()).optional(),

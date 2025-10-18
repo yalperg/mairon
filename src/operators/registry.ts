@@ -4,16 +4,22 @@ import { EvaluationContext, SimpleCondition } from '../core/types';
 export type OperatorFunction<T = unknown> = (
   fieldValue: unknown,
   condition: SimpleCondition,
-  context: EvaluationContext<T>
+  context: EvaluationContext<T>,
 ) => boolean;
 
-export const operatorRegistry: Map<ConditionOperator, OperatorFunction> = new Map();
+export const operatorRegistry: Map<ConditionOperator, OperatorFunction> =
+  new Map();
 
-export function registerOperator<T = unknown>(name: ConditionOperator, fn: OperatorFunction<T>): void {
+export function registerOperator<T = unknown>(
+  name: ConditionOperator,
+  fn: OperatorFunction<T>,
+): void {
   operatorRegistry.set(name, fn as OperatorFunction);
 }
 
-export function getOperator<T = unknown>(name: ConditionOperator): OperatorFunction<T> | undefined {
+export function getOperator<T = unknown>(
+  name: ConditionOperator,
+): OperatorFunction<T> | undefined {
   return operatorRegistry.get(name);
 }
 

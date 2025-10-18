@@ -1,6 +1,13 @@
 import isNil from 'lodash/isNil';
 import { TemplateResolver } from '../utils/TemplateResolver';
-import { Action, ActionContext, ActionHandler, ActionResult, EvaluationContext, Rule } from './types';
+import {
+  Action,
+  ActionContext,
+  ActionHandler,
+  ActionResult,
+  EvaluationContext,
+  Rule,
+} from './types';
 
 export class Executor<T = unknown> {
   private handlers: Map<string, ActionHandler<T>> = new Map();
@@ -26,34 +33,52 @@ export class Executor<T = unknown> {
     return Array.from(this.handlers.keys());
   }
 
-  async executeAction(action: Action, rule: Rule<T>, context: EvaluationContext<T>, strict = false): Promise<ActionResult> {
+  async executeAction(
+    action: Action,
+    rule: Rule<T>,
+    context: EvaluationContext<T>,
+    strict = false,
+  ): Promise<ActionResult> {
     const handler = this.handlers.get(action.type);
     const start = Date.now();
 
     if (!handler) {
       if (strict) {
-        throw new Error(`No handler registered for action type: ${action.type}`);
+        throw new Error(
+          `No handler registered for action type: ${action.type}`,
+        );
       }
       return {
         type: action.type,
         success: false,
-        error: new Error(`No handler registered for action type: ${action.type}`),
+        error: new Error(
+          `No handler registered for action type: ${action.type}`,
+        ),
         executionTime: Date.now() - start,
       };
     }
 
-    const resolvedParams = isNil(action.params) ? {} : (this.templateResolver.resolve(action.params, context) as Record<string, unknown>);
+    const resolvedParams = isNil(action.params)
+      ? {}
+      : (this.templateResolver.resolve(action.params, context) as Record<
+          string,
+          unknown
+        >);
     const actionContext: ActionContext<T> = {
       data: context.data,
       rule,
       action,
       evaluationContext: context,
-      ...(context.previousData !== undefined ? { previousData: context.previousData } : {}),
+      ...(context.previousData !== undefined
+        ? { previousData: context.previousData }
+        : {}),
       ...(context.context !== undefined ? { context: context.context } : {}),
     };
 
     try {
-      const result = await Promise.resolve(handler(actionContext, resolvedParams));
+      const result = await Promise.resolve(
+        handler(actionContext, resolvedParams),
+      );
       return {
         type: action.type,
         success: true,
@@ -70,7 +95,13 @@ export class Executor<T = unknown> {
     }
   }
 
-  async executeActions(actions: Action[], rule: Rule<T>, context: EvaluationContext<T>, stopOnError = false, strict = false): Promise<ActionResult[]> {
+  async executeActions(
+    actions: Action[],
+    rule: Rule<T>,
+    context: EvaluationContext<T>,
+    stopOnError = false,
+    strict = false,
+  ): Promise<ActionResult[]> {
     const results: ActionResult[] = [];
     for (const action of actions) {
       const result = await this.executeAction(action, rule, context, strict);

@@ -27,7 +27,11 @@ describe('Indexer', () => {
       const rule: Rule = {
         id: 'rule-2',
         name: 'Test',
-        conditions: { field: 'priority', operator: 'in', value: ['high', 'critical'] },
+        conditions: {
+          field: 'priority',
+          operator: 'in',
+          value: ['high', 'critical'],
+        },
         actions: [{ type: 'notify' }],
       };
 
@@ -253,7 +257,11 @@ describe('Indexer', () => {
       const rule: Rule = {
         id: 'rule-1',
         name: 'Test',
-        conditions: { field: 'user.status', operator: 'equals', value: 'active' },
+        conditions: {
+          field: 'user.status',
+          operator: 'equals',
+          value: 'active',
+        },
         actions: [{ type: 'notify' }],
       };
 

@@ -22,5 +22,11 @@ export function registerDefaultOperators(): void {
   (registerDefaultOperators as { _done?: boolean })._done = true;
 }
 
-export { registerOperator, getOperator, hasOperator, clearOperators, listOperators } from './registry';
+export {
+  registerOperator,
+  getOperator,
+  hasOperator,
+  clearOperators,
+  listOperators,
+} from './registry';
 export type { OperatorFunction } from './registry';

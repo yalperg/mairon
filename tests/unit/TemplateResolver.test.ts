@@ -11,7 +11,7 @@ describe('TemplateResolver', () => {
   describe('resolve non-string values', () => {
     it('should pass through non-string primitives', () => {
       const context: EvaluationContext = { data: {} };
-      
+
       expect(resolver.resolve(42, context)).toBe(42);
       expect(resolver.resolve(true, context)).toBe(true);
       expect(resolver.resolve(null, context)).toBe(null);
@@ -23,7 +23,10 @@ describe('TemplateResolver', () => {
         data: { name: 'John' },
       };
 
-      const result = resolver.resolve(['{{ data.name }}', 'static', 42], context);
+      const result = resolver.resolve(
+        ['{{ data.name }}', 'static', 42],
+        context,
+      );
       expect(result).toEqual(['John', 'static', 42]);
     });
 
@@ -38,7 +41,7 @@ describe('TemplateResolver', () => {
           userAge: '{{ data.age }}',
           static: 'value',
         },
-        context
+        context,
       );
 
       expect(result).toEqual({
@@ -126,7 +129,9 @@ describe('TemplateResolver', () => {
       };
 
       expect(resolver.resolve('{{ data.user.name }}', context)).toBe('John');
-      expect(resolver.resolve('{{ data.user.email }}', context)).toBe('john@example.com');
+      expect(resolver.resolve('{{ data.user.email }}', context)).toBe(
+        'john@example.com',
+      );
     });
 
     it('should resolve array access in data', () => {
@@ -148,7 +153,9 @@ describe('TemplateResolver', () => {
         previousData: { status: 'todo' },
       };
 
-      expect(resolver.resolve('{{ previousData.status }}', context)).toBe('todo');
+      expect(resolver.resolve('{{ previousData.status }}', context)).toBe(
+        'todo',
+      );
     });
 
     it('should handle missing previousData', () => {
@@ -156,7 +163,9 @@ describe('TemplateResolver', () => {
         data: { status: 'done' },
       };
 
-      expect(resolver.resolve('{{ previousData.status }}', context)).toBeUndefined();
+      expect(
+        resolver.resolve('{{ previousData.status }}', context),
+      ).toBeUndefined();
     });
   });
 
@@ -167,7 +176,9 @@ describe('TemplateResolver', () => {
         context: { userId: 'user-123', source: 'api' },
       };
 
-      expect(resolver.resolve('{{ context.userId }}', context)).toBe('user-123');
+      expect(resolver.resolve('{{ context.userId }}', context)).toBe(
+        'user-123',
+      );
       expect(resolver.resolve('{{ context.source }}', context)).toBe('api');
     });
 
@@ -182,8 +193,12 @@ describe('TemplateResolver', () => {
         },
       };
 
-      expect(resolver.resolve('{{ context.metadata.source }}', context)).toBe('webhook');
-      expect(resolver.resolve('{{ context.metadata.timestamp }}', context)).toBe(12345);
+      expect(resolver.resolve('{{ context.metadata.source }}', context)).toBe(
+        'webhook',
+      );
+      expect(
+        resolver.resolve('{{ context.metadata.timestamp }}', context),
+      ).toBe(12345);
     });
   });
 
@@ -195,7 +210,7 @@ describe('TemplateResolver', () => {
 
       const result = resolver.resolve(
         'User {{ data.user }} has {{ data.action }} the task',
-        context
+        context,
       );
 
       expect(result).toBe('User John has completed the task');
@@ -210,7 +225,7 @@ describe('TemplateResolver', () => {
 
       const result = resolver.resolve(
         '{{ context.userId }} moved {{ data.title }} from {{ previousData.status }}',
-        context
+        context,
       );
 
       expect(result).toBe('user-123 moved Task 1 from todo');
@@ -221,8 +236,12 @@ describe('TemplateResolver', () => {
     it('should return original string for invalid expressions', () => {
       const context: EvaluationContext = { data: {} };
 
-      expect(resolver.resolve('{{ invalid syntax }}', context)).toBe('{{invalid syntax}}');
-      expect(resolver.resolve('{{ unknown.field }}', context)).toBe('{{unknown.field}}');
+      expect(resolver.resolve('{{ invalid syntax }}', context)).toBe(
+        '{{invalid syntax}}',
+      );
+      expect(resolver.resolve('{{ unknown.field }}', context)).toBe(
+        '{{unknown.field}}',
+      );
     });
 
     it('should handle non-existent paths', () => {
@@ -281,7 +300,7 @@ describe('TemplateResolver', () => {
 
       const result = resolver.resolve(
         'Name: {{ data.name }}, Age: {{ data.age }}',
-        context
+        context,
       );
 
       expect(result).toBe('Name: John, Age: ');

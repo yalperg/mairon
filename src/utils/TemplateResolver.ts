@@ -35,7 +35,7 @@ export class TemplateResolver {
     }
 
     const matches = Array.from(str.matchAll(this.templateRegex));
-    
+
     if (matches.length === 1 && matches[0][0] === str) {
       const expr = matches[0][1].trim();
       return this.resolveExpression(expr, context);

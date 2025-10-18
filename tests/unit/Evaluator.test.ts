@@ -30,7 +30,7 @@ describe('Evaluator', () => {
     const evaluator = new Evaluator();
     const result = evaluator.evaluateCondition(
       { field: 'age', operator: 'greaterThan', value: 18 },
-      { data: { age: 20 }, context: {} }
+      { data: { age: 20 }, context: {} },
     );
     expect(result).toBe(true);
   });
@@ -44,7 +44,7 @@ describe('Evaluator', () => {
           { field: 'name', operator: 'startsWith', value: 'A' },
         ],
       },
-      { data: { age: 20, name: 'Alice' }, context: {} }
+      { data: { age: 20, name: 'Alice' }, context: {} },
     );
     expect(result).toBe(true);
   });
@@ -58,7 +58,7 @@ describe('Evaluator', () => {
           { field: 'name', operator: 'startsWith', value: 'B' },
         ],
       },
-      { data: { age: 17, name: 'Bob' }, context: {} }
+      { data: { age: 17, name: 'Bob' }, context: {} },
     );
     expect(result).toBe(true);
   });
@@ -67,7 +67,7 @@ describe('Evaluator', () => {
     const evaluator = new Evaluator();
     const result = evaluator.evaluateCondition(
       { field: 'greeting', operator: 'equals', value: 'Hello {{ data.name }}' },
-      { data: { greeting: 'Hello John', name: 'John' }, context: {} }
+      { data: { greeting: 'Hello John', name: 'John' }, context: {} },
     );
     expect(result).toBe(true);
   });
@@ -75,8 +75,17 @@ describe('Evaluator', () => {
   test('change operators respect previousData', () => {
     const evaluator = new Evaluator();
     const result = evaluator.evaluateCondition(
-      { field: 'status', operator: 'changedFromTo', from: 'pending', to: 'active' },
-      { data: { status: 'active' }, previousData: { status: 'pending' }, context: {} }
+      {
+        field: 'status',
+        operator: 'changedFromTo',
+        from: 'pending',
+        to: 'active',
+      },
+      {
+        data: { status: 'active' },
+        previousData: { status: 'pending' },
+        context: {},
+      },
     );
     expect(result).toBe(true);
   });

@@ -1,8 +1,4 @@
-import {
-  ruleSchema,
-  actionSchema,
-  conditionSchema,
-} from '../schema';
+import { ruleSchema, actionSchema, conditionSchema } from '../schema';
 import {
   Rule,
   Condition,
@@ -11,13 +7,17 @@ import {
   ValidationResult,
 } from '../core/types';
 
-function semanticValidateCondition(condition: SimpleCondition, errors: ValidationError[], path: string): void {
+function semanticValidateCondition(
+  condition: SimpleCondition,
+  errors: ValidationError[],
+  path: string,
+): void {
   if (condition.operator === 'between') {
     if (!Array.isArray(condition.value) || condition.value.length !== 2) {
       errors.push({
         field: `${path}.value`,
         message: 'between operator requires [min, max] array',
-        code: 'BETWEEN_VALUE_INVALID'
+        code: 'BETWEEN_VALUE_INVALID',
       });
     }
   }
@@ -27,18 +27,24 @@ function semanticValidateCondition(condition: SimpleCondition, errors: Validatio
       errors.push({
         field: path,
         message: 'changedFromTo requires both from and to',
-        code: 'CHANGED_FROM_TO_REQUIRED'
+        code: 'CHANGED_FROM_TO_REQUIRED',
       });
     }
   }
 
-  const arrayOperators = [ 'matchesAny', 'includesAll', 'includesAny', 'in', 'notIn' ];
+  const arrayOperators = [
+    'matchesAny',
+    'includesAll',
+    'includesAny',
+    'in',
+    'notIn',
+  ];
   if (arrayOperators.includes(condition.operator)) {
     if (!Array.isArray(condition.value)) {
       errors.push({
         field: `${path}.value`,
         message: `${condition.operator} requires array value`,
-        code: 'ARRAY_VALUE_REQUIRED'
+        code: 'ARRAY_VALUE_REQUIRED',
       });
     }
   }
@@ -48,14 +54,20 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
-function isSimpleCondition(condition: Condition | unknown): condition is SimpleCondition {
+function isSimpleCondition(
+  condition: Condition | unknown,
+): condition is SimpleCondition {
   if (!isObject(condition)) {
     return false;
   }
   return 'field' in condition && 'operator' in condition;
 }
 
-function traverseConditions(condition: Condition, errors: ValidationError[], path = 'conditions'): void {
+function traverseConditions(
+  condition: Condition,
+  errors: ValidationError[],
+  path = 'conditions',
+): void {
   if (isSimpleCondition(condition)) {
     semanticValidateCondition(condition, errors, path);
     return;
@@ -66,7 +78,7 @@ function traverseConditions(condition: Condition, errors: ValidationError[], pat
       errors.push({
         field: `${path}.all`,
         message: 'all must be a non-empty array',
-        code: 'ALL_EMPTY'
+        code: 'ALL_EMPTY',
       });
     } else {
       for (let i = 0; i < condition.all.length; i++) {
@@ -80,7 +92,8 @@ function traverseConditions(condition: Condition, errors: ValidationError[], pat
     if (!Array.isArray(condition.any) || condition.any.length === 0) {
       errors.push({
         field: `${path}.any`,
-        message: 'any must be a non-empty array', code: 'ANY_EMPTY'
+        message: 'any must be a non-empty array',
+        code: 'ANY_EMPTY',
       });
     } else {
       for (let i = 0; i < condition.any.length; i++) {
@@ -122,7 +135,7 @@ export class Validator {
         errors.push({
           field: issue.path.join('.') || 'condition',
           message: issue.message,
-          code: 'SCHEMA_ERROR'
+          code: 'SCHEMA_ERROR',
         });
       }
     }
@@ -146,7 +159,7 @@ export class Validator {
       return {
         field: issue.path.join('.') || 'action',
         message: issue.message,
-        code: 'SCHEMA_ERROR'
+        code: 'SCHEMA_ERROR',
       };
     });
     return { valid: false, errors };

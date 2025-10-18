@@ -1,6 +1,9 @@
 type GenericListener<T> = (data: T) => void;
 
-export class EventEmitter<E extends string = string, M extends Record<E, unknown> = Record<E, unknown>> {
+export class EventEmitter<
+  E extends string = string,
+  M extends Record<E, unknown> = Record<E, unknown>,
+> {
   private listeners: Map<E, Set<GenericListener<M[E]>>> = new Map();
 
   on(event: E, listener: GenericListener<M[E]>): void {

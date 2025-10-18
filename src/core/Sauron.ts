@@ -2,7 +2,17 @@ import { EventEmitter } from './EventEmitter';
 import { RuleManager } from './RuleManager';
 import { Evaluator } from './Evaluator';
 import { Executor } from './Executor';
-import { Rule, RuleFilter, RuleEngineConfig, EvaluationContext, EvaluationResult, ActionHandler, EngineEvent, EventData, PerformanceMetrics } from './types';
+import {
+  Rule,
+  RuleFilter,
+  RuleEngineConfig,
+  EvaluationContext,
+  EvaluationResult,
+  ActionHandler,
+  EngineEvent,
+  EventData,
+  PerformanceMetrics,
+} from './types';
 import { registerDefaultOperators } from '../operators';
 
 export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
@@ -11,13 +21,32 @@ export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
   private executor: Executor<T>;
   private config: RuleEngineConfig;
   private metrics: PerformanceMetrics = {
-    evaluations: { total: 0, successful: 0, failed: 0, averageTime: 0, minTime: 0, maxTime: 0 },
-    rules: { totalExecuted: 0, totalMatched: 0, totalSkipped: 0, averageExecutionTime: 0 },
+    evaluations: {
+      total: 0,
+      successful: 0,
+      failed: 0,
+      averageTime: 0,
+      minTime: 0,
+      maxTime: 0,
+    },
+    rules: {
+      totalExecuted: 0,
+      totalMatched: 0,
+      totalSkipped: 0,
+      averageExecutionTime: 0,
+    },
     actions: { totalExecuted: 0, totalFailed: 0, averageExecutionTime: 0 },
     cache: { hits: 0, misses: 0, hitRate: 0 },
   };
 
-  constructor(config?: RuleEngineConfig, deps?: { manager?: RuleManager<T>; evaluator?: Evaluator<T>; executor?: Executor<T> }) {
+  constructor(
+    config?: RuleEngineConfig,
+    deps?: {
+      manager?: RuleManager<T>;
+      evaluator?: Evaluator<T>;
+      executor?: Executor<T>;
+    },
+  ) {
     super();
     this.config = config ?? {};
     registerDefaultOperators();
@@ -87,17 +116,28 @@ export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
   async evaluate(context: EvaluationContext<T>): Promise<EvaluationResult[]> {
     const start = Date.now();
     const enabledRules = this.manager.getRules({ enabled: true });
-    const sorted = enabledRules.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
-    const limited = this.config.maxRulesPerExecution ? sorted.slice(0, this.config.maxRulesPerExecution) : sorted;
+    const sorted = enabledRules.sort(
+      (a, b) => (b.priority ?? 0) - (a.priority ?? 0),
+    );
+    const limited = this.config.maxRulesPerExecution
+      ? sorted.slice(0, this.config.maxRulesPerExecution)
+      : sorted;
 
-    this.emit('beforeEvaluate', { context, ruleCount: limited.length, timestamp: Date.now() });
+    this.emit('beforeEvaluate', {
+      context,
+      ruleCount: limited.length,
+      timestamp: Date.now(),
+    });
 
     const results: EvaluationResult[] = [];
 
     for (const rule of limited) {
       const ruleStart = Date.now();
       try {
-        const matched = this.evaluator.evaluateCondition(rule.conditions, context);
+        const matched = this.evaluator.evaluateCondition(
+          rule.conditions,
+          context,
+        );
         if (!matched) {
           const res: EvaluationResult = {
             ruleId: rule.id,
@@ -108,13 +148,19 @@ export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
             skipped: true,
             skipReason: 'condition-failed',
           };
-          this.emit('ruleSkipped', { rule, reason: 'condition-failed', context, timestamp: Date.now() });
+          this.emit('ruleSkipped', {
+            rule,
+            reason: 'condition-failed',
+            context,
+            timestamp: Date.now(),
+          });
           this.metrics.rules.totalExecuted += 1;
           this.metrics.rules.totalSkipped += 1;
           const rdur = Date.now() - ruleStart;
           const rAvg = this.metrics.rules.averageExecutionTime;
           const rCount = this.metrics.rules.totalExecuted;
-          this.metrics.rules.averageExecutionTime = rAvg + (rdur - rAvg) / rCount;
+          this.metrics.rules.averageExecutionTime =
+            rAvg + (rdur - rAvg) / rCount;
           results.push(res);
           continue;
         }
@@ -126,14 +172,24 @@ export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
           rule,
           context,
           rule.stopOnError === true,
-          this.config.strict === true
+          this.config.strict === true,
         );
 
         for (const ar of actionResults) {
           if (ar.success) {
-            this.emit('actionExecuted', { rule, action: { type: ar.type }, result: ar, timestamp: Date.now() });
+            this.emit('actionExecuted', {
+              rule,
+              action: { type: ar.type },
+              result: ar,
+              timestamp: Date.now(),
+            });
           } else {
-            this.emit('actionFailed', { rule, action: { type: ar.type }, error: ar.error as Error, timestamp: Date.now() });
+            this.emit('actionFailed', {
+              rule,
+              action: { type: ar.type },
+              error: ar.error as Error,
+              timestamp: Date.now(),
+            });
           }
           this.metrics.actions.totalExecuted += 1;
           if (!ar.success) {
@@ -141,7 +197,8 @@ export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
           }
           const aAvg = this.metrics.actions.averageExecutionTime;
           const aCount = this.metrics.actions.totalExecuted;
-          this.metrics.actions.averageExecutionTime = aAvg + (ar.executionTime - aAvg) / aCount;
+          this.metrics.actions.averageExecutionTime =
+            aAvg + (ar.executionTime - aAvg) / aCount;
         }
 
         const res: EvaluationResult = {
@@ -169,7 +226,12 @@ export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
           error: err as Error,
           errorPhase: 'condition',
         };
-        this.emit('error', { error: err as Error, phase: 'condition', context, timestamp: Date.now() });
+        this.emit('error', {
+          error: err as Error,
+          phase: 'condition',
+          context,
+          timestamp: Date.now(),
+        });
         this.metrics.rules.totalExecuted += 1;
         this.metrics.rules.totalSkipped += 1;
         const rdur = Date.now() - ruleStart;
@@ -181,13 +243,21 @@ export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
     }
 
     const duration = Date.now() - start;
-    this.emit('afterEvaluate', { context, results, duration, timestamp: Date.now() });
+    this.emit('afterEvaluate', {
+      context,
+      results,
+      duration,
+      timestamp: Date.now(),
+    });
     this.metrics.evaluations.total += 1;
     this.metrics.evaluations.successful += 1;
     const eAvg = this.metrics.evaluations.averageTime;
     const eCount = this.metrics.evaluations.total;
     this.metrics.evaluations.averageTime = eAvg + (duration - eAvg) / eCount;
-    if (this.metrics.evaluations.minTime === 0 || duration < this.metrics.evaluations.minTime) {
+    if (
+      this.metrics.evaluations.minTime === 0 ||
+      duration < this.metrics.evaluations.minTime
+    ) {
       this.metrics.evaluations.minTime = duration;
     }
     if (duration > this.metrics.evaluations.maxTime) {

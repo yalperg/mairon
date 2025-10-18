@@ -3,7 +3,7 @@ import isNumber from 'lodash/isNumber';
 import isBoolean from 'lodash/isBoolean';
 import isArray from 'lodash/isArray';
 import isPlainObject from 'lodash/isPlainObject';
-import { registerOperator } from '.';
+import { registerOperator } from './registry';
 
 export function registerTypeOperators(): void {
   registerOperator('isString', (fieldValue: unknown): boolean => {
@@ -26,5 +26,3 @@ export function registerTypeOperators(): void {
     return isPlainObject(fieldValue);
   });
 }
-
-registerTypeOperators();

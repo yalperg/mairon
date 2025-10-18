@@ -1,6 +1,6 @@
 import isNil from 'lodash/isNil';
 import toString from 'lodash/toString';
-import { registerOperator } from '.';
+import { registerOperator } from './registry';
 import { SimpleCondition } from '../core/types';
 
 function toStringOrNull(value: unknown): string | null {
@@ -86,5 +86,3 @@ export function registerStringOperators(): void {
     return false;
   });
 }
-
-registerStringOperators();

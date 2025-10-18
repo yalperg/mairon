@@ -1,6 +1,6 @@
 import isNull from 'lodash/isNull';
 import isUndefined from 'lodash/isUndefined';
-import { registerOperator } from './index';
+import { registerOperator } from './registry';
 
 export function registerExistenceOperators(): void {
   registerOperator('exists', (fieldValue: unknown): boolean => {
@@ -27,5 +27,3 @@ export function registerExistenceOperators(): void {
     return isUndefined(fieldValue);
   });
 }
-
-registerExistenceOperators();

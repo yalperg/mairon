@@ -1,6 +1,6 @@
 import isEqual from 'lodash/isEqual';
 import toNumber from 'lodash/toNumber';
-import { registerOperator } from '.';
+import { registerOperator } from './registry';
 import { SimpleCondition } from '../core/types';
 
 export function registerComparisonOperators(): void {
@@ -62,5 +62,3 @@ export function registerComparisonOperators(): void {
     return value >= min && value <= max;
   });
 }
-
-registerComparisonOperators();

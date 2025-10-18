@@ -1,7 +1,7 @@
 import isArray from 'lodash/isArray';
 import isString from 'lodash/isString';
 import isNumber from 'lodash/isNumber';
-import { registerOperator } from '.';
+import { registerOperator } from './registry';
 import { SimpleCondition, EvaluationContext } from '../core/types';
 
 function getLength(value: unknown): number | null {
@@ -64,5 +64,3 @@ export function registerLengthOperators(): void {
     return length <= target;
   });
 }
-
-registerLengthOperators();

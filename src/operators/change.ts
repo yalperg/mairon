@@ -1,7 +1,7 @@
 import isEqual from 'lodash/isEqual';
 import toNumber from 'lodash/toNumber';
 import isNaN from 'lodash/isNaN';
-import { registerOperator } from '.';
+import { registerOperator } from './registry';
 import { SimpleCondition, EvaluationContext } from '../core/types';
 import { FieldAccessor } from '../utils/FieldAccessor';
 
@@ -68,5 +68,3 @@ export function registerChangeOperators(): void {
     return currentNum < previousNum;
   });
 }
-
-registerChangeOperators();

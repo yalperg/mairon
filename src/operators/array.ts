@@ -1,7 +1,7 @@
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import intersection from 'lodash/intersection';
-import { registerOperator } from '.';
+import { registerOperator } from './registry';
 import { SimpleCondition } from '../core/types';
 
 export function registerArrayOperators(): void {
@@ -50,5 +50,3 @@ export function registerArrayOperators(): void {
     return !isEmpty(fieldValue);
   });
 }
-
-registerArrayOperators();

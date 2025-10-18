@@ -1,7 +1,7 @@
 import isArray from 'lodash/isArray';
 import isEqual from 'lodash/isEqual';
 import some from 'lodash/some';
-import { registerOperator } from '.';
+import { registerOperator } from './registry';
 import { SimpleCondition, EvaluationContext } from '../core/types';
 
 export function registerMembershipOperators(): void {
@@ -21,5 +21,3 @@ export function registerMembershipOperators(): void {
     return !some(values, (v) => isEqual(v, fieldValue));
   });
 }
-
-registerMembershipOperators();

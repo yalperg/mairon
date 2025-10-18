@@ -12,6 +12,10 @@ export class Evaluator<T = unknown> {
     this.templateResolver = templateResolver ?? new TemplateResolver(this.fieldAccessor);
   }
 
+  clearCache(): void {
+    this.fieldAccessor.clear();
+  }
+
   evaluateCondition(condition: Condition<T>, context: EvaluationContext<T>): boolean {
     if (this.isSimple(condition)) {
       return this.evaluateSimpleCondition(condition, context);

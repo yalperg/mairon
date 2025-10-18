@@ -74,6 +74,12 @@ export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
     this.executor.clearHandlers();
   }
 
+  registerHandlers(handlers: Record<string, ActionHandler<T>>): void {
+    for (const [type, handler] of Object.entries(handlers)) {
+      this.executor.registerHandler(type, handler);
+    }
+  }
+
   getRegisteredActions(): string[] {
     return this.executor.getRegisteredActions();
   }
@@ -200,6 +206,21 @@ export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
       rules: { ...this.metrics.rules },
       actions: { ...this.metrics.actions },
       cache: { hits, misses, hitRate },
+    };
+  }
+
+  getConfig(): RuleEngineConfig {
+    return { ...this.config };
+  }
+
+  updateConfig(config: Partial<RuleEngineConfig>): void {
+    this.config = { ...this.config, ...config };
+  }
+
+  getStats(): { rules: number; handlers: number } {
+    return {
+      rules: this.manager.getRules().length,
+      handlers: this.getRegisteredActions().length,
     };
   }
 }

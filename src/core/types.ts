@@ -65,3 +65,83 @@ export type ActionHandler<T = unknown> = (
   context: ActionContext<T>,
   params: Record<string, unknown>
 ) => void | Promise<void> | unknown;
+
+export type EngineEvent =
+  | 'beforeEvaluate'
+  | 'afterEvaluate'
+  | 'ruleMatched'
+  | 'ruleSkipped'
+  | 'actionExecuted'
+  | 'actionFailed'
+  | 'error';
+
+export interface EventData {
+  beforeEvaluate: {
+    context: EvaluationContext;
+    ruleCount: number;
+    timestamp: number;
+  };
+  afterEvaluate: {
+    context: EvaluationContext;
+    results: EvaluationResult[];
+    duration: number;
+    timestamp: number;
+  };
+  ruleMatched: {
+    rule: Rule;
+    context: EvaluationContext;
+    timestamp: number;
+  };
+  ruleSkipped: {
+    rule: Rule;
+    reason: string;
+    context: EvaluationContext;
+    error?: Error;
+    timestamp: number;
+  };
+  actionExecuted: {
+    rule: Rule;
+    action: Action;
+    result: ActionResult;
+    timestamp: number;
+  };
+  actionFailed: {
+    rule: Rule;
+    action: Action;
+    error: Error;
+    timestamp: number;
+  };
+  error: {
+    error: Error;
+    phase: string;
+    context?: unknown;
+    timestamp: number;
+  };
+}
+
+export interface PerformanceMetrics {
+  evaluations: {
+    total: number;
+    successful: number;
+    failed: number;
+    averageTime: number;
+    minTime: number;
+    maxTime: number;
+  };
+  rules: {
+    totalExecuted: number;
+    totalMatched: number;
+    totalSkipped: number;
+    averageExecutionTime: number;
+  };
+  actions: {
+    totalExecuted: number;
+    totalFailed: number;
+    averageExecutionTime: number;
+  };
+  cache: {
+    hits: number;
+    misses: number;
+    hitRate: number;
+  };
+}

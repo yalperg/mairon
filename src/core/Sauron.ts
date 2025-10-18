@@ -3,6 +3,7 @@ import { RuleManager } from './RuleManager';
 import { Evaluator } from './Evaluator';
 import { Executor } from './Executor';
 import { Rule, RuleFilter, RuleEngineConfig, EvaluationContext, EvaluationResult, ActionHandler, EngineEvent, EventData, PerformanceMetrics } from './types';
+import { registerDefaultOperators } from '../operators';
 
 export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
   private manager: RuleManager<T>;
@@ -19,6 +20,7 @@ export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
   constructor(config?: RuleEngineConfig, deps?: { manager?: RuleManager<T>; evaluator?: Evaluator<T>; executor?: Executor<T> }) {
     super();
     this.config = config ?? {};
+    registerDefaultOperators();
     this.manager = deps?.manager ?? new RuleManager<T>(this.config);
     this.evaluator = deps?.evaluator ?? new Evaluator<T>();
     this.executor = deps?.executor ?? new Executor<T>();

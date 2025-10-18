@@ -1,3 +1,11 @@
+import { registerComparisonOperators } from './comparison';
+import { registerStringOperators } from './string';
+import { registerArrayOperators } from './array';
+import { registerExistenceOperators } from './existence';
+import { registerTypeOperators } from './type';
+import { registerChangeOperators } from './change';
+import { registerMembershipOperators } from './membership';
+import { registerLengthOperators } from './length';
 import { ConditionOperator } from '../schema';
 import { EvaluationContext, SimpleCondition } from '../core/types';
 
@@ -27,4 +35,19 @@ export function clearOperators(): void {
 
 export function listOperators(): ConditionOperator[] {
   return Array.from(operatorRegistry.keys());
+}
+
+export function registerDefaultOperators(): void {
+  if ((registerDefaultOperators as { _done?: boolean })._done) {
+    return;
+  }
+  registerComparisonOperators();
+  registerStringOperators();
+  registerArrayOperators();
+  registerExistenceOperators();
+  registerTypeOperators();
+  registerChangeOperators();
+  registerMembershipOperators();
+  registerLengthOperators();
+  (registerDefaultOperators as { _done?: boolean })._done = true;
 }

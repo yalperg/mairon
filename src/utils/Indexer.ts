@@ -1,6 +1,6 @@
-import { Rule, Condition, SimpleCondition } from '../core/types';
+import type { Rule, Condition, SimpleCondition } from '@/types';
 
-export class Indexer {
+class Indexer {
   private fieldIndex: Map<string, Map<unknown, Set<string>>> = new Map();
   private priorityIndex: Map<number, Set<string>> = new Map();
 
@@ -162,3 +162,5 @@ export class Indexer {
     return 'field' in condition && 'operator' in condition;
   }
 }
+
+export default Indexer;

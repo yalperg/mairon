@@ -1,8 +1,9 @@
-import { EvaluationContext } from '../core/types';
-import { FieldAccessor } from './FieldAccessor';
-import { Cache } from './Cache';
+import FieldAccessor from './FieldAccessor';
+import Cache from './Cache';
 
-export class TemplateResolver {
+import type { EvaluationContext } from '@/types';
+
+class TemplateResolver {
   private fieldAccessor: FieldAccessor;
   private templateRegex = /\{\{(.+?)\}\}/g;
   private exprCache: Cache<unknown>;
@@ -127,3 +128,5 @@ export class TemplateResolver {
     this.exprCache.clear();
   }
 }
+
+export default TemplateResolver;

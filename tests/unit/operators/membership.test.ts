@@ -1,4 +1,4 @@
-import operators from '../../../src/core/Operators';
+import { operators } from '@/core';
 
 describe('membership operators', () => {
   test('in: value present in array', () => {

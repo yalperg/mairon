@@ -1,11 +1,13 @@
-import { ruleSchema, actionSchema, conditionSchema } from '../schema';
-import {
+import isObject from 'lodash/isObject';
+import { ruleSchema, actionSchema, conditionSchema } from '@/schemas';
+
+import type {
   Rule,
   Condition,
   SimpleCondition,
   ValidationError,
   ValidationResult,
-} from '../core/types';
+} from '@/types';
 
 function semanticValidateCondition(
   condition: SimpleCondition,
@@ -48,10 +50,6 @@ function semanticValidateCondition(
       });
     }
   }
-}
-
-function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
 }
 
 function isSimpleCondition(
@@ -103,7 +101,7 @@ function traverseConditions(
   }
 }
 
-export class Validator {
+class Validator {
   validate(rule: Rule): ValidationResult {
     const result = ruleSchema.safeParse(rule);
     const errors: ValidationError[] = [];
@@ -165,3 +163,5 @@ export class Validator {
     return { valid: false, errors };
   }
 }
+
+export default Validator;

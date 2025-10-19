@@ -1,10 +1,10 @@
 import isNil from 'lodash/isNil';
 import isArray from 'lodash/isArray';
-import { Rule, RuleFilter, RuleEngineConfig } from './types';
-import { Indexer } from '../utils/Indexer';
-import { Validator } from '../utils/Validator';
+import { Indexer, Validator } from '@/utils';
 
-export class RuleManager<T = unknown> {
+import type { Rule, RuleFilter, RuleEngineConfig } from '@/types';
+
+class RuleManager<T = unknown> {
   private rules: Map<string, Rule<T>> = new Map();
   private config: RuleEngineConfig;
   private indexer: Indexer;
@@ -197,3 +197,5 @@ export class RuleManager<T = unknown> {
     }
   }
 }
+
+export default RuleManager;

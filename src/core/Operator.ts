@@ -1,5 +1,5 @@
-import { ConditionOperator, SimpleCondition } from "@/schema";
-import { EvaluationContext } from "./types";
+import type { EvaluationContext } from '@/types';
+import type { ConditionOperator, SimpleCondition } from '@/schemas';
 
 export type OperatorFn<T = unknown> = (
   fieldValue: unknown,
@@ -7,7 +7,7 @@ export type OperatorFn<T = unknown> = (
   context: EvaluationContext<T>,
 ) => boolean;
 
-export class Operator<T = unknown> {
+class Operator<T = unknown> {
   readonly name: ConditionOperator;
   private readonly fn: OperatorFn<T>;
 
@@ -24,3 +24,5 @@ export class Operator<T = unknown> {
     return this.fn(fieldValue, condition, context);
   }
 }
+
+export default Operator;

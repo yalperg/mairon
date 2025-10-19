@@ -1,7 +1,7 @@
-import { RuleManager } from '../../src/core/RuleManager';
-import { Indexer } from '../../src/utils/Indexer';
-import { Validator } from '../../src/utils/Validator';
-import { Rule } from '../../src/core/types';
+import { RuleManager } from '@/core';
+import { Indexer, Validator } from '@/utils';
+
+import type { Rule } from '@/types';
 
 function sampleRule(
   id: string,

@@ -1,6 +1,6 @@
 type GenericListener<T> = (data: T) => void;
 
-export class EventEmitter<
+class EventEmitter<
   E extends string = string,
   M extends Record<E, unknown> = Record<E, unknown>,
 > {
@@ -54,3 +54,5 @@ export class EventEmitter<
     return Array.from(this.listeners.keys());
   }
 }
+
+export default EventEmitter;

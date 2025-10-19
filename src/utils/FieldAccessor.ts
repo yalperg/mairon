@@ -1,6 +1,6 @@
-import { Cache } from './Cache';
+import Cache from './Cache';
 
-export class FieldAccessor {
+class FieldAccessor {
   private cache: Cache<unknown>;
   private objectIds: WeakMap<object, number> = new WeakMap();
   private objectIdCounter = 0;
@@ -91,3 +91,5 @@ export class FieldAccessor {
     return `o:${this.objectIdCounter}`;
   }
 }
+
+export default FieldAccessor;

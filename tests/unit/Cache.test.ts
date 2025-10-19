@@ -1,4 +1,4 @@
-import { Cache } from '../../src/utils/Cache';
+import { Cache } from '@/utils';
 
 describe('Cache', () => {
   describe('basic operations', () => {

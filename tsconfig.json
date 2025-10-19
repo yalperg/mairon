@@ -18,6 +18,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
+      "@/core/*": ["src/core/*"],
+      "@/operators/*": ["src/operators/*"],
+      "@/schemas/*": ["src/schemas/*"],
       "@/types/*": ["src/types/*"],
       "@/utils/*": ["src/utils/*"]
     }

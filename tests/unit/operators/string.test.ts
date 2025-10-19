@@ -1,5 +1,6 @@
-import operators from '../../../src/core/Operators';
-import { EvaluationContext } from '../../../src/core/types';
+import { operators } from '@/core';
+
+import type { EvaluationContext } from '@/types';
 
 describe('string operators', () => {
   const ctx: EvaluationContext<unknown> = {
@@ -51,10 +52,18 @@ describe('string operators', () => {
       const contains = operators.get('contains')!;
 
       expect(
-        contains.evaluate(123, { field: 'x', operator: 'contains', value: '2' }, ctx),
+        contains.evaluate(
+          123,
+          { field: 'x', operator: 'contains', value: '2' },
+          ctx,
+        ),
       ).toBe(true);
       expect(
-        contains.evaluate(true, { field: 'x', operator: 'contains', value: 'rue' }, ctx),
+        contains.evaluate(
+          true,
+          { field: 'x', operator: 'contains', value: 'rue' },
+          ctx,
+        ),
       ).toBe(true);
     });
 
@@ -168,7 +177,11 @@ describe('string operators', () => {
         ),
       ).toBe(true);
       expect(
-        endsWith.evaluate(123, { field: 'x', operator: 'endsWith', value: '3' }, ctx),
+        endsWith.evaluate(
+          123,
+          { field: 'x', operator: 'endsWith', value: '3' },
+          ctx,
+        ),
       ).toBe(true);
     });
   });
@@ -229,10 +242,18 @@ describe('string operators', () => {
       const matches = operators.get('matches')!;
 
       expect(
-        matches.evaluate(null, { field: 'x', operator: 'matches', value: '.*' }, ctx),
+        matches.evaluate(
+          null,
+          { field: 'x', operator: 'matches', value: '.*' },
+          ctx,
+        ),
       ).toBe(false);
       expect(
-        matches.evaluate('test', { field: 'x', operator: 'matches', value: null }, ctx),
+        matches.evaluate(
+          'test',
+          { field: 'x', operator: 'matches', value: null },
+          ctx,
+        ),
       ).toBe(false);
     });
   });

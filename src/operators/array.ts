@@ -1,8 +1,9 @@
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import intersection from 'lodash/intersection';
-import { SimpleCondition } from '../core/types';
-import { Operator } from '../core/Operator';
+import { Operator } from '@/core';
+
+import type { SimpleCondition } from '@/types';
 
 const includes = new Operator(
   'includes',

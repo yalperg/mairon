@@ -1,6 +1,8 @@
-import { ConditionOperator } from '../schema';
-import defaultOperators from '../operators';
-import type { Operator } from './Operator';
+import defaultOperators from '@/operators';
+
+import type Operator from './Operator';
+import type { ConditionOperator } from '@/schemas';
+
 class Operators<T = unknown> {
   private operators: Map<ConditionOperator, Operator<T>> = new Map(
     Object.entries(defaultOperators).map(([name, operator]) => [

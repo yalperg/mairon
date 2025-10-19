@@ -1,8 +1,9 @@
 import isArray from 'lodash/isArray';
 import isEqual from 'lodash/isEqual';
 import some from 'lodash/some';
-import { SimpleCondition, EvaluationContext } from '../core/types';
-import { Operator } from '../core/Operator';
+import { Operator } from '@/core';
+
+import type { SimpleCondition, EvaluationContext } from '@/types';
 
 const inOperator = new Operator(
   'in',

@@ -9,7 +9,7 @@ import type {
   ValidationResult,
   RuleEngineConfig,
   ConditionOperator,
-} from '../schema';
+} from '@/schemas';
 
 export type {
   Action,

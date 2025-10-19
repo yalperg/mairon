@@ -1,6 +1,6 @@
-import { EvaluationContext } from '../../../src/core/types';
-import operators from '../../../src/core/Operators';
+import { operators } from '@/core';
 
+import type { EvaluationContext } from '@/types';
 
 describe('array operators', () => {
   const ctx: EvaluationContext<unknown> = {
@@ -66,10 +66,18 @@ describe('array operators', () => {
         ),
       ).toBe(false);
       expect(
-        includes.evaluate(123, { field: 'x', operator: 'includes', value: 1 }, ctx),
+        includes.evaluate(
+          123,
+          { field: 'x', operator: 'includes', value: 1 },
+          ctx,
+        ),
       ).toBe(false);
       expect(
-        includes.evaluate(null, { field: 'x', operator: 'includes', value: 1 }, ctx),
+        includes.evaluate(
+          null,
+          { field: 'x', operator: 'includes', value: 1 },
+          ctx,
+        ),
       ).toBe(false);
     });
   });
@@ -227,42 +235,48 @@ describe('array operators', () => {
     test('isEmpty checks', () => {
       const isEmpty = operators.get('isEmpty')!;
 
-      expect(isEmpty.evaluate([], { field: 'x', operator: 'isEmpty' }, ctx)).toBe(true);
-      expect(isEmpty.evaluate([1], { field: 'x', operator: 'isEmpty' }, ctx)).toBe(
-        false,
-      );
-      expect(isEmpty.evaluate([1, 2, 3], { field: 'x', operator: 'isEmpty' }, ctx)).toBe(
-        false,
-      );
+      expect(
+        isEmpty.evaluate([], { field: 'x', operator: 'isEmpty' }, ctx),
+      ).toBe(true);
+      expect(
+        isEmpty.evaluate([1], { field: 'x', operator: 'isEmpty' }, ctx),
+      ).toBe(false);
+      expect(
+        isEmpty.evaluate([1, 2, 3], { field: 'x', operator: 'isEmpty' }, ctx),
+      ).toBe(false);
     });
 
     test('isNotEmpty checks', () => {
       const isNotEmpty = operators.get('isNotEmpty')!;
 
-      expect(isNotEmpty.evaluate([1], { field: 'x', operator: 'isNotEmpty' }, ctx)).toBe(
-        true,
-      );
       expect(
-        isNotEmpty.evaluate([1, 2, 3], { field: 'x', operator: 'isNotEmpty' }, ctx),
+        isNotEmpty.evaluate([1], { field: 'x', operator: 'isNotEmpty' }, ctx),
       ).toBe(true);
-      expect(isNotEmpty.evaluate([], { field: 'x', operator: 'isNotEmpty' }, ctx)).toBe(
-        false,
-      );
+      expect(
+        isNotEmpty.evaluate(
+          [1, 2, 3],
+          { field: 'x', operator: 'isNotEmpty' },
+          ctx,
+        ),
+      ).toBe(true);
+      expect(
+        isNotEmpty.evaluate([], { field: 'x', operator: 'isNotEmpty' }, ctx),
+      ).toBe(false);
     });
 
     test('non-array returns false', () => {
       const isEmpty = operators.get('isEmpty')!;
       const isNotEmpty = operators.get('isNotEmpty')!;
 
-      expect(isEmpty.evaluate('string', { field: 'x', operator: 'isEmpty' }, ctx)).toBe(
-        false,
-      );
-      expect(isEmpty.evaluate(null, { field: 'x', operator: 'isEmpty' }, ctx)).toBe(
-        false,
-      );
-      expect(isNotEmpty.evaluate(123, { field: 'x', operator: 'isNotEmpty' }, ctx)).toBe(
-        false,
-      );
+      expect(
+        isEmpty.evaluate('string', { field: 'x', operator: 'isEmpty' }, ctx),
+      ).toBe(false);
+      expect(
+        isEmpty.evaluate(null, { field: 'x', operator: 'isEmpty' }, ctx),
+      ).toBe(false);
+      expect(
+        isNotEmpty.evaluate(123, { field: 'x', operator: 'isNotEmpty' }, ctx),
+      ).toBe(false);
     });
   });
 });

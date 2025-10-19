@@ -1,8 +1,9 @@
-import { EventEmitter } from './EventEmitter';
-import { RuleManager } from './RuleManager';
-import { Evaluator } from './Evaluator';
-import { Executor } from './Executor';
-import {
+import Executor from './Executor';
+import Evaluator from './Evaluator';
+import RuleManager from './RuleManager';
+import EventEmitter from './EventEmitter';
+
+import type {
   Rule,
   RuleFilter,
   RuleEngineConfig,
@@ -12,9 +13,9 @@ import {
   EngineEvent,
   EventData,
   PerformanceMetrics,
-} from './types';
+} from '@/types';
 
-export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
+class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
   private manager: RuleManager<T>;
   private evaluator: Evaluator<T>;
   private executor: Executor<T>;
@@ -294,3 +295,5 @@ export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
     };
   }
 }
+
+export default Sauron;

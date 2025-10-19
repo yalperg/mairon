@@ -1,5 +1,6 @@
-import { Indexer } from '../../src/utils/Indexer';
-import { Rule } from '../../src/core/types';
+import { Indexer } from '@/utils';
+
+import type { Rule } from '@/types';
 
 describe('Indexer', () => {
   let indexer: Indexer;

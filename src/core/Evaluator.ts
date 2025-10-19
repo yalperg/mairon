@@ -1,13 +1,14 @@
-import operators from '@/core/Operators';
-import {
+import { operators } from '@/core';
+import { FieldAccessor, TemplateResolver } from '@/utils';
+
+import type {
   Condition,
   SimpleCondition,
   LogicalGroup,
   EvaluationContext,
-} from './types';
-import { FieldAccessor } from '../utils/FieldAccessor';
-import { TemplateResolver } from '../utils/TemplateResolver';
-export class Evaluator<T = unknown> {
+} from '@/types';
+
+class Evaluator<T = unknown> {
   private fieldAccessor: FieldAccessor;
   private templateResolver: TemplateResolver;
 
@@ -90,3 +91,5 @@ export class Evaluator<T = unknown> {
     );
   }
 }
+
+export default Evaluator;

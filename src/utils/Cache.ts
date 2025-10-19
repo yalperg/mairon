@@ -1,11 +1,11 @@
-export interface CacheStats {
+interface CacheStats {
   hits: number;
   misses: number;
   size: number;
   hitRate: number;
 }
 
-export interface CacheOptions {
+interface CacheOptions {
   maxSize?: number;
   ttl?: number;
 }
@@ -15,7 +15,7 @@ interface CacheEntry<T> {
   expiresAt?: number;
 }
 
-export class Cache<T = unknown> {
+class Cache<T = unknown> {
   private store: Map<string, CacheEntry<T>> = new Map();
   private hits = 0;
   private misses = 0;
@@ -113,3 +113,5 @@ export class Cache<T = unknown> {
     return removed;
   }
 }
+
+export default Cache;

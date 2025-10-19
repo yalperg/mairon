@@ -1,5 +1,6 @@
-import { EvaluationContext } from '../../../src/core/types';
-import operators from '../../../src/core/Operators';
+import { operators } from '@/core';
+
+import type { EvaluationContext } from '@/types';
 
 describe('change operators', () => {
   describe('changed', () => {
@@ -12,7 +13,11 @@ describe('change operators', () => {
       };
 
       expect(
-        changed.evaluate('active', { field: 'status', operator: 'changed' }, ctx),
+        changed.evaluate(
+          'active',
+          { field: 'status', operator: 'changed' },
+          ctx,
+        ),
       ).toBe(true);
     });
 
@@ -25,7 +30,11 @@ describe('change operators', () => {
       };
 
       expect(
-        changed.evaluate('active', { field: 'status', operator: 'changed' }, ctx),
+        changed.evaluate(
+          'active',
+          { field: 'status', operator: 'changed' },
+          ctx,
+        ),
       ).toBe(false);
     });
 
@@ -37,7 +46,11 @@ describe('change operators', () => {
       };
 
       expect(
-        changed.evaluate('active', { field: 'status', operator: 'changed' }, ctx),
+        changed.evaluate(
+          'active',
+          { field: 'status', operator: 'changed' },
+          ctx,
+        ),
       ).toBe(false);
     });
   });
@@ -252,9 +265,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(increased.evaluate(5, { field: 'count', operator: 'increased' }, ctx)).toBe(
-        false,
-      );
+      expect(
+        increased.evaluate(5, { field: 'count', operator: 'increased' }, ctx),
+      ).toBe(false);
     });
 
     test('returns false for no change', () => {
@@ -265,9 +278,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(increased.evaluate(5, { field: 'count', operator: 'increased' }, ctx)).toBe(
-        false,
-      );
+      expect(
+        increased.evaluate(5, { field: 'count', operator: 'increased' }, ctx),
+      ).toBe(false);
     });
 
     test('returns false for non-numeric values', () => {
@@ -279,7 +292,11 @@ describe('change operators', () => {
       };
 
       expect(
-        increased.evaluate('high', { field: 'value', operator: 'increased' }, ctx),
+        increased.evaluate(
+          'high',
+          { field: 'value', operator: 'increased' },
+          ctx,
+        ),
       ).toBe(false);
     });
 
@@ -305,9 +322,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(decreased.evaluate(5, { field: 'count', operator: 'decreased' }, ctx)).toBe(
-        true,
-      );
+      expect(
+        decreased.evaluate(5, { field: 'count', operator: 'decreased' }, ctx),
+      ).toBe(true);
     });
 
     test('returns false for increase', () => {
@@ -331,9 +348,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(decreased.evaluate(5, { field: 'count', operator: 'decreased' }, ctx)).toBe(
-        false,
-      );
+      expect(
+        decreased.evaluate(5, { field: 'count', operator: 'decreased' }, ctx),
+      ).toBe(false);
     });
 
     test('returns false without previousData', () => {
@@ -343,9 +360,9 @@ describe('change operators', () => {
         context: {},
       };
 
-      expect(decreased.evaluate(5, { field: 'count', operator: 'decreased' }, ctx)).toBe(
-        false,
-      );
+      expect(
+        decreased.evaluate(5, { field: 'count', operator: 'decreased' }, ctx),
+      ).toBe(false);
     });
   });
 });

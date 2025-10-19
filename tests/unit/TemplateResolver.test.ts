@@ -1,5 +1,6 @@
-import { TemplateResolver } from '../../src/utils/TemplateResolver';
-import type { EvaluationContext } from '../../src/core/types';
+import { TemplateResolver } from '@/utils';
+
+import type { EvaluationContext } from '@/types';
 
 describe('TemplateResolver', () => {
   let resolver: TemplateResolver;

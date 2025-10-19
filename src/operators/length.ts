@@ -1,8 +1,9 @@
 import isArray from 'lodash/isArray';
 import isString from 'lodash/isString';
 import isNumber from 'lodash/isNumber';
-import { SimpleCondition, EvaluationContext } from '../core/types';
-import { Operator } from '../core/Operator';
+import { Operator } from '@/core';
+
+import type { SimpleCondition, EvaluationContext } from '@/types';
 
 function getLength(value: unknown): number | null {
   if (isString(value) || isArray(value)) {

@@ -1,5 +1,5 @@
-import { Validator } from '../../src/utils/Validator';
-import { Rule } from '../../src/core/types';
+import { Validator } from '@/utils';
+import type { Rule } from '@/types';
 
 describe('Validator', () => {
   const validator = new Validator();

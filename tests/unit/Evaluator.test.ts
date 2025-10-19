@@ -1,4 +1,4 @@
-import { Evaluator } from '../../src/core/Evaluator';
+import { Evaluator } from '@/core';
 
 describe('Evaluator', () => {
   test('evaluates simple condition', () => {

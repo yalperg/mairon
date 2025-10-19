@@ -1,4 +1,4 @@
-import { Sauron } from '../../src/core/Sauron';
+import { Sauron } from '@/core';
 
 function makeEngine() {
   const engine = new Sauron({ strict: false, enableIndexing: false });

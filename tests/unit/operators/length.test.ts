@@ -1,4 +1,4 @@
-import operators from '../../../src/core/Operators';
+import { operators } from '@/core';
 
 describe('length operators', () => {
   test('lengthEquals for strings', () => {

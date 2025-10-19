@@ -1,7 +1,8 @@
 import isEqual from 'lodash/isEqual';
 import toNumber from 'lodash/toNumber';
-import { SimpleCondition } from '../core/types';
-import { Operator } from '../core/Operator';
+import { Operator } from '@/core';
+
+import type { SimpleCondition } from '@/types';
 
 const equals = new Operator(
   'equals',

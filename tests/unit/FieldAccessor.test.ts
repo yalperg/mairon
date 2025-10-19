@@ -1,4 +1,4 @@
-import { FieldAccessor } from '../../src/utils/FieldAccessor';
+import { FieldAccessor } from '@/utils';
 
 describe('FieldAccessor', () => {
   let accessor: FieldAccessor;

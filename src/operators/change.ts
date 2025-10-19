@@ -1,9 +1,10 @@
 import isEqual from 'lodash/isEqual';
 import toNumber from 'lodash/toNumber';
 import isNaN from 'lodash/isNaN';
-import { SimpleCondition, EvaluationContext } from '../core/types';
-import { FieldAccessor } from '../utils/FieldAccessor';
-import { Operator } from '../core/Operator';
+import { Operator } from '@/core';
+import { FieldAccessor } from '@/utils';
+
+import type { SimpleCondition, EvaluationContext } from '@/types';
 
 const fieldAccessor = new FieldAccessor();
 

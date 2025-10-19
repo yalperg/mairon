@@ -1,5 +1,6 @@
-import { EvaluationContext } from '../../../src/core/types';
-import operators from '../../../src/core/Operators';
+import { operators } from '@/core';
+
+import type { EvaluationContext } from '@/types';
 
 describe('comparison operators', () => {
   const ctx: EvaluationContext<unknown> = {
@@ -12,9 +13,9 @@ describe('comparison operators', () => {
     const equals = operators.get('equals')!;
     const notEquals = operators.get('notEquals')!;
 
-    expect(equals.evaluate(5, { field: 'x', operator: 'equals', value: 5 }, ctx)).toBe(
-      true,
-    );
+    expect(
+      equals.evaluate(5, { field: 'x', operator: 'equals', value: 5 }, ctx),
+    ).toBe(true);
     expect(
       equals.evaluate(
         new Date('2020-01-01'),
@@ -23,7 +24,11 @@ describe('comparison operators', () => {
       ),
     ).toBe(true);
     expect(
-      notEquals.evaluate('a', { field: 'x', operator: 'notEquals', value: 'b' }, ctx),
+      notEquals.evaluate(
+        'a',
+        { field: 'x', operator: 'notEquals', value: 'b' },
+        ctx,
+      ),
     ).toBe(true);
   });
 
@@ -31,18 +36,22 @@ describe('comparison operators', () => {
     const gt = operators.get('greaterThan')!;
     const lt = operators.get('lessThan')!;
 
-    expect(gt.evaluate(10, { field: 'x', operator: 'greaterThan', value: 5 }, ctx)).toBe(
-      true,
-    );
-    expect(lt.evaluate(3, { field: 'x', operator: 'lessThan', value: 5 }, ctx)).toBe(
-      true,
-    );
     expect(
-      gt.evaluate('10', { field: 'x', operator: 'greaterThan', value: '9' }, ctx),
+      gt.evaluate(10, { field: 'x', operator: 'greaterThan', value: 5 }, ctx),
     ).toBe(true);
-    expect(lt.evaluate('a', { field: 'x', operator: 'lessThan', value: 'b' }, ctx)).toBe(
-      false,
-    );
+    expect(
+      lt.evaluate(3, { field: 'x', operator: 'lessThan', value: 5 }, ctx),
+    ).toBe(true);
+    expect(
+      gt.evaluate(
+        '10',
+        { field: 'x', operator: 'greaterThan', value: '9' },
+        ctx,
+      ),
+    ).toBe(true);
+    expect(
+      lt.evaluate('a', { field: 'x', operator: 'lessThan', value: 'b' }, ctx),
+    ).toBe(false);
   });
 
   test('gte/lte', () => {
@@ -50,10 +59,18 @@ describe('comparison operators', () => {
     const lte = operators.get('lessThanOrEqual')!;
 
     expect(
-      gte.evaluate(5, { field: 'x', operator: 'greaterThanOrEqual', value: 5 }, ctx),
+      gte.evaluate(
+        5,
+        { field: 'x', operator: 'greaterThanOrEqual', value: 5 },
+        ctx,
+      ),
     ).toBe(true);
     expect(
-      lte.evaluate(5, { field: 'x', operator: 'lessThanOrEqual', value: 5 }, ctx),
+      lte.evaluate(
+        5,
+        { field: 'x', operator: 'lessThanOrEqual', value: 5 },
+        ctx,
+      ),
     ).toBe(true);
   });
 
@@ -61,7 +78,11 @@ describe('comparison operators', () => {
     const between = operators.get('between')!;
 
     expect(
-      between.evaluate(5, { field: 'x', operator: 'between', value: [1, 10] }, ctx),
+      between.evaluate(
+        5,
+        { field: 'x', operator: 'between', value: [1, 10] },
+        ctx,
+      ),
     ).toBe(true);
     expect(
       between.evaluate(
@@ -75,10 +96,18 @@ describe('comparison operators', () => {
       ),
     ).toBe(true);
     expect(
-      between.evaluate('x', { field: 'x', operator: 'between', value: [1, 3] }, ctx),
+      between.evaluate(
+        'x',
+        { field: 'x', operator: 'between', value: [1, 3] },
+        ctx,
+      ),
     ).toBe(false);
     expect(
-      between.evaluate(5, { field: 'x', operator: 'between', value: [10, 20] }, ctx),
+      between.evaluate(
+        5,
+        { field: 'x', operator: 'between', value: [10, 20] },
+        ctx,
+      ),
     ).toBe(false);
   });
 });

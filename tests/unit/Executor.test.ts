@@ -1,6 +1,7 @@
-import { Executor } from '../../src/core/Executor';
-import { TemplateResolver } from '../../src/utils/TemplateResolver';
-import { Rule } from '../../src/core/types';
+import { Executor } from '@/core';
+import { TemplateResolver } from '@/utils';
+
+import type { Rule } from '@/types';
 
 function makeRule(): Rule<unknown> {
   return {

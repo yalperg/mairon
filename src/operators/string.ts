@@ -1,7 +1,8 @@
 import isNil from 'lodash/isNil';
 import toString from 'lodash/toString';
-import { SimpleCondition } from '../core/types';
-import { Operator } from '../core/Operator';
+import { Operator } from '@/core';
+
+import type { SimpleCondition } from '@/types';
 
 function toStringOrNull(value: unknown): string | null {
   if (isNil(value)) {

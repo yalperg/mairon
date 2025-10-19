@@ -1,15 +1,16 @@
 import isNil from 'lodash/isNil';
-import { TemplateResolver } from '../utils/TemplateResolver';
-import {
+import { TemplateResolver } from '@/utils';
+
+import type {
   Action,
   ActionContext,
   ActionHandler,
   ActionResult,
   EvaluationContext,
   Rule,
-} from './types';
+} from '@/types';
 
-export class Executor<T = unknown> {
+class Executor<T = unknown> {
   private handlers: Map<string, ActionHandler<T>> = new Map();
   private templateResolver: TemplateResolver;
 
@@ -113,3 +114,5 @@ export class Executor<T = unknown> {
     return results;
   }
 }
+
+export default Executor;

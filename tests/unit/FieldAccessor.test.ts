@@ -136,4 +136,29 @@ describe('FieldAccessor', () => {
       expect(accessor.resolvePath(obj, 'data')).toEqual({});
     });
   });
+
+  describe('FieldAccessor caching and variants', () => {
+    test('bracket index path resolution', () => {
+      const fa = new FieldAccessor();
+      const obj = { items: ['a', 'b', 'c'] };
+      expect(fa.resolvePath(obj, 'items[1]')).toBe('b');
+    });
+
+    test('get() caches undefined results and survives clear', () => {
+      const fa = new FieldAccessor(500);
+      const obj = { a: { b: 1 } };
+      expect(fa.get(obj, 'a.c')).toBeUndefined();
+      expect(fa.get(obj, 'a.c')).toBeUndefined();
+      fa.clear();
+      expect(fa.get(obj, 'a.c')).toBeUndefined();
+    });
+
+    test('get() with primitive roots and empty path', () => {
+      const fa = new FieldAccessor();
+      expect(fa.get(5 as unknown as object, '')).toBe(5 as unknown as object);
+      expect(fa.get('x' as unknown as object, '')).toBe(
+        'x' as unknown as object,
+      );
+    });
+  });
 });

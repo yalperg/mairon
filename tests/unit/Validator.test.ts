@@ -104,4 +104,74 @@ describe('Validator', () => {
     const res = validator.validate(rule);
     expect(res.valid).toBe(true);
   });
+
+  it('fails when actions array is missing', () => {
+    const rule = {
+      id: 'r-missing-actions',
+      name: 'No actions',
+      conditions: { field: 'a', operator: 'exists' },
+    } as unknown as Rule;
+    const res = validator.validate(rule);
+    expect(res.valid).toBe(false);
+  });
+
+  it('fails on unknown operator', () => {
+    const rule = {
+      id: 'r-unknown-op',
+      name: 'Unknown op',
+      conditions: { field: 'a', operator: '___unknown___', value: 1 },
+      actions: [{ type: 'notify' }],
+    } as unknown as Rule;
+    const res = validator.validate(rule);
+    expect(res.valid).toBe(false);
+  });
+
+  it('fails logical group with empty any', () => {
+    const rule = {
+      id: 'r-empty-any',
+      name: 'Empty any',
+      conditions: { any: [] },
+      actions: [{ type: 'notify' }],
+    } as unknown as Rule;
+    const res = validator.validate(rule);
+    expect(res.valid).toBe(false);
+  });
+
+  it('validateCondition: simple valid condition', () => {
+    const res = validator.validateCondition({ field: 'a', operator: 'exists' });
+    expect(res.valid).toBe(true);
+  });
+
+  it('validateCondition: array operator requires array (matchesAny)', () => {
+    const res = validator.validateCondition({
+      field: 's',
+      operator: 'matchesAny',
+      value: 'x' as unknown,
+    });
+    expect(res.valid).toBe(false);
+    expect(res.errors?.some((e) => e.code === 'ARRAY_VALUE_REQUIRED')).toBe(
+      true,
+    );
+  });
+
+  it('validateCondition: any group empty should fail', () => {
+    const invalidGroup = { any: [] } as unknown;
+    const res = validator.validateCondition(invalidGroup as never);
+    expect(res.valid).toBe(false);
+  });
+
+  it('validateAction: valid action passes', () => {
+    const res = validator.validateAction({
+      type: 'notify',
+      params: { a: 1 },
+      continueOnError: true,
+      timeout: 10,
+    });
+    expect(res.valid).toBe(true);
+  });
+
+  it('validateAction: missing type fails', () => {
+    const res = validator.validateAction({} as unknown as { type: string });
+    expect(res.valid).toBe(false);
+  });
 });

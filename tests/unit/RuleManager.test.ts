@@ -24,71 +24,117 @@ function sampleRule(
 }
 
 describe('RuleManager', () => {
-  test('add/get rule with defaults and validation/indexing', () => {
-    const manager = new RuleManager(
-      { validateSchema: true, enableIndexing: true },
-      { indexer: new Indexer(), validator: new Validator() },
-    );
-    const rule = sampleRule('r1', undefined, undefined);
-    manager.addRule(rule);
+  describe('Basic Operations', () => {
+    test('add/get rule with defaults and validation/indexing', () => {
+      const manager = new RuleManager(
+        { validateSchema: true, enableIndexing: true },
+        { indexer: new Indexer(), validator: new Validator() },
+      );
+      const rule = sampleRule('r1', undefined, undefined);
+      manager.addRule(rule);
 
-    const fetched = manager.getRule('r1')!;
-    expect(fetched.enabled).toBe(true);
-    expect(fetched.priority).toBe(0);
-  });
-
-  test('addRules bulk and duplicate prevention', () => {
-    const manager = new RuleManager();
-    manager.addRules([sampleRule('a'), sampleRule('b')]);
-    expect(manager.getRule('a')).toBeTruthy();
-    expect(manager.getRule('b')).toBeTruthy();
-    expect(() => manager.addRule(sampleRule('a'))).toThrow();
-  });
-
-  test('removeRule and clearRules', () => {
-    const manager = new RuleManager({ enableIndexing: true });
-    manager.addRule(sampleRule('x'));
-    manager.addRule(sampleRule('y'));
-    manager.removeRule('x');
-    expect(manager.getRule('x')).toBeUndefined();
-    manager.clearRules();
-    expect(manager.getRule('y')).toBeUndefined();
-  });
-
-  test('updateRule with reindex', () => {
-    const manager = new RuleManager({
-      validateSchema: true,
-      enableIndexing: true,
+      const fetched = manager.getRule('r1')!;
+      expect(fetched.enabled).toBe(true);
+      expect(fetched.priority).toBe(0);
     });
-    manager.addRule(sampleRule('u', true, 1));
-    manager.updateRule('u', { enabled: false, priority: 5, name: 'U' });
-    const updated = manager.getRule('u')!;
-    expect(updated.enabled).toBe(false);
-    expect(updated.priority).toBe(5);
-    expect(updated.name).toBe('U');
+
+    test('addRules bulk and duplicate prevention', () => {
+      const manager = new RuleManager();
+      manager.addRules([sampleRule('a'), sampleRule('b')]);
+      expect(manager.getRule('a')).toBeTruthy();
+      expect(manager.getRule('b')).toBeTruthy();
+      expect(() => manager.addRule(sampleRule('a'))).toThrow();
+    });
+
+    test('removeRule and clearRules', () => {
+      const manager = new RuleManager({ enableIndexing: true });
+      manager.addRule(sampleRule('x'));
+      manager.addRule(sampleRule('y'));
+      manager.removeRule('x');
+      expect(manager.getRule('x')).toBeUndefined();
+      manager.clearRules();
+      expect(manager.getRule('y')).toBeUndefined();
+    });
+
+    test('updateRule with reindex', () => {
+      const manager = new RuleManager({
+        validateSchema: true,
+        enableIndexing: true,
+      });
+      manager.addRule(sampleRule('u', true, 1));
+      manager.updateRule('u', { enabled: false, priority: 5, name: 'U' });
+      const updated = manager.getRule('u')!;
+      expect(updated.enabled).toBe(false);
+      expect(updated.priority).toBe(5);
+      expect(updated.name).toBe('U');
+    });
+
+    test('enable/disable rule', () => {
+      const manager = new RuleManager({ enableIndexing: true });
+      manager.addRule(sampleRule('t', false));
+      manager.enableRule('t');
+      expect(manager.getRule('t')!.enabled).toBe(true);
+      manager.disableRule('t');
+      expect(manager.getRule('t')!.enabled).toBe(false);
+    });
+
+    test('getRules with filters', () => {
+      const manager = new RuleManager();
+      manager.addRules([
+        sampleRule('r1', true, 1),
+        sampleRule('r2', false, 3),
+        { ...sampleRule('r3', true, 2), tags: ['a', 'b'] },
+      ]);
+
+      expect(manager.getRules({ enabled: true }).length).toBe(2);
+      expect(manager.getRules({ priority: { min: 2 } }).length).toBe(2);
+      expect(manager.getRules({ priority: { max: 1 } }).length).toBe(1);
+      expect(manager.getRules({ tags: ['b'] }).length).toBe(1);
+      expect(manager.getRules({ ids: ['r2'] }).length).toBe(1);
+    });
   });
 
-  test('enable/disable rule', () => {
-    const manager = new RuleManager({ enableIndexing: true });
-    manager.addRule(sampleRule('t', false));
-    manager.enableRule('t');
-    expect(manager.getRule('t')!.enabled).toBe(true);
-    manager.disableRule('t');
-    expect(manager.getRule('t')!.enabled).toBe(false);
-  });
+  describe('RuleManager.getRelevantRules', () => {
+    test('returns filtered rules when indexing is enabled and matches exist', () => {
+      const rm = new RuleManager({ enableIndexing: true });
+      rm.addRules([
+        {
+          id: 'r1',
+          name: 'R1',
+          conditions: { field: 'user.id', operator: 'equals', value: 1 },
+          actions: [{ type: 'noop' }],
+        },
+        {
+          id: 'r2',
+          name: 'R2',
+          conditions: { field: 'user.id', operator: 'equals', value: 2 },
+          actions: [{ type: 'noop' }],
+        },
+      ]);
+      const data = { user: { id: 2 } };
+      const relevant = rm.getRelevantRules(data);
+      expect(relevant.map((r) => r.id)).toEqual(['r2']);
+    });
 
-  test('getRules with filters', () => {
-    const manager = new RuleManager();
-    manager.addRules([
-      sampleRule('r1', true, 1),
-      sampleRule('r2', false, 3),
-      { ...sampleRule('r3', true, 2), tags: ['a', 'b'] },
-    ]);
-
-    expect(manager.getRules({ enabled: true }).length).toBe(2);
-    expect(manager.getRules({ priority: { min: 2 } }).length).toBe(2);
-    expect(manager.getRules({ priority: { max: 1 } }).length).toBe(1);
-    expect(manager.getRules({ tags: ['b'] }).length).toBe(1);
-    expect(manager.getRules({ ids: ['r2'] }).length).toBe(1);
+    test('falls back to enabled rules when no index hits', () => {
+      const rm = new RuleManager({ enableIndexing: true });
+      rm.addRules([
+        {
+          id: 'x',
+          name: 'X',
+          conditions: { field: 'a', operator: 'equals', value: 1 },
+          actions: [{ type: 'noop' }],
+        },
+        {
+          id: 'y',
+          name: 'Y',
+          conditions: { field: 'b', operator: 'equals', value: 1 },
+          actions: [{ type: 'noop' }],
+        },
+      ]);
+      const data = { c: 3 };
+      const relevant = rm.getRelevantRules(data);
+      expect(relevant.length).toBe(2);
+    });
   });
 });

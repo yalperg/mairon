@@ -1,8 +1,12 @@
 {
   "name": "sauron",
   "version": "1.0.0",
-  "keywords": [],
-  "description": "One engine to rule them all: A JSON based rule engine",
+  "keywords": [
+    "rule-engine",
+    "rules",
+    "engine"
+  ],
+  "description": "One engine to rule them all: A powerful and flexible rule engine",
   "license": "MIT",
   "author": "Yunus Alper Göl <yalperg>",
   "type": "module",
@@ -24,8 +28,7 @@
     "format": "prettier --write .",
     "test": "jest --testPathIgnorePatterns='perf'",
     "test:watch": "jest --watch --testPathIgnorePatterns='perf'",
-    "test:coverage": "jest --coverage --testPathIgnorePatterns='perf'",
-    "test:perf": "DFA_SIM_THRESH=0.01 NFA2DFA_SIM_THRESH=13 LARGE_ALPHA_THRESH=8 jest '.*perf.*\\.test\\.ts$'"
+    "test:coverage": "jest --coverage --testPathIgnorePatterns='perf'"
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",

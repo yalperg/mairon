@@ -115,7 +115,9 @@ export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
 
   async evaluate(context: EvaluationContext<T>): Promise<EvaluationResult[]> {
     const start = Date.now();
-    const enabledRules = this.manager.getRules({ enabled: true });
+    const enabledRules = this.config.enableIndexing
+      ? this.manager.getRelevantRules(context.data)
+      : this.manager.getRules({ enabled: true });
     const sorted = enabledRules.sort(
       (a, b) => (b.priority ?? 0) - (a.priority ?? 0),
     );

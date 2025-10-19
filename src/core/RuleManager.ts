@@ -145,6 +145,23 @@ export class RuleManager<T = unknown> {
     return values;
   }
 
+  getRelevantRules(data: T): Rule<T>[] {
+    const enabledRules = this.getRules({ enabled: true });
+    if (!this.config.enableIndexing) {
+      return enabledRules;
+    }
+    const ids = this.indexer.getRelevantRules(data);
+    if (ids.size === 0) {
+      return enabledRules;
+    }
+    const idSet = new Set(ids);
+    const filtered = enabledRules.filter((r) => idSet.has(r.id));
+    if (filtered.length === 0) {
+      return enabledRules;
+    }
+    return filtered;
+  }
+
   clearRules(): void {
     this.rules.clear();
     if (this.config.enableIndexing) {

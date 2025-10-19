@@ -1,5 +1,18 @@
+import { Cache } from './Cache';
+
 export class FieldAccessor {
-  private cache: Map<string, unknown> = new Map();
+  private cache: Cache<unknown>;
+  private objectIds: WeakMap<object, number> = new WeakMap();
+  private objectIdCounter = 0;
+
+  constructor(cacheTtlMs?: number, maxSize?: number) {
+    const options: { maxSize?: number; ttl?: number } = {};
+    options.maxSize = maxSize ?? 2000;
+    if (cacheTtlMs !== undefined) {
+      options.ttl = cacheTtlMs;
+    }
+    this.cache = new Cache<unknown>(options);
+  }
 
   resolvePath(obj: unknown, path: string): unknown {
     if (obj === null || obj === undefined) {
@@ -41,11 +54,9 @@ export class FieldAccessor {
 
   get(obj: unknown, path: string): unknown {
     const cacheKey = this.getCacheKey(obj, path);
-
     if (this.cache.has(cacheKey)) {
       return this.cache.get(cacheKey);
     }
-
     const value = this.resolvePath(obj, path);
     this.cache.set(cacheKey, value);
     return value;
@@ -68,8 +79,15 @@ export class FieldAccessor {
       return 'undefined';
     }
     if (typeof obj !== 'object') {
-      return String(obj);
+      return `p:${String(obj)}`;
     }
-    return String(obj);
+    const o = obj as object;
+    const existing = this.objectIds.get(o);
+    if (existing !== undefined) {
+      return `o:${existing}`;
+    }
+    this.objectIdCounter += 1;
+    this.objectIds.set(o, this.objectIdCounter);
+    return `o:${this.objectIdCounter}`;
   }
 }

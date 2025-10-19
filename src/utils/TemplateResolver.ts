@@ -1,12 +1,18 @@
 import { EvaluationContext } from '../core/types';
 import { FieldAccessor } from './FieldAccessor';
+import { Cache } from './Cache';
 
 export class TemplateResolver {
   private fieldAccessor: FieldAccessor;
   private templateRegex = /\{\{(.+?)\}\}/g;
+  private exprCache: Cache<unknown>;
 
-  constructor(fieldAccessor?: FieldAccessor) {
+  constructor(fieldAccessor?: FieldAccessor, cacheTtlMs?: number) {
     this.fieldAccessor = fieldAccessor || new FieldAccessor();
+    this.exprCache = new Cache<unknown>({
+      maxSize: 1000,
+      ttl: cacheTtlMs ?? 2000,
+    });
   }
 
   resolve(value: unknown, context: EvaluationContext): unknown {
@@ -53,23 +59,37 @@ export class TemplateResolver {
   }
 
   private resolveExpression(expr: string, context: EvaluationContext): unknown {
+    const cacheKey = `${expr}|${Boolean(context.previousData)}|${Object.keys(context.context ?? {}).length}`;
+    const cached = this.exprCache.get(cacheKey);
+    if (cached !== undefined) {
+      return cached;
+    }
+
     if (expr.startsWith('now')) {
-      return this.resolveTimeExpression(expr);
+      const val = this.resolveTimeExpression(expr);
+      this.exprCache.set(cacheKey, val, 200);
+      return val;
     }
 
     if (expr.startsWith('data.')) {
       const path = expr.substring(5);
-      return this.fieldAccessor.resolvePath(context.data, path);
+      const val = this.fieldAccessor.resolvePath(context.data, path);
+      this.exprCache.set(cacheKey, val);
+      return val;
     }
 
     if (expr.startsWith('previousData.')) {
       const path = expr.substring(13);
-      return this.fieldAccessor.resolvePath(context.previousData, path);
+      const val = this.fieldAccessor.resolvePath(context.previousData, path);
+      this.exprCache.set(cacheKey, val);
+      return val;
     }
 
     if (expr.startsWith('context.')) {
       const path = expr.substring(8);
-      return this.fieldAccessor.resolvePath(context.context, path);
+      const val = this.fieldAccessor.resolvePath(context.context, path);
+      this.exprCache.set(cacheKey, val);
+      return val;
     }
 
     return `{{${expr}}}`;
@@ -104,5 +124,6 @@ export class TemplateResolver {
 
   clearCache(): void {
     this.fieldAccessor.clear();
+    this.exprCache.clear();
   }
 }

@@ -1,13 +1,7 @@
-import { clearOperators, getOperator } from '../../../src/operators';
-import { registerStringOperators } from '../../../src/operators/string';
+import operators from '../../../src/core/Operators';
 import { EvaluationContext } from '../../../src/core/types';
 
 describe('string operators', () => {
-  beforeEach(() => {
-    clearOperators();
-    registerStringOperators();
-  });
-
   const ctx: EvaluationContext<unknown> = {
     data: {},
     previousData: {},
@@ -16,17 +10,17 @@ describe('string operators', () => {
 
   describe('contains/notContains', () => {
     test('basic string contains', () => {
-      const contains = getOperator('contains')!;
+      const contains = operators.get('contains')!;
 
       expect(
-        contains(
+        contains.evaluate(
           'hello world',
           { field: 'x', operator: 'contains', value: 'world' },
           ctx,
         ),
       ).toBe(true);
       expect(
-        contains(
+        contains.evaluate(
           'hello world',
           { field: 'x', operator: 'contains', value: 'foo' },
           ctx,
@@ -35,17 +29,17 @@ describe('string operators', () => {
     });
 
     test('case sensitive', () => {
-      const contains = getOperator('contains')!;
+      const contains = operators.get('contains')!;
 
       expect(
-        contains(
+        contains.evaluate(
           'Hello World',
           { field: 'x', operator: 'contains', value: 'world' },
           ctx,
         ),
       ).toBe(false);
       expect(
-        contains(
+        contains.evaluate(
           'Hello World',
           { field: 'x', operator: 'contains', value: 'World' },
           ctx,
@@ -54,28 +48,28 @@ describe('string operators', () => {
     });
 
     test('type coercion', () => {
-      const contains = getOperator('contains')!;
+      const contains = operators.get('contains')!;
 
       expect(
-        contains(123, { field: 'x', operator: 'contains', value: '2' }, ctx),
+        contains.evaluate(123, { field: 'x', operator: 'contains', value: '2' }, ctx),
       ).toBe(true);
       expect(
-        contains(true, { field: 'x', operator: 'contains', value: 'rue' }, ctx),
+        contains.evaluate(true, { field: 'x', operator: 'contains', value: 'rue' }, ctx),
       ).toBe(true);
     });
 
     test('null/undefined handling', () => {
-      const contains = getOperator('contains')!;
+      const contains = operators.get('contains')!;
 
       expect(
-        contains(
+        contains.evaluate(
           null,
           { field: 'x', operator: 'contains', value: 'test' },
           ctx,
         ),
       ).toBe(false);
       expect(
-        contains(
+        contains.evaluate(
           'test',
           { field: 'x', operator: 'contains', value: null },
           ctx,
@@ -84,17 +78,17 @@ describe('string operators', () => {
     });
 
     test('notContains', () => {
-      const notContains = getOperator('notContains')!;
+      const notContains = operators.get('notContains')!;
 
       expect(
-        notContains(
+        notContains.evaluate(
           'hello world',
           { field: 'x', operator: 'notContains', value: 'foo' },
           ctx,
         ),
       ).toBe(true);
       expect(
-        notContains(
+        notContains.evaluate(
           'hello world',
           { field: 'x', operator: 'notContains', value: 'world' },
           ctx,
@@ -105,17 +99,17 @@ describe('string operators', () => {
 
   describe('startsWith/endsWith', () => {
     test('startsWith', () => {
-      const startsWith = getOperator('startsWith')!;
+      const startsWith = operators.get('startsWith')!;
 
       expect(
-        startsWith(
+        startsWith.evaluate(
           'hello world',
           { field: 'x', operator: 'startsWith', value: 'hello' },
           ctx,
         ),
       ).toBe(true);
       expect(
-        startsWith(
+        startsWith.evaluate(
           'hello world',
           { field: 'x', operator: 'startsWith', value: 'world' },
           ctx,
@@ -124,17 +118,17 @@ describe('string operators', () => {
     });
 
     test('endsWith', () => {
-      const endsWith = getOperator('endsWith')!;
+      const endsWith = operators.get('endsWith')!;
 
       expect(
-        endsWith(
+        endsWith.evaluate(
           'hello world',
           { field: 'x', operator: 'endsWith', value: 'world' },
           ctx,
         ),
       ).toBe(true);
       expect(
-        endsWith(
+        endsWith.evaluate(
           'hello world',
           { field: 'x', operator: 'endsWith', value: 'hello' },
           ctx,
@@ -143,18 +137,18 @@ describe('string operators', () => {
     });
 
     test('case sensitive', () => {
-      const startsWith = getOperator('startsWith')!;
-      const endsWith = getOperator('endsWith')!;
+      const startsWith = operators.get('startsWith')!;
+      const endsWith = operators.get('endsWith')!;
 
       expect(
-        startsWith(
+        startsWith.evaluate(
           'Hello',
           { field: 'x', operator: 'startsWith', value: 'hello' },
           ctx,
         ),
       ).toBe(false);
       expect(
-        endsWith(
+        endsWith.evaluate(
           'World',
           { field: 'x', operator: 'endsWith', value: 'world' },
           ctx,
@@ -163,35 +157,35 @@ describe('string operators', () => {
     });
 
     test('type coercion', () => {
-      const startsWith = getOperator('startsWith')!;
-      const endsWith = getOperator('endsWith')!;
+      const startsWith = operators.get('startsWith')!;
+      const endsWith = operators.get('endsWith')!;
 
       expect(
-        startsWith(
+        startsWith.evaluate(
           123,
           { field: 'x', operator: 'startsWith', value: '1' },
           ctx,
         ),
       ).toBe(true);
       expect(
-        endsWith(123, { field: 'x', operator: 'endsWith', value: '3' }, ctx),
+        endsWith.evaluate(123, { field: 'x', operator: 'endsWith', value: '3' }, ctx),
       ).toBe(true);
     });
   });
 
   describe('matches', () => {
     test('basic regex', () => {
-      const matches = getOperator('matches')!;
+      const matches = operators.get('matches')!;
 
       expect(
-        matches(
+        matches.evaluate(
           'hello123',
           { field: 'x', operator: 'matches', value: '\\d+' },
           ctx,
         ),
       ).toBe(true);
       expect(
-        matches(
+        matches.evaluate(
           'hello',
           { field: 'x', operator: 'matches', value: '\\d+' },
           ctx,
@@ -200,18 +194,18 @@ describe('string operators', () => {
     });
 
     test('email pattern', () => {
-      const matches = getOperator('matches')!;
+      const matches = operators.get('matches')!;
       const emailPattern = '^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$';
 
       expect(
-        matches(
+        matches.evaluate(
           'test@example.com',
           { field: 'x', operator: 'matches', value: emailPattern },
           ctx,
         ),
       ).toBe(true);
       expect(
-        matches(
+        matches.evaluate(
           'invalid-email',
           { field: 'x', operator: 'matches', value: emailPattern },
           ctx,
@@ -220,10 +214,10 @@ describe('string operators', () => {
     });
 
     test('invalid regex returns false', () => {
-      const matches = getOperator('matches')!;
+      const matches = operators.get('matches')!;
 
       expect(
-        matches(
+        matches.evaluate(
           'test',
           { field: 'x', operator: 'matches', value: '[invalid(' },
           ctx,
@@ -232,30 +226,30 @@ describe('string operators', () => {
     });
 
     test('null handling', () => {
-      const matches = getOperator('matches')!;
+      const matches = operators.get('matches')!;
 
       expect(
-        matches(null, { field: 'x', operator: 'matches', value: '.*' }, ctx),
+        matches.evaluate(null, { field: 'x', operator: 'matches', value: '.*' }, ctx),
       ).toBe(false);
       expect(
-        matches('test', { field: 'x', operator: 'matches', value: null }, ctx),
+        matches.evaluate('test', { field: 'x', operator: 'matches', value: null }, ctx),
       ).toBe(false);
     });
   });
 
   describe('matchesAny', () => {
     test('matches one of multiple patterns', () => {
-      const matchesAny = getOperator('matchesAny')!;
+      const matchesAny = operators.get('matchesAny')!;
 
       expect(
-        matchesAny(
+        matchesAny.evaluate(
           'hello123',
           { field: 'x', operator: 'matchesAny', value: ['\\d+', '^world'] },
           ctx,
         ),
       ).toBe(true);
       expect(
-        matchesAny(
+        matchesAny.evaluate(
           'hello',
           { field: 'x', operator: 'matchesAny', value: ['\\d+', '^world'] },
           ctx,
@@ -264,10 +258,10 @@ describe('string operators', () => {
     });
 
     test('non-array value returns false', () => {
-      const matchesAny = getOperator('matchesAny')!;
+      const matchesAny = operators.get('matchesAny')!;
 
       expect(
-        matchesAny(
+        matchesAny.evaluate(
           'test',
           { field: 'x', operator: 'matchesAny', value: 'pattern' },
           ctx,
@@ -276,10 +270,10 @@ describe('string operators', () => {
     });
 
     test('skips invalid patterns', () => {
-      const matchesAny = getOperator('matchesAny')!;
+      const matchesAny = operators.get('matchesAny')!;
 
       expect(
-        matchesAny(
+        matchesAny.evaluate(
           'hello123',
           { field: 'x', operator: 'matchesAny', value: ['[invalid(', '\\d+'] },
           ctx,
@@ -288,17 +282,17 @@ describe('string operators', () => {
     });
 
     test('null handling', () => {
-      const matchesAny = getOperator('matchesAny')!;
+      const matchesAny = operators.get('matchesAny')!;
 
       expect(
-        matchesAny(
+        matchesAny.evaluate(
           null,
           { field: 'x', operator: 'matchesAny', value: ['.*'] },
           ctx,
         ),
       ).toBe(false);
       expect(
-        matchesAny(
+        matchesAny.evaluate(
           'test',
           { field: 'x', operator: 'matchesAny', value: [null, '.*'] },
           ctx,

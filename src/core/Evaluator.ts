@@ -1,3 +1,4 @@
+import operators from '@/core/Operators';
 import {
   Condition,
   SimpleCondition,
@@ -6,8 +7,6 @@ import {
 } from './types';
 import { FieldAccessor } from '../utils/FieldAccessor';
 import { TemplateResolver } from '../utils/TemplateResolver';
-import { getOperator } from '../operators';
-
 export class Evaluator<T = unknown> {
   private fieldAccessor: FieldAccessor;
   private templateResolver: TemplateResolver;
@@ -62,8 +61,8 @@ export class Evaluator<T = unknown> {
     condition: SimpleCondition,
     context: EvaluationContext<T>,
   ): boolean {
-    const op = getOperator(condition.operator);
-    if (!op) {
+    const operator = operators.get(condition.operator);
+    if (!operator) {
       return false;
     }
 
@@ -81,7 +80,7 @@ export class Evaluator<T = unknown> {
       value: condition.value,
     };
 
-    return op(fieldValue, normalizedCondition, context);
+    return operator.evaluate(fieldValue, normalizedCondition, context);
   }
 
   private isSimple(condition: Condition<T>): condition is SimpleCondition {

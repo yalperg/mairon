@@ -1,31 +1,6 @@
 import { Evaluator } from '../../src/core/Evaluator';
-import { clearOperators } from '../../src/operators';
-import { registerComparisonOperators } from '../../src/operators/comparison';
-import { registerStringOperators } from '../../src/operators/string';
-import { registerArrayOperators } from '../../src/operators/array';
-import { registerExistenceOperators } from '../../src/operators/existence';
-import { registerTypeOperators } from '../../src/operators/type';
-import { registerChangeOperators } from '../../src/operators/change';
-import { registerMembershipOperators } from '../../src/operators/membership';
-import { registerLengthOperators } from '../../src/operators/length';
-
-function registerAllOps() {
-  registerComparisonOperators();
-  registerStringOperators();
-  registerArrayOperators();
-  registerExistenceOperators();
-  registerTypeOperators();
-  registerChangeOperators();
-  registerMembershipOperators();
-  registerLengthOperators();
-}
 
 describe('Evaluator', () => {
-  beforeEach(() => {
-    clearOperators();
-    registerAllOps();
-  });
-
   test('evaluates simple condition', () => {
     const evaluator = new Evaluator();
     const result = evaluator.evaluateCondition(

@@ -1,64 +1,74 @@
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import intersection from 'lodash/intersection';
-import { registerOperator } from './registry';
 import { SimpleCondition } from '../core/types';
+import { Operator } from '../core/Operator';
 
-export function registerArrayOperators(): void {
-  registerOperator(
-    'includes',
-    (fieldValue: unknown, condition: SimpleCondition): boolean => {
-      if (!isArray(fieldValue)) {
-        return false;
-      }
-      return fieldValue.includes(condition.value);
-    },
-  );
-
-  registerOperator(
-    'excludes',
-    (fieldValue: unknown, condition: SimpleCondition): boolean => {
-      if (!isArray(fieldValue)) {
-        return false;
-      }
-      return !fieldValue.includes(condition.value);
-    },
-  );
-
-  registerOperator(
-    'includesAll',
-    (fieldValue: unknown, condition: SimpleCondition): boolean => {
-      if (!isArray(fieldValue) || !isArray(condition.value)) {
-        return false;
-      }
-      const required = condition.value;
-      const common = intersection(fieldValue, required);
-      return common.length === required.length;
-    },
-  );
-
-  registerOperator(
-    'includesAny',
-    (fieldValue: unknown, condition: SimpleCondition): boolean => {
-      if (!isArray(fieldValue) || !isArray(condition.value)) {
-        return false;
-      }
-      const common = intersection(fieldValue, condition.value);
-      return common.length > 0;
-    },
-  );
-
-  registerOperator('isEmpty', (fieldValue: unknown): boolean => {
+const includes = new Operator(
+  'includes',
+  (fieldValue: unknown, condition: SimpleCondition): boolean => {
     if (!isArray(fieldValue)) {
       return false;
     }
-    return isEmpty(fieldValue);
-  });
+    return fieldValue.includes(condition.value);
+  },
+);
 
-  registerOperator('isNotEmpty', (fieldValue: unknown): boolean => {
+const excludes = new Operator(
+  'excludes',
+  (fieldValue: unknown, condition: SimpleCondition): boolean => {
+    if (!isArray(fieldValue)) {
+      return false;
+    }
+    return !fieldValue.includes(condition.value);
+  },
+);
+
+const includesAll = new Operator(
+  'includesAll',
+  (fieldValue: unknown, condition: SimpleCondition): boolean => {
+    if (!isArray(fieldValue) || !isArray(condition.value)) {
+      return false;
+    }
+    const required = condition.value;
+    const common = intersection(fieldValue, required);
+    return common.length === required.length;
+  },
+);
+
+const includesAny = new Operator(
+  'includesAny',
+  (fieldValue: unknown, condition: SimpleCondition): boolean => {
+    if (!isArray(fieldValue) || !isArray(condition.value)) {
+      return false;
+    }
+    const common = intersection(fieldValue, condition.value);
+    return common.length > 0;
+  },
+);
+
+const isEmptyArray = new Operator('isEmpty', (fieldValue: unknown): boolean => {
+  if (!isArray(fieldValue)) {
+    return false;
+  }
+  return isEmpty(fieldValue);
+});
+
+const isNotEmpty = new Operator(
+  'isNotEmpty',
+  (fieldValue: unknown): boolean => {
     if (!isArray(fieldValue)) {
       return false;
     }
     return !isEmpty(fieldValue);
-  });
-}
+  },
+);
+
+export default {
+  includes,
+  excludes,
+  includesAll,
+  includesAny,
+  isEmpty: isEmptyArray,
+  isNotEmpty,
+};

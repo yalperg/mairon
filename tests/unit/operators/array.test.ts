@@ -1,13 +1,8 @@
-import { clearOperators, getOperator } from '../../../src/operators';
-import { registerArrayOperators } from '../../../src/operators/array';
 import { EvaluationContext } from '../../../src/core/types';
+import operators from '../../../src/core/Operators';
+
 
 describe('array operators', () => {
-  beforeEach(() => {
-    clearOperators();
-    registerArrayOperators();
-  });
-
   const ctx: EvaluationContext<unknown> = {
     data: {},
     previousData: {},
@@ -16,24 +11,24 @@ describe('array operators', () => {
 
   describe('includes/excludes', () => {
     test('includes with array', () => {
-      const includes = getOperator('includes')!;
+      const includes = operators.get('includes')!;
 
       expect(
-        includes(
+        includes.evaluate(
           [1, 2, 3],
           { field: 'x', operator: 'includes', value: 2 },
           ctx,
         ),
       ).toBe(true);
       expect(
-        includes(
+        includes.evaluate(
           [1, 2, 3],
           { field: 'x', operator: 'includes', value: 4 },
           ctx,
         ),
       ).toBe(false);
       expect(
-        includes(
+        includes.evaluate(
           ['a', 'b'],
           { field: 'x', operator: 'includes', value: 'a' },
           ctx,
@@ -42,17 +37,17 @@ describe('array operators', () => {
     });
 
     test('excludes with array', () => {
-      const excludes = getOperator('excludes')!;
+      const excludes = operators.get('excludes')!;
 
       expect(
-        excludes(
+        excludes.evaluate(
           [1, 2, 3],
           { field: 'x', operator: 'excludes', value: 4 },
           ctx,
         ),
       ).toBe(true);
       expect(
-        excludes(
+        excludes.evaluate(
           [1, 2, 3],
           { field: 'x', operator: 'excludes', value: 2 },
           ctx,
@@ -61,37 +56,37 @@ describe('array operators', () => {
     });
 
     test('non-array returns false', () => {
-      const includes = getOperator('includes')!;
+      const includes = operators.get('includes')!;
 
       expect(
-        includes(
+        includes.evaluate(
           'string',
           { field: 'x', operator: 'includes', value: 's' },
           ctx,
         ),
       ).toBe(false);
       expect(
-        includes(123, { field: 'x', operator: 'includes', value: 1 }, ctx),
+        includes.evaluate(123, { field: 'x', operator: 'includes', value: 1 }, ctx),
       ).toBe(false);
       expect(
-        includes(null, { field: 'x', operator: 'includes', value: 1 }, ctx),
+        includes.evaluate(null, { field: 'x', operator: 'includes', value: 1 }, ctx),
       ).toBe(false);
     });
   });
 
   describe('includesAll', () => {
     test('includes all elements', () => {
-      const includesAll = getOperator('includesAll')!;
+      const includesAll = operators.get('includesAll')!;
 
       expect(
-        includesAll(
+        includesAll.evaluate(
           [1, 2, 3, 4],
           { field: 'x', operator: 'includesAll', value: [2, 3] },
           ctx,
         ),
       ).toBe(true);
       expect(
-        includesAll(
+        includesAll.evaluate(
           [1, 2, 3],
           { field: 'x', operator: 'includesAll', value: [1, 2, 3] },
           ctx,
@@ -100,17 +95,17 @@ describe('array operators', () => {
     });
 
     test('missing some elements', () => {
-      const includesAll = getOperator('includesAll')!;
+      const includesAll = operators.get('includesAll')!;
 
       expect(
-        includesAll(
+        includesAll.evaluate(
           [1, 2],
           { field: 'x', operator: 'includesAll', value: [1, 2, 3] },
           ctx,
         ),
       ).toBe(false);
       expect(
-        includesAll(
+        includesAll.evaluate(
           [1, 2, 3],
           { field: 'x', operator: 'includesAll', value: [4, 5] },
           ctx,
@@ -119,17 +114,17 @@ describe('array operators', () => {
     });
 
     test('empty array checks', () => {
-      const includesAll = getOperator('includesAll')!;
+      const includesAll = operators.get('includesAll')!;
 
       expect(
-        includesAll(
+        includesAll.evaluate(
           [1, 2, 3],
           { field: 'x', operator: 'includesAll', value: [] },
           ctx,
         ),
       ).toBe(true);
       expect(
-        includesAll(
+        includesAll.evaluate(
           [],
           { field: 'x', operator: 'includesAll', value: [1] },
           ctx,
@@ -138,17 +133,17 @@ describe('array operators', () => {
     });
 
     test('non-array value returns false', () => {
-      const includesAll = getOperator('includesAll')!;
+      const includesAll = operators.get('includesAll')!;
 
       expect(
-        includesAll(
+        includesAll.evaluate(
           [1, 2],
           { field: 'x', operator: 'includesAll', value: 'not-array' },
           ctx,
         ),
       ).toBe(false);
       expect(
-        includesAll(
+        includesAll.evaluate(
           'not-array',
           { field: 'x', operator: 'includesAll', value: [1] },
           ctx,
@@ -159,17 +154,17 @@ describe('array operators', () => {
 
   describe('includesAny', () => {
     test('includes at least one element', () => {
-      const includesAny = getOperator('includesAny')!;
+      const includesAny = operators.get('includesAny')!;
 
       expect(
-        includesAny(
+        includesAny.evaluate(
           [1, 2, 3],
           { field: 'x', operator: 'includesAny', value: [2, 4, 5] },
           ctx,
         ),
       ).toBe(true);
       expect(
-        includesAny(
+        includesAny.evaluate(
           [1, 2, 3],
           { field: 'x', operator: 'includesAny', value: [3] },
           ctx,
@@ -178,10 +173,10 @@ describe('array operators', () => {
     });
 
     test('no common elements', () => {
-      const includesAny = getOperator('includesAny')!;
+      const includesAny = operators.get('includesAny')!;
 
       expect(
-        includesAny(
+        includesAny.evaluate(
           [1, 2, 3],
           { field: 'x', operator: 'includesAny', value: [4, 5, 6] },
           ctx,
@@ -190,17 +185,17 @@ describe('array operators', () => {
     });
 
     test('empty array checks', () => {
-      const includesAny = getOperator('includesAny')!;
+      const includesAny = operators.get('includesAny')!;
 
       expect(
-        includesAny(
+        includesAny.evaluate(
           [1, 2, 3],
           { field: 'x', operator: 'includesAny', value: [] },
           ctx,
         ),
       ).toBe(false);
       expect(
-        includesAny(
+        includesAny.evaluate(
           [],
           { field: 'x', operator: 'includesAny', value: [1] },
           ctx,
@@ -209,17 +204,17 @@ describe('array operators', () => {
     });
 
     test('non-array value returns false', () => {
-      const includesAny = getOperator('includesAny')!;
+      const includesAny = operators.get('includesAny')!;
 
       expect(
-        includesAny(
+        includesAny.evaluate(
           [1, 2],
           { field: 'x', operator: 'includesAny', value: 'not-array' },
           ctx,
         ),
       ).toBe(false);
       expect(
-        includesAny(
+        includesAny.evaluate(
           'not-array',
           { field: 'x', operator: 'includesAny', value: [1] },
           ctx,
@@ -230,42 +225,42 @@ describe('array operators', () => {
 
   describe('isEmpty/isNotEmpty', () => {
     test('isEmpty checks', () => {
-      const isEmpty = getOperator('isEmpty')!;
+      const isEmpty = operators.get('isEmpty')!;
 
-      expect(isEmpty([], { field: 'x', operator: 'isEmpty' }, ctx)).toBe(true);
-      expect(isEmpty([1], { field: 'x', operator: 'isEmpty' }, ctx)).toBe(
+      expect(isEmpty.evaluate([], { field: 'x', operator: 'isEmpty' }, ctx)).toBe(true);
+      expect(isEmpty.evaluate([1], { field: 'x', operator: 'isEmpty' }, ctx)).toBe(
         false,
       );
-      expect(isEmpty([1, 2, 3], { field: 'x', operator: 'isEmpty' }, ctx)).toBe(
+      expect(isEmpty.evaluate([1, 2, 3], { field: 'x', operator: 'isEmpty' }, ctx)).toBe(
         false,
       );
     });
 
     test('isNotEmpty checks', () => {
-      const isNotEmpty = getOperator('isNotEmpty')!;
+      const isNotEmpty = operators.get('isNotEmpty')!;
 
-      expect(isNotEmpty([1], { field: 'x', operator: 'isNotEmpty' }, ctx)).toBe(
+      expect(isNotEmpty.evaluate([1], { field: 'x', operator: 'isNotEmpty' }, ctx)).toBe(
         true,
       );
       expect(
-        isNotEmpty([1, 2, 3], { field: 'x', operator: 'isNotEmpty' }, ctx),
+        isNotEmpty.evaluate([1, 2, 3], { field: 'x', operator: 'isNotEmpty' }, ctx),
       ).toBe(true);
-      expect(isNotEmpty([], { field: 'x', operator: 'isNotEmpty' }, ctx)).toBe(
+      expect(isNotEmpty.evaluate([], { field: 'x', operator: 'isNotEmpty' }, ctx)).toBe(
         false,
       );
     });
 
     test('non-array returns false', () => {
-      const isEmpty = getOperator('isEmpty')!;
-      const isNotEmpty = getOperator('isNotEmpty')!;
+      const isEmpty = operators.get('isEmpty')!;
+      const isNotEmpty = operators.get('isNotEmpty')!;
 
-      expect(isEmpty('string', { field: 'x', operator: 'isEmpty' }, ctx)).toBe(
+      expect(isEmpty.evaluate('string', { field: 'x', operator: 'isEmpty' }, ctx)).toBe(
         false,
       );
-      expect(isEmpty(null, { field: 'x', operator: 'isEmpty' }, ctx)).toBe(
+      expect(isEmpty.evaluate(null, { field: 'x', operator: 'isEmpty' }, ctx)).toBe(
         false,
       );
-      expect(isNotEmpty(123, { field: 'x', operator: 'isNotEmpty' }, ctx)).toBe(
+      expect(isNotEmpty.evaluate(123, { field: 'x', operator: 'isNotEmpty' }, ctx)).toBe(
         false,
       );
     });

@@ -1,29 +1,42 @@
 import isNull from 'lodash/isNull';
 import isUndefined from 'lodash/isUndefined';
-import { registerOperator } from './registry';
+import { Operator } from '../core/Operator';
 
-export function registerExistenceOperators(): void {
-  registerOperator('exists', (fieldValue: unknown): boolean => {
-    return fieldValue !== undefined;
-  });
+const exists = new Operator('exists', (fieldValue: unknown): boolean => {
+  return fieldValue !== undefined;
+});
 
-  registerOperator('notExists', (fieldValue: unknown): boolean => {
-    return fieldValue === undefined;
-  });
+const notExists = new Operator('notExists', (fieldValue: unknown): boolean => {
+  return fieldValue === undefined;
+});
 
-  registerOperator('isNull', (fieldValue: unknown): boolean => {
+const isNullOperator = new Operator(
+  'isNull',
+  (fieldValue: unknown): boolean => {
     return isNull(fieldValue);
-  });
+  },
+);
 
-  registerOperator('isNotNull', (fieldValue: unknown): boolean => {
-    return !isNull(fieldValue);
-  });
+const isNotNull = new Operator('isNotNull', (fieldValue: unknown): boolean => {
+  return !isNull(fieldValue);
+});
 
-  registerOperator('isDefined', (fieldValue: unknown): boolean => {
-    return !isUndefined(fieldValue);
-  });
+const isDefined = new Operator('isDefined', (fieldValue: unknown): boolean => {
+  return !isUndefined(fieldValue);
+});
 
-  registerOperator('isUndefined', (fieldValue: unknown): boolean => {
+const isUndefinedOperator = new Operator(
+  'isUndefined',
+  (fieldValue: unknown): boolean => {
     return isUndefined(fieldValue);
-  });
-}
+  },
+);
+
+export default {
+  exists,
+  notExists,
+  isNull: isNullOperator,
+  isNotNull,
+  isDefined,
+  isUndefined: isUndefinedOperator,
+};

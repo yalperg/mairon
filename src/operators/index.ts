@@ -1,32 +1,19 @@
-import { registerComparisonOperators } from './comparison';
-import { registerStringOperators } from './string';
-import { registerArrayOperators } from './array';
-import { registerExistenceOperators } from './existence';
-import { registerTypeOperators } from './type';
-import { registerChangeOperators } from './change';
-import { registerMembershipOperators } from './membership';
-import { registerLengthOperators } from './length';
+import array from './array';
+import existence from './existence';
+import length from './length';
+import membership from './membership';
+import string from './string';
+import typeOperators from './type';
+import change from './change';
+import comparison from './comparison';
 
-export function registerDefaultOperators(): void {
-  if ((registerDefaultOperators as { _done?: boolean })._done) {
-    return;
-  }
-  registerComparisonOperators();
-  registerStringOperators();
-  registerArrayOperators();
-  registerExistenceOperators();
-  registerTypeOperators();
-  registerChangeOperators();
-  registerMembershipOperators();
-  registerLengthOperators();
-  (registerDefaultOperators as { _done?: boolean })._done = true;
-}
-
-export {
-  registerOperator,
-  getOperator,
-  hasOperator,
-  clearOperators,
-  listOperators,
-} from './registry';
-export type { OperatorFunction } from './registry';
+export default {
+  ...array,
+  ...existence,
+  ...length,
+  ...membership,
+  ...string,
+  ...typeOperators,
+  ...change,
+  ...comparison,
+};

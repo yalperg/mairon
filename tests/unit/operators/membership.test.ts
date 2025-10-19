@@ -1,26 +1,17 @@
-import { clearOperators, getOperator } from '../../../src/operators';
-import { registerMembershipOperators } from '../../../src/operators/membership';
-import { registerComparisonOperators } from '../../../src/operators/comparison';
+import operators from '../../../src/core/Operators';
 
 describe('membership operators', () => {
-  beforeEach(() => {
-    clearOperators();
-    // include equals for some sanity checks in tests
-    registerComparisonOperators();
-    registerMembershipOperators();
-  });
-
   test('in: value present in array', () => {
-    const op = getOperator('in')!;
+    const op = operators.get('in')!;
     expect(
-      op(
+      op.evaluate(
         'apple',
         { field: 'fruit', operator: 'in', value: ['apple', 'banana'] },
         { data: {}, context: {} },
       ),
     ).toBe(true);
     expect(
-      op(
+      op.evaluate(
         'cherry',
         { field: 'fruit', operator: 'in', value: ['apple', 'banana'] },
         { data: {}, context: {} },
@@ -29,14 +20,14 @@ describe('membership operators', () => {
   });
 
   test('in: deep equality match (objects)', () => {
-    const op = getOperator('in')!;
+    const op = operators.get('in')!;
     const target = { id: 1, name: 'Alice' };
     const list = [
       { id: 2, name: 'Bob' },
       { id: 1, name: 'Alice' },
     ];
     expect(
-      op(
+      op.evaluate(
         target,
         { field: 'user', operator: 'in', value: list },
         { data: {}, context: {} },
@@ -45,16 +36,16 @@ describe('membership operators', () => {
   });
 
   test('notIn: value absent in array', () => {
-    const op = getOperator('notIn')!;
+    const op = operators.get('notIn')!;
     expect(
-      op(
+      op.evaluate(
         'apple',
         { field: 'fruit', operator: 'notIn', value: ['banana', 'orange'] },
         { data: {}, context: {} },
       ),
     ).toBe(true);
     expect(
-      op(
+      op.evaluate(
         'banana',
         { field: 'fruit', operator: 'notIn', value: ['banana', 'orange'] },
         { data: {}, context: {} },
@@ -63,18 +54,18 @@ describe('membership operators', () => {
   });
 
   test('invalid value type returns false', () => {
-    const inOp = getOperator('in')!;
-    const notInOp = getOperator('notIn')!;
+    const inOp = operators.get('in')!;
+    const notInOp = operators.get('notIn')!;
     // value must be an array
     expect(
-      inOp(
+      inOp.evaluate(
         'a',
         { field: 'x', operator: 'in', value: 'abc' as unknown as string[] },
         { data: {}, context: {} },
       ),
     ).toBe(false);
     expect(
-      notInOp(
+      notInOp.evaluate(
         'a',
         { field: 'x', operator: 'notIn', value: 'abc' as unknown as string[] },
         { data: {}, context: {} },
@@ -83,17 +74,17 @@ describe('membership operators', () => {
   });
 
   test('handles null and undefined correctly', () => {
-    const inOp = getOperator('in')!;
-    const notInOp = getOperator('notIn')!;
+    const inOp = operators.get('in')!;
+    const notInOp = operators.get('notIn')!;
     expect(
-      inOp(
+      inOp.evaluate(
         null,
         { field: 'x', operator: 'in', value: [null, 'a'] },
         { data: {}, context: {} },
       ),
     ).toBe(true);
     expect(
-      notInOp(
+      notInOp.evaluate(
         undefined,
         { field: 'x', operator: 'notIn', value: [1, 2, 3] },
         { data: {}, context: {} },

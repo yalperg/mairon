@@ -3,26 +3,44 @@ import isNumber from 'lodash/isNumber';
 import isBoolean from 'lodash/isBoolean';
 import isArray from 'lodash/isArray';
 import isPlainObject from 'lodash/isPlainObject';
-import { registerOperator } from './registry';
+import { Operator } from '../core/Operator';
 
-export function registerTypeOperators(): void {
-  registerOperator('isString', (fieldValue: unknown): boolean => {
+const isStringOperator = new Operator(
+  'isString',
+  (fieldValue: unknown): boolean => {
     return isString(fieldValue);
-  });
+  },
+);
 
-  registerOperator('isNumber', (fieldValue: unknown): boolean => {
+const isNumberOperator = new Operator(
+  'isNumber',
+  (fieldValue: unknown): boolean => {
     return isNumber(fieldValue) && !Number.isNaN(fieldValue);
-  });
+  },
+);
 
-  registerOperator('isBoolean', (fieldValue: unknown): boolean => {
+const isBooleanOperator = new Operator(
+  'isBoolean',
+  (fieldValue: unknown): boolean => {
     return isBoolean(fieldValue);
-  });
+  },
+);
 
-  registerOperator('isArray', (fieldValue: unknown): boolean => {
+const isArrayOperator = new Operator(
+  'isArray',
+  (fieldValue: unknown): boolean => {
     return isArray(fieldValue);
-  });
+  },
+);
 
-  registerOperator('isObject', (fieldValue: unknown): boolean => {
-    return isPlainObject(fieldValue);
-  });
-}
+const isObject = new Operator('isObject', (fieldValue: unknown): boolean => {
+  return isPlainObject(fieldValue);
+});
+
+export default {
+  isString: isStringOperator,
+  isNumber: isNumberOperator,
+  isBoolean: isBooleanOperator,
+  isArray: isArrayOperator,
+  isObject,
+};

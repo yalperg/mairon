@@ -13,7 +13,6 @@ import {
   EventData,
   PerformanceMetrics,
 } from './types';
-import { registerDefaultOperators } from '../operators';
 
 export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
   private manager: RuleManager<T>;
@@ -49,7 +48,6 @@ export class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
   ) {
     super();
     this.config = config ?? {};
-    registerDefaultOperators();
     this.manager = deps?.manager ?? new RuleManager<T>(this.config);
     this.evaluator = deps?.evaluator ?? new Evaluator<T>();
     this.executor = deps?.executor ?? new Executor<T>();

@@ -1,13 +1,7 @@
-import { clearOperators, getOperator } from '../../../src/operators';
-import { registerTypeOperators } from '../../../src/operators/type';
+import operators from '../../../src/core/Operators';
 import { EvaluationContext } from '../../../src/core/types';
 
 describe('type operators', () => {
-  beforeEach(() => {
-    clearOperators();
-    registerTypeOperators();
-  });
-
   const ctx: EvaluationContext<unknown> = {
     data: {},
     previousData: {},
@@ -16,38 +10,38 @@ describe('type operators', () => {
 
   describe('isString', () => {
     test('returns true for strings', () => {
-      const isString = getOperator('isString')!;
+      const isString = operators.get('isString')!;
 
-      expect(isString('hello', { field: 'x', operator: 'isString' }, ctx)).toBe(
+      expect(isString.evaluate('hello', { field: 'x', operator: 'isString' }, ctx)).toBe(
         true,
       );
-      expect(isString('', { field: 'x', operator: 'isString' }, ctx)).toBe(
+      expect(isString.evaluate('', { field: 'x', operator: 'isString' }, ctx)).toBe(
         true,
       );
-      expect(isString('123', { field: 'x', operator: 'isString' }, ctx)).toBe(
+      expect(isString.evaluate('123', { field: 'x', operator: 'isString' }, ctx)).toBe(
         true,
       );
     });
 
     test('returns false for non-strings', () => {
-      const isString = getOperator('isString')!;
+      const isString = operators.get('isString')!;
 
-      expect(isString(123, { field: 'x', operator: 'isString' }, ctx)).toBe(
+      expect(isString.evaluate(123, { field: 'x', operator: 'isString' }, ctx)).toBe(
         false,
       );
-      expect(isString(true, { field: 'x', operator: 'isString' }, ctx)).toBe(
+      expect(isString.evaluate(true, { field: 'x', operator: 'isString' }, ctx)).toBe(
         false,
       );
-      expect(isString(null, { field: 'x', operator: 'isString' }, ctx)).toBe(
+      expect(isString.evaluate(null, { field: 'x', operator: 'isString' }, ctx)).toBe(
         false,
       );
       expect(
-        isString(undefined, { field: 'x', operator: 'isString' }, ctx),
+        isString.evaluate(undefined, { field: 'x', operator: 'isString' }, ctx),
       ).toBe(false);
-      expect(isString([], { field: 'x', operator: 'isString' }, ctx)).toBe(
+      expect(isString.evaluate([], { field: 'x', operator: 'isString' }, ctx)).toBe(
         false,
       );
-      expect(isString({}, { field: 'x', operator: 'isString' }, ctx)).toBe(
+      expect(isString.evaluate({}, { field: 'x', operator: 'isString' }, ctx)).toBe(
         false,
       );
     });
@@ -55,47 +49,47 @@ describe('type operators', () => {
 
   describe('isNumber', () => {
     test('returns true for numbers', () => {
-      const isNumber = getOperator('isNumber')!;
+      const isNumber = operators.get('isNumber')!;
 
-      expect(isNumber(123, { field: 'x', operator: 'isNumber' }, ctx)).toBe(
+      expect(isNumber.evaluate(123, { field: 'x', operator: 'isNumber' }, ctx)).toBe(
         true,
       );
-      expect(isNumber(0, { field: 'x', operator: 'isNumber' }, ctx)).toBe(true);
-      expect(isNumber(-5, { field: 'x', operator: 'isNumber' }, ctx)).toBe(
+      expect(isNumber.evaluate(0, { field: 'x', operator: 'isNumber' }, ctx)).toBe(true);
+      expect(isNumber.evaluate(-5, { field: 'x', operator: 'isNumber' }, ctx)).toBe(
         true,
       );
-      expect(isNumber(3.14, { field: 'x', operator: 'isNumber' }, ctx)).toBe(
+      expect(isNumber.evaluate(3.14, { field: 'x', operator: 'isNumber' }, ctx)).toBe(
         true,
       );
     });
 
     test('returns false for NaN', () => {
-      const isNumber = getOperator('isNumber')!;
+      const isNumber = operators.get('isNumber')!;
 
-      expect(isNumber(NaN, { field: 'x', operator: 'isNumber' }, ctx)).toBe(
+      expect(isNumber.evaluate(NaN, { field: 'x', operator: 'isNumber' }, ctx)).toBe(
         false,
       );
     });
 
     test('returns false for non-numbers', () => {
-      const isNumber = getOperator('isNumber')!;
+      const isNumber = operators.get('isNumber')!;
 
-      expect(isNumber('123', { field: 'x', operator: 'isNumber' }, ctx)).toBe(
+      expect(isNumber.evaluate('123', { field: 'x', operator: 'isNumber' }, ctx)).toBe(
         false,
       );
-      expect(isNumber(true, { field: 'x', operator: 'isNumber' }, ctx)).toBe(
+      expect(isNumber.evaluate(true, { field: 'x', operator: 'isNumber' }, ctx)).toBe(
         false,
       );
-      expect(isNumber(null, { field: 'x', operator: 'isNumber' }, ctx)).toBe(
+      expect(isNumber.evaluate(null, { field: 'x', operator: 'isNumber' }, ctx)).toBe(
         false,
       );
       expect(
-        isNumber(undefined, { field: 'x', operator: 'isNumber' }, ctx),
+        isNumber.evaluate(undefined, { field: 'x', operator: 'isNumber' }, ctx),
       ).toBe(false);
-      expect(isNumber([], { field: 'x', operator: 'isNumber' }, ctx)).toBe(
+      expect(isNumber.evaluate([], { field: 'x', operator: 'isNumber' }, ctx)).toBe(
         false,
       );
-      expect(isNumber({}, { field: 'x', operator: 'isNumber' }, ctx)).toBe(
+      expect(isNumber.evaluate({}, { field: 'x', operator: 'isNumber' }, ctx)).toBe(
         false,
       );
     });
@@ -103,64 +97,64 @@ describe('type operators', () => {
 
   describe('isBoolean', () => {
     test('returns true for booleans', () => {
-      const isBoolean = getOperator('isBoolean')!;
+      const isBoolean = operators.get('isBoolean')!;
 
-      expect(isBoolean(true, { field: 'x', operator: 'isBoolean' }, ctx)).toBe(
+      expect(isBoolean.evaluate(true, { field: 'x', operator: 'isBoolean' }, ctx)).toBe(
         true,
       );
-      expect(isBoolean(false, { field: 'x', operator: 'isBoolean' }, ctx)).toBe(
+      expect(isBoolean.evaluate(false, { field: 'x', operator: 'isBoolean' }, ctx)).toBe(
         true,
       );
     });
 
     test('returns false for non-booleans', () => {
-      const isBoolean = getOperator('isBoolean')!;
+      const isBoolean = operators.get('isBoolean')!;
 
-      expect(isBoolean(1, { field: 'x', operator: 'isBoolean' }, ctx)).toBe(
+      expect(isBoolean.evaluate(1, { field: 'x', operator: 'isBoolean' }, ctx)).toBe(
         false,
       );
-      expect(isBoolean(0, { field: 'x', operator: 'isBoolean' }, ctx)).toBe(
+      expect(isBoolean.evaluate(0, { field: 'x', operator: 'isBoolean' }, ctx)).toBe(
         false,
       );
       expect(
-        isBoolean('true', { field: 'x', operator: 'isBoolean' }, ctx),
+        isBoolean.evaluate('true', { field: 'x', operator: 'isBoolean' }, ctx),
       ).toBe(false);
-      expect(isBoolean(null, { field: 'x', operator: 'isBoolean' }, ctx)).toBe(
+      expect(isBoolean.evaluate(null, { field: 'x', operator: 'isBoolean' }, ctx)).toBe(
         false,
       );
       expect(
-        isBoolean(undefined, { field: 'x', operator: 'isBoolean' }, ctx),
+        isBoolean.evaluate(undefined, { field: 'x', operator: 'isBoolean' }, ctx),
       ).toBe(false);
     });
   });
 
   describe('isArray', () => {
     test('returns true for arrays', () => {
-      const isArray = getOperator('isArray')!;
+      const isArray = operators.get('isArray')!;
 
-      expect(isArray([], { field: 'x', operator: 'isArray' }, ctx)).toBe(true);
-      expect(isArray([1, 2, 3], { field: 'x', operator: 'isArray' }, ctx)).toBe(
+      expect(isArray.evaluate([], { field: 'x', operator: 'isArray' }, ctx)).toBe(true);
+      expect(isArray.evaluate([1, 2, 3], { field: 'x', operator: 'isArray' }, ctx)).toBe(
         true,
       );
       expect(
-        isArray(['a', 'b'], { field: 'x', operator: 'isArray' }, ctx),
+        isArray.evaluate(['a', 'b'], { field: 'x', operator: 'isArray' }, ctx),
       ).toBe(true);
     });
 
     test('returns false for non-arrays', () => {
-      const isArray = getOperator('isArray')!;
+      const isArray = operators.get('isArray')!;
 
-      expect(isArray('array', { field: 'x', operator: 'isArray' }, ctx)).toBe(
+      expect(isArray.evaluate('array', { field: 'x', operator: 'isArray' }, ctx)).toBe(
         false,
       );
-      expect(isArray(123, { field: 'x', operator: 'isArray' }, ctx)).toBe(
+      expect(isArray.evaluate(123, { field: 'x', operator: 'isArray' }, ctx)).toBe(
         false,
       );
-      expect(isArray({}, { field: 'x', operator: 'isArray' }, ctx)).toBe(false);
-      expect(isArray(null, { field: 'x', operator: 'isArray' }, ctx)).toBe(
+      expect(isArray.evaluate({}, { field: 'x', operator: 'isArray' }, ctx)).toBe(false);
+      expect(isArray.evaluate(null, { field: 'x', operator: 'isArray' }, ctx)).toBe(
         false,
       );
-      expect(isArray(undefined, { field: 'x', operator: 'isArray' }, ctx)).toBe(
+      expect(isArray.evaluate(undefined, { field: 'x', operator: 'isArray' }, ctx)).toBe(
         false,
       );
     });
@@ -168,44 +162,44 @@ describe('type operators', () => {
 
   describe('isObject', () => {
     test('returns true for plain objects', () => {
-      const isObject = getOperator('isObject')!;
+      const isObject = operators.get('isObject')!;
 
-      expect(isObject({}, { field: 'x', operator: 'isObject' }, ctx)).toBe(
+      expect(isObject.evaluate({}, { field: 'x', operator: 'isObject' }, ctx)).toBe(
         true,
       );
       expect(
-        isObject({ a: 1, b: 2 }, { field: 'x', operator: 'isObject' }, ctx),
+        isObject.evaluate({ a: 1, b: 2 }, { field: 'x', operator: 'isObject' }, ctx),
       ).toBe(true);
     });
 
     test('returns false for arrays', () => {
-      const isObject = getOperator('isObject')!;
+      const isObject = operators.get('isObject')!;
 
-      expect(isObject([], { field: 'x', operator: 'isObject' }, ctx)).toBe(
+      expect(isObject.evaluate([], { field: 'x', operator: 'isObject' }, ctx)).toBe(
         false,
       );
       expect(
-        isObject([1, 2, 3], { field: 'x', operator: 'isObject' }, ctx),
+        isObject.evaluate([1, 2, 3], { field: 'x', operator: 'isObject' }, ctx),
       ).toBe(false);
     });
 
     test('returns false for other types', () => {
-      const isObject = getOperator('isObject')!;
+      const isObject = operators.get('isObject')!;
 
       expect(
-        isObject('object', { field: 'x', operator: 'isObject' }, ctx),
+        isObject.evaluate('object', { field: 'x', operator: 'isObject' }, ctx),
       ).toBe(false);
-      expect(isObject(123, { field: 'x', operator: 'isObject' }, ctx)).toBe(
+      expect(isObject.evaluate(123, { field: 'x', operator: 'isObject' }, ctx)).toBe(
         false,
       );
-      expect(isObject(null, { field: 'x', operator: 'isObject' }, ctx)).toBe(
+      expect(isObject.evaluate(null, { field: 'x', operator: 'isObject' }, ctx)).toBe(
         false,
       );
       expect(
-        isObject(undefined, { field: 'x', operator: 'isObject' }, ctx),
+        isObject.evaluate(undefined, { field: 'x', operator: 'isObject' }, ctx),
       ).toBe(false);
       expect(
-        isObject(new Date(), { field: 'x', operator: 'isObject' }, ctx),
+        isObject.evaluate(new Date(), { field: 'x', operator: 'isObject' }, ctx),
       ).toBe(false);
     });
   });

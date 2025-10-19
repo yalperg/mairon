@@ -1,8 +1,8 @@
 import isArray from 'lodash/isArray';
 import isString from 'lodash/isString';
 import isNumber from 'lodash/isNumber';
-import { registerOperator } from './registry';
 import { SimpleCondition, EvaluationContext } from '../core/types';
+import { Operator } from '../core/Operator';
 
 function getLength(value: unknown): number | null {
   if (isString(value) || isArray(value)) {
@@ -18,84 +18,90 @@ function getTarget(condition: SimpleCondition): number | null {
   return null;
 }
 
-export function registerLengthOperators(): void {
-  registerOperator(
-    'lengthEquals',
-    (
-      fieldValue: unknown,
-      condition: SimpleCondition,
-      _context: EvaluationContext,
-    ): boolean => {
-      const length = getLength(fieldValue);
-      const target = getTarget(condition);
-      if (length === null || target === null) {
-        return false;
-      }
-      return length === target;
-    },
-  );
+const lengthEquals = new Operator(
+  'lengthEquals',
+  (
+    fieldValue: unknown,
+    condition: SimpleCondition,
+    _context: EvaluationContext,
+  ): boolean => {
+    const length = getLength(fieldValue);
+    const target = getTarget(condition);
+    if (length === null || target === null) {
+      return false;
+    }
+    return length === target;
+  },
+);
 
-  registerOperator(
-    'lengthGreaterThan',
-    (
-      fieldValue: unknown,
-      condition: SimpleCondition,
-      _context: EvaluationContext,
-    ): boolean => {
-      const length = getLength(fieldValue);
-      const target = getTarget(condition);
-      if (length === null || target === null) {
-        return false;
-      }
-      return length > target;
-    },
-  );
+const lengthGreaterThan = new Operator(
+  'lengthGreaterThan',
+  (
+    fieldValue: unknown,
+    condition: SimpleCondition,
+    _context: EvaluationContext,
+  ): boolean => {
+    const length = getLength(fieldValue);
+    const target = getTarget(condition);
+    if (length === null || target === null) {
+      return false;
+    }
+    return length > target;
+  },
+);
 
-  registerOperator(
-    'lengthLessThan',
-    (
-      fieldValue: unknown,
-      condition: SimpleCondition,
-      _context: EvaluationContext,
-    ): boolean => {
-      const length = getLength(fieldValue);
-      const target = getTarget(condition);
-      if (length === null || target === null) {
-        return false;
-      }
-      return length < target;
-    },
-  );
+const lengthLessThan = new Operator(
+  'lengthLessThan',
+  (
+    fieldValue: unknown,
+    condition: SimpleCondition,
+    _context: EvaluationContext,
+  ): boolean => {
+    const length = getLength(fieldValue);
+    const target = getTarget(condition);
+    if (length === null || target === null) {
+      return false;
+    }
+    return length < target;
+  },
+);
 
-  registerOperator(
-    'lengthGreaterThanOrEqual',
-    (
-      fieldValue: unknown,
-      condition: SimpleCondition,
-      _context: EvaluationContext,
-    ): boolean => {
-      const length = getLength(fieldValue);
-      const target = getTarget(condition);
-      if (length === null || target === null) {
-        return false;
-      }
-      return length >= target;
-    },
-  );
+const lengthGreaterThanOrEqual = new Operator(
+  'lengthGreaterThanOrEqual',
+  (
+    fieldValue: unknown,
+    condition: SimpleCondition,
+    _context: EvaluationContext,
+  ): boolean => {
+    const length = getLength(fieldValue);
+    const target = getTarget(condition);
+    if (length === null || target === null) {
+      return false;
+    }
+    return length >= target;
+  },
+);
 
-  registerOperator(
-    'lengthLessThanOrEqual',
-    (
-      fieldValue: unknown,
-      condition: SimpleCondition,
-      _context: EvaluationContext,
-    ): boolean => {
-      const length = getLength(fieldValue);
-      const target = getTarget(condition);
-      if (length === null || target === null) {
-        return false;
-      }
-      return length <= target;
-    },
-  );
-}
+const lengthLessThanOrEqual = new Operator(
+  'lengthLessThanOrEqual',
+  (
+    fieldValue: unknown,
+    condition: SimpleCondition,
+    _context: EvaluationContext,
+  ): boolean => {
+    const length = getLength(fieldValue);
+    const target = getTarget(condition);
+    if (length === null || target === null) {
+      return false;
+    }
+    return length <= target;
+  },
+);
+
+export default {
+  lengthEquals,
+  lengthGreaterThan,
+  lengthLessThan,
+  lengthGreaterThanOrEqual,
+  lengthLessThanOrEqual,
+};

@@ -1,23 +1,17 @@
-import { clearOperators, getOperator } from '../../../src/operators';
-import { registerLengthOperators } from '../../../src/operators/length';
+import operators from '../../../src/core/Operators';
 
 describe('length operators', () => {
-  beforeEach(() => {
-    clearOperators();
-    registerLengthOperators();
-  });
-
   test('lengthEquals for strings', () => {
-    const op = getOperator('lengthEquals')!;
+    const op = operators.get('lengthEquals')!;
     expect(
-      op(
+      op.evaluate(
         'abc',
         { field: 'name', operator: 'lengthEquals', value: 3 },
         { data: {}, context: {} },
       ),
     ).toBe(true);
     expect(
-      op(
+      op.evaluate(
         'abcd',
         { field: 'name', operator: 'lengthEquals', value: 3 },
         { data: {}, context: {} },
@@ -26,16 +20,16 @@ describe('length operators', () => {
   });
 
   test('lengthEquals for arrays', () => {
-    const op = getOperator('lengthEquals')!;
+    const op = operators.get('lengthEquals')!;
     expect(
-      op(
+      op.evaluate(
         [1, 2, 3],
         { field: 'nums', operator: 'lengthEquals', value: 3 },
         { data: {}, context: {} },
       ),
     ).toBe(true);
     expect(
-      op(
+      op.evaluate(
         [1, 2],
         { field: 'nums', operator: 'lengthEquals', value: 3 },
         { data: {}, context: {} },
@@ -44,34 +38,34 @@ describe('length operators', () => {
   });
 
   test('greater/less than for strings', () => {
-    const gt = getOperator('lengthGreaterThan')!;
-    const lt = getOperator('lengthLessThan')!;
-    const gte = getOperator('lengthGreaterThanOrEqual')!;
-    const lte = getOperator('lengthLessThanOrEqual')!;
+    const gt = operators.get('lengthGreaterThan')!;
+    const lt = operators.get('lengthLessThan')!;
+    const gte = operators.get('lengthGreaterThanOrEqual')!;
+    const lte = operators.get('lengthLessThanOrEqual')!;
 
     expect(
-      gt(
+      gt.evaluate(
         'abcd',
         { field: 'x', operator: 'lengthGreaterThan', value: 3 },
         { data: {}, context: {} },
       ),
     ).toBe(true);
     expect(
-      lt(
+      lt.evaluate(
         'ab',
         { field: 'x', operator: 'lengthLessThan', value: 3 },
         { data: {}, context: {} },
       ),
     ).toBe(true);
     expect(
-      gte(
+      gte.evaluate(
         'abc',
         { field: 'x', operator: 'lengthGreaterThanOrEqual', value: 3 },
         { data: {}, context: {} },
       ),
     ).toBe(true);
     expect(
-      lte(
+      lte.evaluate(
         'abc',
         { field: 'x', operator: 'lengthLessThanOrEqual', value: 3 },
         { data: {}, context: {} },
@@ -80,16 +74,16 @@ describe('length operators', () => {
   });
 
   test('invalid inputs return false', () => {
-    const eq = getOperator('lengthEquals')!;
+    const eq = operators.get('lengthEquals')!;
     expect(
-      eq(
+      eq.evaluate(
         123 as unknown as string,
         { field: 'x', operator: 'lengthEquals', value: 3 },
         { data: {}, context: {} },
       ),
     ).toBe(false);
     expect(
-      eq(
+      eq.evaluate(
         {} as unknown as string,
         { field: 'x', operator: 'lengthEquals', value: 3 },
         { data: {}, context: {} },
@@ -97,7 +91,7 @@ describe('length operators', () => {
     ).toBe(false);
     // invalid target
     expect(
-      eq(
+      eq.evaluate(
         'abc',
         {
           field: 'x',

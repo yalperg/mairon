@@ -1,4 +1,4 @@
-import {
+import type {
   Action,
   RuleFilter,
   EngineStats,
@@ -11,7 +11,7 @@ import {
   ConditionOperator,
 } from '../schema';
 
-export {
+export type {
   Action,
   RuleFilter,
   EngineStats,

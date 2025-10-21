@@ -8,7 +8,10 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",
-    "rootDir": ".",
+    "rootDir": "src",
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
@@ -25,6 +28,6 @@
       "@/utils/*": ["src/utils/*"]
     }
   },
-  "include": ["src/**/*", "tests/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "tests"]
 }

@@ -40,7 +40,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "rm -rf ./dist && node esbuild.config.js",
+    "build": "rm -rf ./dist && node esbuild.config.js && tsc --emitDeclarationOnly --declaration --declarationMap",
+    "build:types": "tsc --emitDeclarationOnly --declaration --declarationMap",
     "dev": "rm -rf ./dist && NODE_ENV=development node esbuild.config.js",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",

@@ -4,14 +4,29 @@
   "keywords": [
     "rule-engine",
     "rules",
-    "engine"
+    "engine",
+    "business-rules",
+    "workflow",
+    "automation"
   ],
   "description": "Sauron is a powerful, flexible, and type-safe rule engine for TypeScript/JavaScript. Define complex business rules declaratively and execute them efficiently against your data.",
   "license": "MIT",
-  "author": "Yunus Alper Göl <yalperg>",
+  "author": {
+    "name": "Yunus Alper Göl",
+    "url": "https://github.com/yalperg"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yalperg/sauron.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yalperg/sauron/issues"
+  },
+  "homepage": "https://github.com/yalperg/sauron#readme",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -19,7 +34,10 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "docs",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "rm -rf ./dist && node esbuild.config.js",

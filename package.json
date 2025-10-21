@@ -6,7 +6,7 @@
     "rules",
     "engine"
   ],
-  "description": "One engine to rule them all: A powerful and flexible rule engine",
+  "description": "Sauron is a powerful, flexible, and type-safe rule engine for TypeScript/JavaScript. Define complex business rules declaratively and execute them efficiently against your data.",
   "license": "MIT",
   "author": "Yunus Alper Göl <yalperg>",
   "type": "module",

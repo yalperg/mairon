@@ -1,11 +1,11 @@
-# Sauron
+# Mairon
 
 > One engine to rule them all
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
 
-Sauron is a powerful, flexible, and type-safe rule engine for TypeScript/JavaScript. Define complex business rules declaratively and execute them efficiently against your data.
+Mairon is a powerful, flexible, and type-safe rule engine for TypeScript/JavaScript. Define complex business rules declaratively and execute them efficiently against your data.
 
 ## Features
 
@@ -19,20 +19,20 @@ Sauron is a powerful, flexible, and type-safe rule engine for TypeScript/JavaScr
 ## Installation
 
 ```bash
-npm install sauron
+npm install mairon
 # or
-yarn add sauron
+yarn add mairon
 # or
-pnpm add sauron
+pnpm add mairon
 ```
 
 ## Quick Start
 
 ```typescript
-import Sauron from 'sauron';
+import Mairon from 'mairon';
 
 // Create engine
-const engine = new Sauron();
+const engine = new Mairon();
 
 // Register action handlers
 engine.registerHandler('notify', (context, params) => {
@@ -64,10 +64,10 @@ console.log(results[0].matched); // true
 
 ## Example: Task Management
 
-This example shows how to build automation on top of a Todo object using Sauron.
+This example shows how to build automation on top of a Todo object using Mairon.
 
 ```typescript
-import Sauron, { type Rule } from 'sauron';
+import Mairon, { type Rule } from 'mairon';
 
 type Todo = {
   id: string;
@@ -79,7 +79,7 @@ type Todo = {
   assignee?: string;
 };
 
-const engine = new Sauron<Todo>({ enableIndexing: true });
+const engine = new Mairon<Todo>({ enableIndexing: true });
 
 const notifications: string[] = [];
 
@@ -202,7 +202,7 @@ A rule consists of:
 
 ### Operators
 
-Sauron includes 43+ operators across multiple categories:
+Mairon includes 43+ operators across multiple categories:
 
 - **Comparison**: `equals`, `greaterThan`, `lessThan`, `between`, etc.
 - **String**: `contains`, `startsWith`, `endsWith`, `matches` (regex)
@@ -291,7 +291,7 @@ const results = await engine.evaluate({
 
 ```typescript
 // Create engine
-const engine = new Sauron<DataType>(config);
+const engine = new Mairon<DataType>(config);
 
 // Add rules
 engine.addRule(rule);
@@ -329,7 +329,7 @@ const stats = engine.getStats();
 ## Configuration
 
 ```typescript
-const engine = new Sauron({
+const engine = new Mairon({
   strict: true,              // Throw on missing handlers
   enableIndexing: true,      // Performance optimization for large rule sets
   validateSchema: true,      // Validate rules on add

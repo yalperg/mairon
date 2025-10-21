@@ -1,2 +1,2 @@
 export type * from '@/types';
-export { Sauron as default } from '@/core';
+export { Mairon as default } from '@/core';

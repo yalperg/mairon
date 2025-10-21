@@ -3,7 +3,7 @@ import EventEmitter from './EventEmitter';
 import Executor from './Executor';
 import Operator, { type OperatorFn } from './Operator';
 import RuleManager from './RuleManager';
-import Sauron from './Sauron';
+import Mairon from './Mairon';
 import operators from './Operators';
 
 export type { OperatorFn };
@@ -13,6 +13,6 @@ export {
   Executor,
   Operator,
   RuleManager,
-  Sauron,
+  Mairon,
   operators,
 };

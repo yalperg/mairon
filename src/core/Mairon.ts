@@ -15,7 +15,7 @@ import type {
   PerformanceMetrics,
 } from '@/types';
 
-class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
+class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
   private manager: RuleManager<T>;
   private evaluator: Evaluator<T>;
   private executor: Executor<T>;
@@ -296,4 +296,4 @@ class Sauron<T = unknown> extends EventEmitter<EngineEvent, EventData> {
   }
 }
 
-export default Sauron;
+export default Mairon;

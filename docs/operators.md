@@ -1,6 +1,6 @@
 # Operators Reference
 
-Complete guide to all 43 operators available in Sauron.
+Complete guide to all 43 operators available in Mairon.
 
 ## Table of Contents
 

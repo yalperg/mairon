@@ -1,6 +1,6 @@
 # Templates Guide
 
-Sauron supports dynamic templates in condition values and action parameters, allowing you to reference data fields, time expressions, and context values at evaluation time.
+Mairon supports dynamic templates in condition values and action parameters, allowing you to reference data fields, time expressions, and context values at evaluation time.
 
 ## Table of Contents
 
@@ -768,7 +768,7 @@ When a template resolves to `undefined` or `null`:
 
 ### Caching
 
-Sauron caches resolved template expressions for improved performance:
+Mairon caches resolved template expressions for improved performance:
 
 - Templates are parsed once
 - Expression results are cached with TTL
@@ -822,7 +822,7 @@ engine.evaluate({
 Disable templates if not needed:
 
 ```typescript
-const engine = new Sauron({
+const engine = new Mairon({
   enableTemplates: false  // Disable template resolution
 });
 ```

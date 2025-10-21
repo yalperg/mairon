@@ -1,5 +1,5 @@
 {
-  "name": "sauron",
+  "name": "mairon",
   "version": "1.0.0",
   "keywords": [
     "rule-engine",
@@ -9,7 +9,7 @@
     "workflow",
     "automation"
   ],
-  "description": "Sauron is a powerful, flexible, and type-safe rule engine for TypeScript/JavaScript. Define complex business rules declaratively and execute them efficiently against your data.",
+  "description": "Mairon is a powerful, flexible, and type-safe rule engine for TypeScript/JavaScript. Define complex business rules declaratively and execute them efficiently against your data.",
   "license": "MIT",
   "author": {
     "name": "Yunus Alper Göl",
@@ -17,16 +17,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yalperg/sauron.git"
+    "url": "https://github.com/yalperg/mairon.git"
   },
   "bugs": {
-    "url": "https://github.com/yalperg/sauron/issues"
+    "url": "https://github.com/yalperg/mairon/issues"
   },
-  "homepage": "https://github.com/yalperg/sauron#readme",
+  "homepage": "https://github.com/yalperg/mairon#readme",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=18"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.js",

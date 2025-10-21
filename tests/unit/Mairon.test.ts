@@ -1,12 +1,12 @@
-import { Sauron } from '@/core';
+import { Mairon } from '@/core';
 
 function makeEngine() {
-  const engine = new Sauron({ strict: false, enableIndexing: false });
+  const engine = new Mairon({ strict: false, enableIndexing: false });
   engine.registerHandler('collect', (_ctx, params) => params);
   return engine;
 }
 
-describe('Sauron', () => {
+describe('Mairon', () => {
   describe('rule evaluation', () => {
     test('evaluates and executes actions for matched rules', async () => {
       const engine = makeEngine();
@@ -39,9 +39,9 @@ describe('Sauron', () => {
     });
   });
 
-  describe('Sauron events', () => {
+  describe('Mairon events', () => {
     test('emits beforeEvaluate and afterEvaluate', async () => {
-      const engine = new Sauron();
+      const engine = new Mairon();
       const events: string[] = [];
       engine.on('beforeEvaluate', () => events.push('before'));
       engine.on('afterEvaluate', () => events.push('after'));
@@ -56,7 +56,7 @@ describe('Sauron', () => {
     });
 
     test('emits actionFailed when handler throws in strict mode', async () => {
-      const engine = new Sauron({ strict: true });
+      const engine = new Mairon({ strict: true });
       engine.registerHandler('boom', () => {
         throw new Error('x');
       });

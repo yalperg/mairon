@@ -68,17 +68,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Development**: TypeScript, Jest, ESLint, Prettier, esbuild
 
 #### Package Information
-- **Package Name**: `sauron`
+- **Package Name**: `mairon`
 - **License**: MIT
 - **Author**: Yunus Alper Göl
-- **Repository**: https://github.com/yalperg/sauron
+- **Repository**: https://github.com/yalperg/mairon
 
 ---
 
 ## Future Releases
 
-See [GitHub Issues](https://github.com/yalperg/sauron/issues) for planned features and improvements.
+See [GitHub Issues](https://github.com/yalperg/mairon/issues) for planned features and improvements.
 
 ---
 
-**Note**: This is the initial release (1.0.0) of Sauron rule engine.
+**Note**: This is the initial release (1.0.0) of Mairon rule engine.

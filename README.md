@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
 
-Mairon is a powerful, flexible, and type-safe rule engine for TypeScript/JavaScript. Define complex business rules declaratively and execute them efficiently against your data.
+Mairon is a lightweight, type-safe rule engine. Define complex business rules declaratively and evaluate them dynamically at runtime.
 
 ## Features
 

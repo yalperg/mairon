@@ -9,7 +9,7 @@
     "workflow",
     "automation"
   ],
-  "description": "Mairon is a powerful, flexible, and type-safe rule engine for TypeScript/JavaScript. Define complex business rules declaratively and execute them efficiently against your data.",
+  "description": "Mairon is a lightweight, type-safe rule engine. Define complex business rules declaratively and evaluate them dynamically at runtime.",
   "license": "MIT",
   "author": {
     "name": "Yunus Alper Göl",

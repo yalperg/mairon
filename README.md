@@ -3,6 +3,7 @@
 > One engine to rule them all
 
 [![npm version](https://img.shields.io/npm/v/mairon.svg)](https://www.npmjs.com/package/mairon)
+[![codecov](https://codecov.io/gh/yalperg/mairon/branch/main/graph/badge.svg)](https://codecov.io/gh/yalperg/mairon)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
 

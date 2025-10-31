@@ -27,7 +27,7 @@ describe('RuleManager', () => {
   describe('Basic Operations', () => {
     test('add/get rule with defaults and validation/indexing', () => {
       const manager = new RuleManager(
-        { validateSchema: true, enableIndexing: true },
+        { enableIndexing: true },
         { indexer: new Indexer(), validator: new Validator() },
       );
       const rule = sampleRule('r1', undefined, undefined);
@@ -58,7 +58,6 @@ describe('RuleManager', () => {
 
     test('updateRule with reindex', () => {
       const manager = new RuleManager({
-        validateSchema: true,
         enableIndexing: true,
       });
       manager.addRule(sampleRule('u', true, 1));

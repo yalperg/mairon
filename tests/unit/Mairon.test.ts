@@ -45,11 +45,12 @@ describe('Mairon', () => {
       const events: string[] = [];
       engine.on('beforeEvaluate', () => events.push('before'));
       engine.on('afterEvaluate', () => events.push('after'));
+      engine.registerHandler('action', () => {});
       engine.addRule({
         id: 'r',
         name: 'R',
         conditions: { field: 'a', operator: 'exists' },
-        actions: [],
+        actions: [{ type: 'action' }],
       });
       await engine.evaluate({ data: { a: 1 }, context: {} });
       expect(events).toEqual(['before', 'after']);

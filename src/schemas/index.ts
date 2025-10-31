@@ -141,7 +141,6 @@ export const validationResultSchema = z.object({
 export const ruleEngineConfigSchema = z.object({
   strict: z.boolean().optional(),
   enableLogging: z.boolean().optional(),
-  validateSchema: z.boolean().optional(),
   maxRulesPerExecution: z.number().optional(),
   enableIndexing: z.boolean().optional(),
   enableTemplates: z.boolean().optional(),

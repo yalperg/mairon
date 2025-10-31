@@ -334,7 +334,6 @@ const stats = engine.getStats();
 const engine = new Mairon({
   strict: true,              // Throw on missing handlers
   enableIndexing: true,      // Performance optimization for large rule sets
-  validateSchema: true,      // Validate rules on add
   maxRulesPerExecution: 100, // Limit rules per evaluation
   enableTemplates: true,     // Enable template resolution
   stopOnFirstError: false,   // Continue on action errors

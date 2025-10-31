@@ -20,13 +20,11 @@ class RuleManager<T = unknown> {
   }
 
   addRule(rule: Rule<T>): void {
-    if (this.config.validateSchema) {
-      const result = this.validator.validate(rule);
-      if (!result.valid) {
-        throw new Error(
-          `Rule validation failed: ${JSON.stringify(result.errors)}`,
-        );
-      }
+    const result = this.validator.validate(rule);
+    if (!result.valid) {
+      throw new Error(
+        `Rule validation failed: ${JSON.stringify(result.errors)}`,
+      );
     }
 
     if (this.rules.has(rule.id)) {
@@ -79,13 +77,11 @@ class RuleManager<T = unknown> {
       priority: isNil(updates.priority) ? existing.priority : updates.priority,
     } as Rule<T>;
 
-    if (this.config.validateSchema) {
-      const result = this.validator.validate(updated);
-      if (!result.valid) {
-        throw new Error(
-          `Rule validation failed: ${JSON.stringify(result.errors)}`,
-        );
-      }
+    const result = this.validator.validate(updated);
+    if (!result.valid) {
+      throw new Error(
+        `Rule validation failed: ${JSON.stringify(result.errors)}`,
+      );
     }
 
     if (this.config.enableIndexing) {

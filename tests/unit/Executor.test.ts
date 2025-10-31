@@ -17,11 +17,11 @@ describe('Executor', () => {
     const ex = new Executor(new TemplateResolver());
     const handler = jest.fn();
     ex.registerHandler('notify', handler);
-    expect(ex.getRegisteredActions()).toContain('notify');
+    expect(ex.getRegisteredHandlers()).toContain('notify');
     ex.unregisterHandler('notify');
-    expect(ex.getRegisteredActions()).not.toContain('notify');
+    expect(ex.getRegisteredHandlers()).not.toContain('notify');
     ex.clearHandlers();
-    expect(ex.getRegisteredActions().length).toBe(0);
+    expect(ex.getRegisteredHandlers().length).toBe(0);
   });
 
   test('executeAction with missing handler returns failure (non-strict)', async () => {

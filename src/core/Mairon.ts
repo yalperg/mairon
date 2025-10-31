@@ -108,8 +108,8 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
     }
   }
 
-  getRegisteredActions(): string[] {
-    return this.executor.getRegisteredActions();
+  getRegisteredHandlers(): string[] {
+    return this.executor.getRegisteredHandlers();
   }
 
   async evaluate(context: EvaluationContext<T>): Promise<EvaluationResult[]> {
@@ -291,7 +291,7 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
   getStats(): { rules: number; handlers: number } {
     return {
       rules: this.manager.getRules().length,
-      handlers: this.getRegisteredActions().length,
+      handlers: this.getRegisteredHandlers().length,
     };
   }
 }

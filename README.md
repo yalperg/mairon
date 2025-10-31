@@ -314,6 +314,8 @@ const priority = engine.getRules({ priority: { min: 50 } });
 // Register handlers
 engine.registerHandler('actionType', handler);
 engine.registerHandlers({ action1: handler1, action2: handler2 });
+engine.unregisterHandler('actionType');
+const handlers = engine.getRegisteredHandlers(); // ['action1', 'action2']
 
 // Evaluate
 const results = await engine.evaluate({ data });

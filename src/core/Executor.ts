@@ -30,7 +30,7 @@ class Executor<T = unknown> {
     this.handlers.clear();
   }
 
-  getRegisteredActions(): string[] {
+  getRegisteredHandlers(): string[] {
     return Array.from(this.handlers.keys());
   }
 

@@ -65,6 +65,7 @@ Time expressions provide dynamic timestamps relative to the current evaluation t
 ### Examples
 
 **Basic Usage:**
+
 ```typescript
 // Check if task is overdue
 {
@@ -89,6 +90,7 @@ Time expressions provide dynamic timestamps relative to the current evaluation t
 ```
 
 **Advanced Examples:**
+
 ```typescript
 // Item created in last week
 {
@@ -130,26 +132,28 @@ Time expressions provide dynamic timestamps relative to the current evaluation t
 ```
 
 **Time Calculations:**
+
 ```typescript
 // 5 minutes = {{ now + 5m }}
-Date.now() + (5 * 60 * 1000)
+Date.now() + 5 * 60 * 1000;
 
 // 2 hours = {{ now + 2h }}
-Date.now() + (2 * 60 * 60 * 1000)
+Date.now() + 2 * 60 * 60 * 1000;
 
 // 1 day = {{ now + 1d }}
-Date.now() + (24 * 60 * 60 * 1000)
+Date.now() + 24 * 60 * 60 * 1000;
 
 // 2 weeks = {{ now + 2w }}
-Date.now() + (2 * 7 * 24 * 60 * 60 * 1000)
+Date.now() + 2 * 7 * 24 * 60 * 60 * 1000;
 
 // 90 days ago = {{ now - 90d }}
-Date.now() - (90 * 24 * 60 * 60 * 1000)
+Date.now() - 90 * 24 * 60 * 60 * 1000;
 ```
 
 ### Use Cases
 
 **Task Management:**
+
 ```typescript
 const rules = [
   {
@@ -158,10 +162,10 @@ const rules = [
     conditions: {
       all: [
         { field: 'completed', operator: 'equals', value: false },
-        { field: 'dueAt', operator: 'lessThan', value: '{{ now }}' }
-      ]
+        { field: 'dueAt', operator: 'lessThan', value: '{{ now }}' },
+      ],
     },
-    actions: [{ type: 'addTag', params: { tag: 'overdue' } }]
+    actions: [{ type: 'addTag', params: { tag: 'overdue' } }],
   },
   {
     id: 'due-soon',
@@ -169,15 +173,23 @@ const rules = [
     conditions: {
       all: [
         { field: 'completed', operator: 'equals', value: false },
-        { field: 'dueAt', operator: 'between', from: '{{ now }}', to: '{{ now + 24h }}' }
-      ]
+        {
+          field: 'dueAt',
+          operator: 'between',
+          from: '{{ now }}',
+          to: '{{ now + 24h }}',
+        },
+      ],
     },
-    actions: [{ type: 'notify', params: { message: 'Task due within 24 hours' } }]
-  }
+    actions: [
+      { type: 'notify', params: { message: 'Task due within 24 hours' } },
+    ],
+  },
 ];
 ```
 
 **User Activity:**
+
 ```typescript
 {
   id: 'inactive-users',
@@ -192,6 +204,7 @@ const rules = [
 ```
 
 **Content Expiration:**
+
 ```typescript
 {
   id: 'expiring-content',
@@ -224,6 +237,7 @@ Access fields from the current data being evaluated.
 ### Examples
 
 **Simple Fields:**
+
 ```typescript
 // Use data from another field
 {
@@ -241,6 +255,7 @@ Access fields from the current data being evaluated.
 ```
 
 **Nested Fields:**
+
 ```typescript
 // Access nested object properties
 {
@@ -258,6 +273,7 @@ Access fields from the current data being evaluated.
 ```
 
 **In Action Parameters:**
+
 ```typescript
 {
   type: 'sendEmail',
@@ -280,15 +296,20 @@ Access fields from the current data being evaluated.
 ```
 
 **Complete Example:**
+
 ```typescript
 const rule = {
   id: 'manager-approval',
   name: 'Require manager approval for large requests',
   conditions: {
     all: [
-      { field: 'amount', operator: 'greaterThan', value: '{{ data.approvalThreshold }}' },
-      { field: 'status', operator: 'equals', value: 'pending' }
-    ]
+      {
+        field: 'amount',
+        operator: 'greaterThan',
+        value: '{{ data.approvalThreshold }}',
+      },
+      { field: 'status', operator: 'equals', value: 'pending' },
+    ],
   },
   actions: [
     {
@@ -297,10 +318,10 @@ const rule = {
         from: '{{ data.requesterId }}',
         to: '{{ data.managerId }}',
         amount: '{{ data.amount }}',
-        reason: 'Amount exceeds threshold'
-      }
-    }
-  ]
+        reason: 'Amount exceeds threshold',
+      },
+    },
+  ],
 };
 
 // Evaluate with data
@@ -310,8 +331,8 @@ engine.evaluate({
     managerId: 'mgr456',
     amount: 5000,
     approvalThreshold: 1000,
-    status: 'pending'
-  }
+    status: 'pending',
+  },
 });
 ```
 
@@ -324,13 +345,22 @@ Access additional context data passed during evaluation.
 ### Syntax
 
 ```typescript
-{{ context.fieldName }}        // Context field
-{{ context.nested.field }}     // Nested context
+{
+  {
+    context.fieldName;
+  }
+} // Context field
+{
+  {
+    context.nested.field;
+  }
+} // Nested context
 ```
 
 ### Examples
 
 **Request Context:**
+
 ```typescript
 // Evaluate with context
 engine.evaluate({
@@ -364,6 +394,7 @@ engine.evaluate({
 ```
 
 **Session Context:**
+
 ```typescript
 engine.evaluate({
   data: order,
@@ -372,20 +403,25 @@ engine.evaluate({
     customerId: 'cust-123',
     cartTotal: 299.99,
     couponCode: 'SAVE20',
-    isFirstPurchase: true
-  }
+    isFirstPurchase: true,
+  },
 });
 
 // Check first purchase discount
 {
   all: [
     { field: 'total', operator: 'greaterThan', value: 100 },
-    { field: 'couponCode', operator: 'equals', value: '{{ context.couponCode }}' }
-  ]
+    {
+      field: 'couponCode',
+      operator: 'equals',
+      value: '{{ context.couponCode }}',
+    },
+  ];
 }
 ```
 
 **Feature Flags:**
+
 ```typescript
 engine.evaluate({
   data: user,
@@ -416,13 +452,22 @@ Access the previous state of data for change detection.
 ### Syntax
 
 ```typescript
-{{ previousData.fieldName }}   // Previous field value
-{{ previousData.nested.field }} // Nested previous value
+{
+  {
+    previousData.fieldName;
+  }
+} // Previous field value
+{
+  {
+    previousData.nested.field;
+  }
+} // Nested previous value
 ```
 
 ### Examples
 
 **Status Changes:**
+
 ```typescript
 engine.evaluate({
   data: { status: 'active', userId: '123' },
@@ -441,6 +486,7 @@ engine.evaluate({
 ```
 
 **Value Comparisons:**
+
 ```typescript
 // Check if balance increased by a certain amount
 {
@@ -449,13 +495,14 @@ engine.evaluate({
     {
       field: 'balance',
       operator: 'greaterThan',
-      value: '{{ previousData.balance }}' // This is redundant with 'increased', just for illustration
-    }
-  ]
+      value: '{{ previousData.balance }}', // This is redundant with 'increased', just for illustration
+    },
+  ];
 }
 ```
 
 **Audit Logging:**
+
 ```typescript
 {
   type: 'logChange',
@@ -472,14 +519,13 @@ engine.evaluate({
 ```
 
 **Complete Example:**
+
 ```typescript
 const rule = {
   id: 'price-change-alert',
   name: 'Alert on significant price changes',
   conditions: {
-    all: [
-      { field: 'price', operator: 'changed' }
-    ]
+    all: [{ field: 'price', operator: 'changed' }],
   },
   actions: [
     {
@@ -489,15 +535,16 @@ const rule = {
         productName: '{{ data.name }}',
         oldPrice: '{{ previousData.price }}',
         newPrice: '{{ data.price }}',
-        message: 'Price changed from ${{ previousData.price }} to ${{ data.price }}'
-      }
-    }
-  ]
+        message:
+          'Price changed from ${{ previousData.price }} to ${{ data.price }}',
+      },
+    },
+  ],
 };
 
 engine.evaluate({
   data: { id: 'prod-1', name: 'Widget', price: 29.99 },
-  previousData: { id: 'prod-1', name: 'Widget', price: 24.99 }
+  previousData: { id: 'prod-1', name: 'Widget', price: 24.99 },
 });
 // Alert: "Price changed from $24.99 to $29.99"
 ```
@@ -530,15 +577,15 @@ When there are multiple templates or text around them, result is always a string
 
 ```typescript
 // Multiple templates
-'{{ data.firstName }} {{ data.lastName }}'
+'{{ data.firstName }} {{ data.lastName }}';
 // Resolves to: "Alice Smith" (string)
 
 // Template with text
-'Hello {{ data.name }}!'
+'Hello {{ data.name }}!';
 // Resolves to: "Hello Alice!" (string)
 
 // Numeric templates in string
-'User has {{ data.points }} points'
+'User has {{ data.points }} points';
 // Resolves to: "User has 100 points" (string, not number)
 ```
 
@@ -590,11 +637,13 @@ Templates in arrays are resolved for each element:
 When a template resolves to `undefined` or `null`:
 
 **Single template:**
+
 ```typescript
 '{{ data.nonExistent }}' → undefined
 ```
 
 **In string with other content:**
+
 ```typescript
 'Name: {{ data.missingField }}' → 'Name: '
 'Value is {{ data.nullField }}' → 'Value is '
@@ -607,6 +656,7 @@ When a template resolves to `undefined` or `null`:
 ### Dynamic Conditions
 
 **Time-based rules:**
+
 ```typescript
 {
   id: 'weekend-discount',
@@ -627,6 +677,7 @@ When a template resolves to `undefined` or `null`:
 ```
 
 **Field comparison:**
+
 ```typescript
 {
   id: 'shipping-billing-match',
@@ -650,6 +701,7 @@ When a template resolves to `undefined` or `null`:
 ### Personalized Actions
 
 **Email notifications:**
+
 ```typescript
 {
   type: 'sendEmail',
@@ -658,9 +710,9 @@ When a template resolves to `undefined` or `null`:
     subject: 'Welcome to {{ context.appName }}, {{ data.firstName }}!',
     body: `
       Hi {{ data.firstName }},
-      
+
       Your account {{ data.username }} has been created successfully.
-      
+
       Account ID: {{ data.id }}
       Created: {{ now }}
       Environment: {{ context.environment }}
@@ -670,6 +722,7 @@ When a template resolves to `undefined` or `null`:
 ```
 
 **Webhook calls:**
+
 ```typescript
 {
   type: 'webhook',
@@ -778,6 +831,7 @@ Mairon caches resolved template expressions for improved performance:
 ### Best Practices
 
 **1. Use static values when possible:**
+
 ```typescript
 // Good - static value
 { field: 'status', operator: 'equals', value: 'active' }
@@ -787,6 +841,7 @@ Mairon caches resolved template expressions for improved performance:
 ```
 
 **2. Minimize nested template resolution:**
+
 ```typescript
 // Better - direct reference
 { field: 'email', operator: 'equals', value: '{{ data.email }}' }
@@ -796,15 +851,17 @@ Mairon caches resolved template expressions for improved performance:
 ```
 
 **3. Limit template complexity:**
+
 ```typescript
 // Good - simple templates
-'User {{ data.name }} logged in at {{ now }}'
+'User {{ data.name }} logged in at {{ now }}';
 
 // Avoid - many templates
-'{{ data.title }} {{ data.first }} {{ data.middle }} {{ data.last }} ({{ data.suffix }})'
+'{{ data.title }} {{ data.first }} {{ data.middle }} {{ data.last }} ({{ data.suffix }})';
 ```
 
 **4. Reuse context data:**
+
 ```typescript
 // Provide commonly used data in context
 engine.evaluate({
@@ -812,18 +869,8 @@ engine.evaluate({
   context: {
     baseUrl: 'https://api.example.com',
     env: 'production',
-    appName: 'MyApp'
-  }
-});
-```
-
-### Configuration
-
-Disable templates if not needed:
-
-```typescript
-const engine = new Mairon({
-  enableTemplates: false  // Disable template resolution
+    appName: 'MyApp',
+  },
 });
 ```
 

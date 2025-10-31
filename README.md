@@ -335,7 +335,6 @@ const engine = new Mairon({
   strict: true,              // Throw on missing handlers
   enableIndexing: true,      // Performance optimization for large rule sets
   maxRulesPerExecution: 100, // Limit rules per evaluation
-  enableTemplates: true,     // Enable template resolution
   stopOnFirstError: false,   // Continue on action errors
 });
 ```

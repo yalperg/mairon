@@ -143,7 +143,6 @@ export const ruleEngineConfigSchema = z.object({
   enableLogging: z.boolean().optional(),
   maxRulesPerExecution: z.number().optional(),
   enableIndexing: z.boolean().optional(),
-  enableTemplates: z.boolean().optional(),
   stopOnFirstError: z.boolean().optional(),
   maxConditionDepth: z.number().optional(),
   collectDetailedResults: z.boolean().optional(),

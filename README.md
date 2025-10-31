@@ -325,8 +325,7 @@ const results = await engine.evaluate({ data, previousData, context });
 engine.on('ruleMatched', (data) => console.log(data));
 engine.on('actionExecuted', (data) => console.log(data));
 
-// Metrics
-const metrics = engine.getPerformanceMetrics();
+// Stats (evaluations, rules, actions)
 const stats = engine.getStats();
 ```
 

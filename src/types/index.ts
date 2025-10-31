@@ -119,7 +119,7 @@ export interface EventData {
   };
 }
 
-export interface PerformanceMetrics {
+export interface Stats {
   evaluations: {
     total: number;
     successful: number;
@@ -138,10 +138,5 @@ export interface PerformanceMetrics {
     totalExecuted: number;
     totalFailed: number;
     averageExecutionTime: number;
-  };
-  cache: {
-    hits: number;
-    misses: number;
-    hitRate: number;
   };
 }

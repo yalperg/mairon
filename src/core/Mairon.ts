@@ -2,6 +2,7 @@ import Executor from './Executor';
 import Evaluator from './Evaluator';
 import RuleManager from './RuleManager';
 import EventEmitter from './EventEmitter';
+import StatsTracker from './StatsTracker';
 
 import type {
   Rule,
@@ -12,7 +13,7 @@ import type {
   ActionHandler,
   EngineEvent,
   EventData,
-  PerformanceMetrics,
+  Stats,
 } from '@/types';
 
 class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
@@ -20,24 +21,7 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
   private evaluator: Evaluator<T>;
   private executor: Executor<T>;
   private config: RuleEngineConfig;
-  private metrics: PerformanceMetrics = {
-    evaluations: {
-      total: 0,
-      successful: 0,
-      failed: 0,
-      averageTime: 0,
-      minTime: 0,
-      maxTime: 0,
-    },
-    rules: {
-      totalExecuted: 0,
-      totalMatched: 0,
-      totalSkipped: 0,
-      averageExecutionTime: 0,
-    },
-    actions: { totalExecuted: 0, totalFailed: 0, averageExecutionTime: 0 },
-    cache: { hits: 0, misses: 0, hitRate: 0 },
-  };
+  private stats: StatsTracker;
 
   constructor(
     config?: RuleEngineConfig,
@@ -52,6 +36,7 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
     this.manager = deps?.manager ?? new RuleManager<T>(this.config);
     this.evaluator = deps?.evaluator ?? new Evaluator<T>();
     this.executor = deps?.executor ?? new Executor<T>();
+    this.stats = new StatsTracker();
   }
 
   addRule(rule: Rule<T>): void {
@@ -155,13 +140,7 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
             context,
             timestamp: Date.now(),
           });
-          this.metrics.rules.totalExecuted += 1;
-          this.metrics.rules.totalSkipped += 1;
-          const rdur = Date.now() - ruleStart;
-          const rAvg = this.metrics.rules.averageExecutionTime;
-          const rCount = this.metrics.rules.totalExecuted;
-          this.metrics.rules.averageExecutionTime =
-            rAvg + (rdur - rAvg) / rCount;
+          this.stats.trackRuleExecution(res.executionTime, false);
           results.push(res);
           continue;
         }
@@ -192,14 +171,7 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
               timestamp: Date.now(),
             });
           }
-          this.metrics.actions.totalExecuted += 1;
-          if (!ar.success) {
-            this.metrics.actions.totalFailed += 1;
-          }
-          const aAvg = this.metrics.actions.averageExecutionTime;
-          const aCount = this.metrics.actions.totalExecuted;
-          this.metrics.actions.averageExecutionTime =
-            aAvg + (ar.executionTime - aAvg) / aCount;
+          this.stats.trackActionExecution(ar.executionTime, ar.success);
         }
 
         const res: EvaluationResult = {
@@ -210,12 +182,7 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
           actionResults,
           executionTime: Date.now() - ruleStart,
         };
-        this.metrics.rules.totalExecuted += 1;
-        this.metrics.rules.totalMatched += 1;
-        const rdur = res.executionTime;
-        const rAvg = this.metrics.rules.averageExecutionTime;
-        const rCount = this.metrics.rules.totalExecuted;
-        this.metrics.rules.averageExecutionTime = rAvg + (rdur - rAvg) / rCount;
+        this.stats.trackRuleExecution(res.executionTime, true);
         results.push(res);
       } catch (err) {
         const res: EvaluationResult = {
@@ -233,12 +200,7 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
           context,
           timestamp: Date.now(),
         });
-        this.metrics.rules.totalExecuted += 1;
-        this.metrics.rules.totalSkipped += 1;
-        const rdur = Date.now() - ruleStart;
-        const rAvg = this.metrics.rules.averageExecutionTime;
-        const rCount = this.metrics.rules.totalExecuted;
-        this.metrics.rules.averageExecutionTime = rAvg + (rdur - rAvg) / rCount;
+        this.stats.trackRuleExecution(res.executionTime, false);
         results.push(res);
       }
     }
@@ -250,34 +212,12 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
       duration,
       timestamp: Date.now(),
     });
-    this.metrics.evaluations.total += 1;
-    this.metrics.evaluations.successful += 1;
-    const eAvg = this.metrics.evaluations.averageTime;
-    const eCount = this.metrics.evaluations.total;
-    this.metrics.evaluations.averageTime = eAvg + (duration - eAvg) / eCount;
-    if (
-      this.metrics.evaluations.minTime === 0 ||
-      duration < this.metrics.evaluations.minTime
-    ) {
-      this.metrics.evaluations.minTime = duration;
-    }
-    if (duration > this.metrics.evaluations.maxTime) {
-      this.metrics.evaluations.maxTime = duration;
-    }
+    this.stats.trackEvaluation(duration, true);
     return results;
   }
 
-  getPerformanceMetrics(): PerformanceMetrics {
-    const hits = this.metrics.cache.hits;
-    const misses = this.metrics.cache.misses;
-    const total = hits + misses;
-    const hitRate = total > 0 ? hits / total : 0;
-    return {
-      evaluations: { ...this.metrics.evaluations },
-      rules: { ...this.metrics.rules },
-      actions: { ...this.metrics.actions },
-      cache: { hits, misses, hitRate },
-    };
+  getStats(): Stats {
+    return this.stats.getStats();
   }
 
   getConfig(): RuleEngineConfig {
@@ -286,13 +226,6 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
 
   updateConfig(config: Partial<RuleEngineConfig>): void {
     this.config = { ...this.config, ...config };
-  }
-
-  getStats(): { rules: number; handlers: number } {
-    return {
-      rules: this.manager.getRules().length,
-      handlers: this.getRegisteredHandlers().length,
-    };
   }
 }
 

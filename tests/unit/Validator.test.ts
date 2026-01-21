@@ -115,15 +115,15 @@ describe('Validator', () => {
     expect(res.valid).toBe(false);
   });
 
-  it('fails on unknown operator', () => {
+  it('allows custom/unknown operators (validated at evaluation time)', () => {
     const rule = {
-      id: 'r-unknown-op',
-      name: 'Unknown op',
-      conditions: { field: 'a', operator: '___unknown___', value: 1 },
+      id: 'r-custom-op',
+      name: 'Custom op',
+      conditions: { field: 'a', operator: 'customOperator', value: 1 },
       actions: [{ type: 'notify' }],
     } as unknown as Rule;
     const res = validator.validate(rule);
-    expect(res.valid).toBe(false);
+    expect(res.valid).toBe(true);
   });
 
   it('fails logical group with empty any', () => {

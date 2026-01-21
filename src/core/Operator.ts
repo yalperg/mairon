@@ -1,5 +1,5 @@
 import type { EvaluationContext } from '@/types';
-import type { ConditionOperator, SimpleCondition } from '@/schemas';
+import type { SimpleCondition } from '@/schemas';
 
 export type OperatorFn<T = unknown> = (
   fieldValue: unknown,
@@ -7,13 +7,22 @@ export type OperatorFn<T = unknown> = (
   context: EvaluationContext<T>,
 ) => boolean;
 
+export interface OperatorOptions {
+  description?: string;
+  requiresValue?: boolean;
+  requiresFromTo?: boolean;
+  validate?: (condition: SimpleCondition) => string | null;
+}
+
 class Operator<T = unknown> {
-  readonly name: ConditionOperator;
+  readonly name: string;
+  readonly options: OperatorOptions;
   private readonly fn: OperatorFn<T>;
 
-  constructor(name: ConditionOperator, fn: OperatorFn<T>) {
+  constructor(name: string, fn: OperatorFn<T>, options?: OperatorOptions) {
     this.name = name;
     this.fn = fn;
+    this.options = options ?? {};
   }
 
   public evaluate(

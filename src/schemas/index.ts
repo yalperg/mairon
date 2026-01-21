@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const conditionOperatorEnum = z.enum([
+export const builtInOperatorEnum = z.enum([
   'equals',
   'notEquals',
   'greaterThan',
@@ -46,9 +46,12 @@ export const conditionOperatorEnum = z.enum([
   'lengthLessThanOrEqual',
 ]);
 
+export type BuiltInOperator = z.infer<typeof builtInOperatorEnum>;
+export type ConditionOperator = BuiltInOperator | (string & {});
+
 export const simpleConditionSchema = z.object({
   field: z.string().min(1),
-  operator: conditionOperatorEnum,
+  operator: z.string().min(1),
   value: z.unknown().optional(),
   from: z.unknown().optional(),
   to: z.unknown().optional(),
@@ -56,7 +59,7 @@ export const simpleConditionSchema = z.object({
 
 export const conditionSchema: z.ZodType<{
   field?: string;
-  operator?: z.infer<typeof conditionOperatorEnum>;
+  operator?: string;
   value?: unknown;
   from?: unknown;
   to?: unknown;
@@ -172,7 +175,6 @@ export const engineStatsSchema = z.object({
   cacheHitRate: z.number().optional(),
 });
 
-export type ConditionOperator = z.infer<typeof conditionOperatorEnum>;
 export type SimpleCondition = z.infer<typeof simpleConditionSchema>;
 export type Action = z.infer<typeof actionSchema>;
 export type ActionResult = z.infer<typeof actionResultSchema>;

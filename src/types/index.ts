@@ -9,6 +9,7 @@ import type {
   ValidationResult,
   RuleEngineConfig,
   ConditionOperator,
+  BuiltInOperator,
 } from '@/schemas';
 
 export type {
@@ -22,7 +23,10 @@ export type {
   ValidationResult,
   RuleEngineConfig,
   ConditionOperator,
+  BuiltInOperator,
 };
+
+export type { OperatorFn, OperatorOptions } from '@/core/Operator';
 
 export interface LogicalGroup<T = unknown> {
   all?: Condition<T>[];

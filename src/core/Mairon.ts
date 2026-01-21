@@ -3,6 +3,8 @@ import Evaluator from './Evaluator';
 import RuleManager from './RuleManager';
 import EventEmitter from './EventEmitter';
 import StatsTracker from './StatsTracker';
+import Operator, { type OperatorFn, type OperatorOptions } from './Operator';
+import operators from './Operators';
 
 import type {
   Rule,
@@ -95,6 +97,59 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
 
   getRegisteredHandlers(): string[] {
     return this.executor.getRegisteredHandlers();
+  }
+
+  registerOperator(
+    name: string,
+    fn: OperatorFn<T>,
+    options?: OperatorOptions,
+  ): void {
+    if (!name || typeof name !== 'string') {
+      throw new Error('Operator name must be a non-empty string');
+    }
+    if (typeof fn !== 'function') {
+      throw new Error('Operator function must be a function');
+    }
+    if (operators.isBuiltIn(name)) {
+      throw new Error(`Cannot override built-in operator: ${name}`);
+    }
+    const operator = new Operator(name, fn as OperatorFn<unknown>, options);
+    operators.register(operator);
+  }
+
+  unregisterOperator(name: string): boolean {
+    return operators.unregister(name);
+  }
+
+  hasOperator(name: string): boolean {
+    return operators.has(name);
+  }
+
+  getRegisteredOperators(): string[] {
+    return operators.list();
+  }
+
+  getCustomOperators(): string[] {
+    return operators.listCustom();
+  }
+
+  registerOperators(
+    operatorMap: Record<
+      string,
+      OperatorFn<T> | { fn: OperatorFn<T>; options?: OperatorOptions }
+    >,
+  ): void {
+    for (const [name, value] of Object.entries(operatorMap)) {
+      if (typeof value === 'function') {
+        this.registerOperator(name, value);
+      } else {
+        this.registerOperator(name, value.fn, value.options);
+      }
+    }
+  }
+
+  clearCustomOperators(): void {
+    operators.reset();
   }
 
   async evaluate(context: EvaluationContext<T>): Promise<EvaluationResult[]> {

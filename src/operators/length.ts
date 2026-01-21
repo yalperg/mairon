@@ -1,7 +1,7 @@
 import isArray from 'lodash/isArray';
 import isString from 'lodash/isString';
 import isNumber from 'lodash/isNumber';
-import { Operator } from '@/core';
+import Operator from '@/core/Operator';
 
 import type { SimpleCondition, EvaluationContext } from '@/types';
 

@@ -1,6 +1,6 @@
 import isEqual from 'lodash/isEqual';
 import toNumber from 'lodash/toNumber';
-import { Operator } from '@/core';
+import Operator from '@/core/Operator';
 
 import type { SimpleCondition } from '@/types';
 

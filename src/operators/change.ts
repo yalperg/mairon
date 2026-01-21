@@ -1,7 +1,7 @@
 import isEqual from 'lodash/isEqual';
 import toNumber from 'lodash/toNumber';
 import isNaN from 'lodash/isNaN';
-import { Operator } from '@/core';
+import Operator from '@/core/Operator';
 import { FieldAccessor } from '@/utils';
 
 import type { SimpleCondition, EvaluationContext } from '@/types';

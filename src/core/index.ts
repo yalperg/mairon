@@ -5,7 +5,7 @@ import Operator, { type OperatorFn, type OperatorOptions } from './Operator';
 import StatsTracker from './StatsTracker';
 import RuleManager from './RuleManager';
 import Mairon from './Mairon';
-import operators from './Operators';
+import operators, { Operators } from './Operators';
 
 export type { OperatorFn, OperatorOptions };
 export {
@@ -13,6 +13,7 @@ export {
   EventEmitter,
   Executor,
   Operator,
+  Operators,
   StatsTracker,
   RuleManager,
   Mairon,

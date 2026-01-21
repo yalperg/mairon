@@ -6,9 +6,11 @@ class Operators<T = unknown> {
   private operators: Map<string, Operator<T>> = new Map();
   private readonly builtInNames: Set<string>;
 
-  constructor() {
-    for (const [name, operator] of Object.entries(defaultOperators)) {
-      this.operators.set(name, operator as Operator<T>);
+  constructor(includeBuiltIn = true) {
+    if (includeBuiltIn) {
+      for (const [name, operator] of Object.entries(defaultOperators)) {
+        this.operators.set(name, operator as Operator<T>);
+      }
     }
     this.builtInNames = new Set(this.operators.keys());
   }
@@ -62,4 +64,5 @@ class Operators<T = unknown> {
   }
 }
 
+export { Operators };
 export default new Operators();

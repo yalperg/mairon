@@ -3,7 +3,7 @@ import isNumber from 'lodash/isNumber';
 import isBoolean from 'lodash/isBoolean';
 import isArray from 'lodash/isArray';
 import isPlainObject from 'lodash/isPlainObject';
-import { Operator } from '@/core';
+import Operator from '@/core/Operator';
 
 const isStringOperator = new Operator(
   'isString',

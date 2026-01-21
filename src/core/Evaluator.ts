@@ -1,4 +1,4 @@
-import { operators } from '@/core';
+import defaultOperators, { type Operators } from './Operators';
 import { FieldAccessor, TemplateResolver } from '@/utils';
 
 import type {
@@ -11,14 +11,17 @@ import type {
 class Evaluator<T = unknown> {
   private fieldAccessor: FieldAccessor;
   private templateResolver: TemplateResolver;
+  private operators: Operators<T>;
 
   constructor(
     fieldAccessor?: FieldAccessor,
     templateResolver?: TemplateResolver,
+    operators?: Operators<T>,
   ) {
     this.fieldAccessor = fieldAccessor ?? new FieldAccessor();
     this.templateResolver =
       templateResolver ?? new TemplateResolver(this.fieldAccessor);
+    this.operators = operators ?? (defaultOperators as Operators<T>);
   }
 
   clearCache(): void {
@@ -62,7 +65,7 @@ class Evaluator<T = unknown> {
     condition: SimpleCondition,
     context: EvaluationContext<T>,
   ): boolean {
-    const operator = operators.get(condition.operator);
+    const operator = this.operators.get(condition.operator);
     if (!operator) {
       return false;
     }

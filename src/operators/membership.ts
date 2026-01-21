@@ -1,7 +1,7 @@
 import isArray from 'lodash/isArray';
 import isEqual from 'lodash/isEqual';
 import some from 'lodash/some';
-import { Operator } from '@/core';
+import Operator from '@/core/Operator';
 
 import type { SimpleCondition, EvaluationContext } from '@/types';
 

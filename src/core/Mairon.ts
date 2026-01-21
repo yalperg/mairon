@@ -4,7 +4,7 @@ import RuleManager from './RuleManager';
 import EventEmitter from './EventEmitter';
 import StatsTracker from './StatsTracker';
 import Operator, { type OperatorFn, type OperatorOptions } from './Operator';
-import operators from './Operators';
+import { Operators } from './Operators';
 
 import type {
   Rule,
@@ -24,6 +24,7 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
   private executor: Executor<T>;
   private config: RuleEngineConfig;
   private stats: StatsTracker;
+  private operators: Operators<T>;
 
   constructor(
     config?: RuleEngineConfig,
@@ -31,12 +32,15 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
       manager?: RuleManager<T>;
       evaluator?: Evaluator<T>;
       executor?: Executor<T>;
+      operators?: Operators<T>;
     },
   ) {
     super();
     this.config = config ?? {};
+    this.operators = deps?.operators ?? new Operators<T>();
     this.manager = deps?.manager ?? new RuleManager<T>(this.config);
-    this.evaluator = deps?.evaluator ?? new Evaluator<T>();
+    this.evaluator =
+      deps?.evaluator ?? new Evaluator<T>(undefined, undefined, this.operators);
     this.executor = deps?.executor ?? new Executor<T>();
     this.stats = new StatsTracker();
   }
@@ -110,27 +114,27 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
     if (typeof fn !== 'function') {
       throw new Error('Operator function must be a function');
     }
-    if (operators.isBuiltIn(name)) {
+    if (this.operators.isBuiltIn(name)) {
       throw new Error(`Cannot override built-in operator: ${name}`);
     }
     const operator = new Operator(name, fn as OperatorFn<unknown>, options);
-    operators.register(operator);
+    this.operators.register(operator);
   }
 
   unregisterOperator(name: string): boolean {
-    return operators.unregister(name);
+    return this.operators.unregister(name);
   }
 
   hasOperator(name: string): boolean {
-    return operators.has(name);
+    return this.operators.has(name);
   }
 
   getRegisteredOperators(): string[] {
-    return operators.list();
+    return this.operators.list();
   }
 
   getCustomOperators(): string[] {
-    return operators.listCustom();
+    return this.operators.listCustom();
   }
 
   registerOperators(
@@ -149,7 +153,7 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
   }
 
   clearCustomOperators(): void {
-    operators.reset();
+    this.operators.reset();
   }
 
   async evaluate(context: EvaluationContext<T>): Promise<EvaluationResult[]> {

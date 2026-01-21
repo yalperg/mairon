@@ -1,15 +1,10 @@
-import { Mairon, operators } from '@/core';
+import { Mairon } from '@/core';
 
 describe('Mairon Custom Operators', () => {
   let engine: Mairon;
 
   beforeEach(() => {
     engine = new Mairon();
-    operators.reset();
-  });
-
-  afterEach(() => {
-    operators.reset();
   });
 
   describe('registerOperator', () => {
@@ -233,6 +228,39 @@ describe('Mairon Custom Operators', () => {
 
       const results = await engine.evaluate({ data: { x: 1 } });
       expect(results[0].matched).toBe(false);
+    });
+  });
+
+  describe('instance isolation', () => {
+    test('custom operators are isolated per instance', () => {
+      const engine1 = new Mairon();
+      const engine2 = new Mairon();
+
+      engine1.registerOperator('customOp', () => true);
+
+      expect(engine1.hasOperator('customOp')).toBe(true);
+      expect(engine2.hasOperator('customOp')).toBe(false);
+    });
+
+    test('each instance has independent built-in operators', () => {
+      const engine1 = new Mairon();
+      const engine2 = new Mairon();
+
+      expect(engine1.hasOperator('equals')).toBe(true);
+      expect(engine2.hasOperator('equals')).toBe(true);
+    });
+
+    test('clearing custom operators in one instance does not affect another', () => {
+      const engine1 = new Mairon();
+      const engine2 = new Mairon();
+
+      engine1.registerOperator('op1', () => true);
+      engine2.registerOperator('op2', () => true);
+
+      engine1.clearCustomOperators();
+
+      expect(engine1.hasOperator('op1')).toBe(false);
+      expect(engine2.hasOperator('op2')).toBe(true);
     });
   });
 });

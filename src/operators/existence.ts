@@ -1,6 +1,6 @@
 import isNull from 'lodash/isNull';
 import isUndefined from 'lodash/isUndefined';
-import { Operator } from '@/core';
+import Operator from '@/core/Operator';
 
 const exists = new Operator('exists', (fieldValue: unknown): boolean => {
   return fieldValue !== undefined;

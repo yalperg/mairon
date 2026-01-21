@@ -1,7 +1,7 @@
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import intersection from 'lodash/intersection';
-import { Operator } from '@/core';
+import Operator from '@/core/Operator';
 
 import type { SimpleCondition } from '@/types';
 

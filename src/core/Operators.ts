@@ -4,6 +4,7 @@ import type Operator from './Operator';
 
 class Operators<T = unknown> {
   private operators: Map<string, Operator<T>> = new Map();
+  private aliases: Map<string, string> = new Map();
   private readonly builtInNames: Set<string>;
 
   constructor(includeBuiltIn = true) {
@@ -27,11 +28,37 @@ class Operators<T = unknown> {
   }
 
   get(name: string): Operator<T> | undefined {
-    return this.operators.get(name);
+    const resolvedName = this.aliases.get(name) ?? name;
+    return this.operators.get(resolvedName);
   }
 
   has(name: string): boolean {
-    return this.operators.has(name);
+    const resolvedName = this.aliases.get(name) ?? name;
+    return this.operators.has(resolvedName);
+  }
+
+  registerAlias(alias: string, target: string): void {
+    this.aliases.set(alias, target);
+  }
+
+  unregisterAlias(alias: string): boolean {
+    return this.aliases.delete(alias);
+  }
+
+  getAlias(alias: string): string | undefined {
+    return this.aliases.get(alias);
+  }
+
+  hasAlias(alias: string): boolean {
+    return this.aliases.has(alias);
+  }
+
+  listAliases(): Record<string, string> {
+    return Object.fromEntries(this.aliases);
+  }
+
+  clearAliases(): void {
+    this.aliases.clear();
   }
 
   isBuiltIn(name: string): boolean {

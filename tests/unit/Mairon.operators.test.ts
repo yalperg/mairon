@@ -231,6 +231,154 @@ describe('Mairon Custom Operators', () => {
     });
   });
 
+  describe('operator aliases', () => {
+    describe('registerAlias', () => {
+      test('registers an alias for a built-in operator', () => {
+        engine.registerAlias('eq', 'equals');
+        expect(engine.hasAlias('eq')).toBe(true);
+        expect(engine.getAlias('eq')).toBe('equals');
+      });
+
+      test('registers an alias for a custom operator', () => {
+        engine.registerOperator('isEven', (v) => typeof v === 'number' && v % 2 === 0);
+        engine.registerAlias('even', 'isEven');
+        expect(engine.hasAlias('even')).toBe(true);
+        expect(engine.getAlias('even')).toBe('isEven');
+      });
+
+      test('throws on empty alias name', () => {
+        expect(() => engine.registerAlias('', 'equals')).toThrow(
+          'Alias must be a non-empty string',
+        );
+      });
+
+      test('throws on empty target name', () => {
+        expect(() => engine.registerAlias('eq', '')).toThrow(
+          'Target operator must be a non-empty string',
+        );
+      });
+
+      test('throws when target operator does not exist', () => {
+        expect(() => engine.registerAlias('alias', 'nonexistent')).toThrow(
+          'Target operator does not exist: nonexistent',
+        );
+      });
+    });
+
+    describe('unregisterAlias', () => {
+      test('removes an alias', () => {
+        engine.registerAlias('eq', 'equals');
+        expect(engine.unregisterAlias('eq')).toBe(true);
+        expect(engine.hasAlias('eq')).toBe(false);
+      });
+
+      test('returns false for non-existent alias', () => {
+        expect(engine.unregisterAlias('nonexistent')).toBe(false);
+      });
+    });
+
+    describe('hasAlias', () => {
+      test('returns true for registered alias', () => {
+        engine.registerAlias('eq', 'equals');
+        expect(engine.hasAlias('eq')).toBe(true);
+      });
+
+      test('returns false for non-existent alias', () => {
+        expect(engine.hasAlias('nonexistent')).toBe(false);
+      });
+    });
+
+    describe('getAlias', () => {
+      test('returns target for registered alias', () => {
+        engine.registerAlias('eq', 'equals');
+        expect(engine.getAlias('eq')).toBe('equals');
+      });
+
+      test('returns undefined for non-existent alias', () => {
+        expect(engine.getAlias('nonexistent')).toBeUndefined();
+      });
+    });
+
+    describe('getAliases', () => {
+      test('returns all registered aliases', () => {
+        engine.registerAlias('eq', 'equals');
+        engine.registerAlias('gt', 'greaterThan');
+        const aliases = engine.getAliases();
+        expect(aliases).toEqual({ eq: 'equals', gt: 'greaterThan' });
+      });
+
+      test('returns empty object when no aliases', () => {
+        expect(engine.getAliases()).toEqual({});
+      });
+    });
+
+    describe('clearAliases', () => {
+      test('removes all aliases', () => {
+        engine.registerAlias('eq', 'equals');
+        engine.registerAlias('gt', 'greaterThan');
+        engine.clearAliases();
+        expect(engine.getAliases()).toEqual({});
+      });
+    });
+
+    describe('alias resolution in evaluation', () => {
+      test('evaluates condition using alias', async () => {
+        engine.registerAlias('eq', 'equals');
+        engine.registerHandler('action', () => {});
+        engine.addRule({
+          id: 'alias-test',
+          name: 'Alias Test',
+          conditions: { field: 'status', operator: 'eq', value: 'active' },
+          actions: [{ type: 'action' }],
+        });
+
+        const results = await engine.evaluate({ data: { status: 'active' } });
+        expect(results[0].matched).toBe(true);
+
+        const results2 = await engine.evaluate({ data: { status: 'inactive' } });
+        expect(results2[0].matched).toBe(false);
+      });
+
+      test('evaluates custom operator via alias', async () => {
+        engine.registerOperator(
+          'isEven',
+          (v) => typeof v === 'number' && v % 2 === 0,
+        );
+        engine.registerAlias('even', 'isEven');
+        engine.registerHandler('action', () => {});
+        engine.addRule({
+          id: 'custom-alias-test',
+          name: 'Custom Alias Test',
+          conditions: { field: 'count', operator: 'even' },
+          actions: [{ type: 'action' }],
+        });
+
+        const results = await engine.evaluate({ data: { count: 4 } });
+        expect(results[0].matched).toBe(true);
+
+        const results2 = await engine.evaluate({ data: { count: 3 } });
+        expect(results2[0].matched).toBe(false);
+      });
+
+      test('hasOperator returns true for aliases', () => {
+        engine.registerAlias('eq', 'equals');
+        expect(engine.hasOperator('eq')).toBe(true);
+      });
+    });
+
+    describe('alias isolation', () => {
+      test('aliases are isolated per instance', () => {
+        const engine1 = new Mairon();
+        const engine2 = new Mairon();
+
+        engine1.registerAlias('eq', 'equals');
+
+        expect(engine1.hasAlias('eq')).toBe(true);
+        expect(engine2.hasAlias('eq')).toBe(false);
+      });
+    });
+  });
+
   describe('instance isolation', () => {
     test('custom operators are isolated per instance', () => {
       const engine1 = new Mairon();

@@ -156,6 +156,39 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
     this.operators.reset();
   }
 
+  registerAlias(alias: string, target: string): void {
+    if (!alias || typeof alias !== 'string') {
+      throw new Error('Alias must be a non-empty string');
+    }
+    if (!target || typeof target !== 'string') {
+      throw new Error('Target operator must be a non-empty string');
+    }
+    if (!this.operators.has(target)) {
+      throw new Error(`Target operator does not exist: ${target}`);
+    }
+    this.operators.registerAlias(alias, target);
+  }
+
+  unregisterAlias(alias: string): boolean {
+    return this.operators.unregisterAlias(alias);
+  }
+
+  hasAlias(alias: string): boolean {
+    return this.operators.hasAlias(alias);
+  }
+
+  getAlias(alias: string): string | undefined {
+    return this.operators.getAlias(alias);
+  }
+
+  getAliases(): Record<string, string> {
+    return this.operators.listAliases();
+  }
+
+  clearAliases(): void {
+    this.operators.clearAliases();
+  }
+
   async evaluate(context: EvaluationContext<T>): Promise<EvaluationResult[]> {
     const start = Date.now();
     const enabledRules = this.config.enableIndexing

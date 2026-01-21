@@ -1,4 +1,6 @@
-import { operators } from '@/core';
+import { Operators } from '@/core';
+
+const operators = new Operators();
 
 describe('length operators', () => {
   test('lengthEquals for strings', () => {

@@ -1,6 +1,8 @@
-import { operators } from '@/core';
+import { Operators } from '@/core';
 
 import type { EvaluationContext } from '@/types';
+
+const operators = new Operators();
 
 describe('array operators', () => {
   const ctx: EvaluationContext<unknown> = {

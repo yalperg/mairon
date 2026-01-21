@@ -1,6 +1,8 @@
-import { operators } from '@/core';
+import { Operators } from '@/core';
 
 import type { EvaluationContext } from '@/types';
+
+const operators = new Operators();
 
 describe('existence operators', () => {
   const ctx: EvaluationContext<unknown> = {

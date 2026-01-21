@@ -1,4 +1,6 @@
-import { operators } from '@/core';
+import { Operators } from '@/core';
+
+const operators = new Operators();
 
 describe('membership operators', () => {
   test('in: value present in array', () => {

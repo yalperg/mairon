@@ -1,2 +1,2 @@
 export type * from '@/types';
-export { Mairon as default, Operator, operators } from '@/core';
+export { Mairon as default, Operator, Operators } from '@/core';

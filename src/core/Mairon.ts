@@ -4,7 +4,7 @@ import RuleManager from './RuleManager';
 import EventEmitter from './EventEmitter';
 import StatsTracker from './StatsTracker';
 import Operator, { type OperatorFn, type OperatorOptions } from './Operator';
-import { Operators } from './Operators';
+import Operators from './Operators';
 
 import type {
   Rule,

@@ -1,4 +1,4 @@
-import defaultOperators, { type Operators } from './Operators';
+import Operators from './Operators';
 import { FieldAccessor, TemplateResolver } from '@/utils';
 
 import type {
@@ -21,7 +21,7 @@ class Evaluator<T = unknown> {
     this.fieldAccessor = fieldAccessor ?? new FieldAccessor();
     this.templateResolver =
       templateResolver ?? new TemplateResolver(this.fieldAccessor);
-    this.operators = operators ?? (defaultOperators as Operators<T>);
+    this.operators = operators ?? new Operators<T>();
   }
 
   clearCache(): void {

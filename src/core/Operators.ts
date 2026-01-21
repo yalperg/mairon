@@ -64,5 +64,4 @@ class Operators<T = unknown> {
   }
 }
 
-export { Operators };
-export default new Operators();
+export default Operators;

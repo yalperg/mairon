@@ -5,7 +5,7 @@ import Operator, { type OperatorFn, type OperatorOptions } from './Operator';
 import StatsTracker from './StatsTracker';
 import RuleManager from './RuleManager';
 import Mairon from './Mairon';
-import operators, { Operators } from './Operators';
+import Operators from './Operators';
 
 export type { OperatorFn, OperatorOptions };
 export {
@@ -17,5 +17,4 @@ export {
   StatsTracker,
   RuleManager,
   Mairon,
-  operators,
 };

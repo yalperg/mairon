@@ -58,6 +58,9 @@ class Evaluator<T = unknown> {
       }
       return false;
     }
+    if (group.not) {
+      return !this.evaluateCondition(group.not, context);
+    }
     return false;
   }
 

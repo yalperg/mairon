@@ -31,6 +31,7 @@ export type { OperatorFn, OperatorOptions } from '@/core/Operator';
 export interface LogicalGroup<T = unknown> {
   all?: Condition<T>[];
   any?: Condition<T>[];
+  not?: Condition<T>;
 }
 
 export type Condition<T = unknown> = SimpleCondition | LogicalGroup<T>;

@@ -98,6 +98,19 @@ function traverseConditions(
         traverseConditions(condition.any[i], errors, `${path}.any[${i}]`);
       }
     }
+    return;
+  }
+
+  if (isObject(condition) && 'not' in condition) {
+    if (!condition.not || !isObject(condition.not)) {
+      errors.push({
+        field: `${path}.not`,
+        message: 'not must be a valid condition',
+        code: 'NOT_INVALID',
+      });
+    } else {
+      traverseConditions(condition.not as Condition, errors, `${path}.not`);
+    }
   }
 }
 

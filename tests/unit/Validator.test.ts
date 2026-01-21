@@ -160,6 +160,35 @@ describe('Validator', () => {
     expect(res.valid).toBe(false);
   });
 
+  it('validates NOT condition', () => {
+    const rule: Rule = {
+      id: 'rule-not',
+      name: 'NOT condition',
+      conditions: {
+        not: { field: 'status', operator: 'equals', value: 'banned' },
+      },
+      actions: [{ type: 'notify' }],
+    };
+    const res = validator.validate(rule);
+    expect(res.valid).toBe(true);
+  });
+
+  it('validates nested NOT in logical group', () => {
+    const rule: Rule = {
+      id: 'rule-nested-not',
+      name: 'Nested NOT',
+      conditions: {
+        all: [
+          { field: 'role', operator: 'equals', value: 'user' },
+          { not: { field: 'banned', operator: 'equals', value: true } },
+        ],
+      },
+      actions: [{ type: 'notify' }],
+    };
+    const res = validator.validate(rule);
+    expect(res.valid).toBe(true);
+  });
+
   it('validateAction: valid action passes', () => {
     const res = validator.validateAction({
       type: 'notify',

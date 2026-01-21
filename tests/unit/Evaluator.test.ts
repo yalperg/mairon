@@ -64,4 +64,61 @@ describe('Evaluator', () => {
     );
     expect(result).toBe(true);
   });
+
+  test('evaluates NOT condition - negates simple condition', () => {
+    const evaluator = new Evaluator();
+    const result = evaluator.evaluateCondition(
+      { not: { field: 'status', operator: 'equals', value: 'inactive' } },
+      { data: { status: 'active' }, context: {} },
+    );
+    expect(result).toBe(true);
+  });
+
+  test('evaluates NOT condition - negates true to false', () => {
+    const evaluator = new Evaluator();
+    const result = evaluator.evaluateCondition(
+      { not: { field: 'status', operator: 'equals', value: 'active' } },
+      { data: { status: 'active' }, context: {} },
+    );
+    expect(result).toBe(false);
+  });
+
+  test('evaluates NOT with nested logical group', () => {
+    const evaluator = new Evaluator();
+    const result = evaluator.evaluateCondition(
+      {
+        not: {
+          all: [
+            { field: 'role', operator: 'equals', value: 'admin' },
+            { field: 'active', operator: 'equals', value: true },
+          ],
+        },
+      },
+      { data: { role: 'admin', active: false }, context: {} },
+    );
+    expect(result).toBe(true);
+  });
+
+  test('evaluates nested NOT conditions', () => {
+    const evaluator = new Evaluator();
+    const result = evaluator.evaluateCondition(
+      { not: { not: { field: 'status', operator: 'equals', value: 'active' } } },
+      { data: { status: 'active' }, context: {} },
+    );
+    expect(result).toBe(true);
+  });
+
+  test('evaluates NOT combined with ALL', () => {
+    const evaluator = new Evaluator();
+    const result = evaluator.evaluateCondition(
+      {
+        all: [
+          { field: 'role', operator: 'equals', value: 'user' },
+          { not: { field: 'banned', operator: 'equals', value: true } },
+        ],
+      },
+      { data: { role: 'user', banned: false }, context: {} },
+    );
+    expect(result).toBe(true);
+  });
 });

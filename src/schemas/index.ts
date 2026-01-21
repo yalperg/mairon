@@ -65,11 +65,13 @@ export const conditionSchema: z.ZodType<{
   to?: unknown;
   all?: unknown[];
   any?: unknown[];
+  not?: unknown;
 }> = z.lazy(() =>
   z.union([
     simpleConditionSchema,
     z.object({ all: z.array(conditionSchema).min(1) }),
     z.object({ any: z.array(conditionSchema).min(1) }),
+    z.object({ not: conditionSchema }),
   ]),
 );
 

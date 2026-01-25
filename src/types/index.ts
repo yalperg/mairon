@@ -310,3 +310,96 @@ export interface Stats {
     averageExecutionTime: number;
   };
 }
+
+// ============================================================
+// Explainability Types
+// ============================================================
+
+/**
+ * Explanation of a simple condition evaluation.
+ *
+ * @example
+ * ```typescript
+ * {
+ *   type: 'simple',
+ *   field: 'user.age',
+ *   operator: 'greaterThan',
+ *   expected: 18,
+ *   actual: 25,
+ *   passed: true
+ * }
+ * ```
+ */
+export interface SimpleConditionExplanation {
+  /** Condition type identifier */
+  type: 'simple';
+  /** The field path that was evaluated */
+  field: string;
+  /** The operator used */
+  operator: string;
+  /** The expected value (from condition) */
+  expected: unknown;
+  /** The actual value (from data) */
+  actual: unknown;
+  /** Whether the condition passed */
+  passed: boolean;
+}
+
+/**
+ * Explanation of a logical group evaluation (all/any/not).
+ *
+ * @example
+ * ```typescript
+ * {
+ *   type: 'all',
+ *   passed: false,
+ *   children: [
+ *     { type: 'simple', field: 'age', operator: 'greaterThan', expected: 18, actual: 25, passed: true },
+ *     { type: 'simple', field: 'verified', operator: 'equals', expected: true, actual: false, passed: false }
+ *   ]
+ * }
+ * ```
+ */
+export interface LogicalGroupExplanation {
+  /** Logic type: 'all' (AND), 'any' (OR), or 'not' */
+  type: 'all' | 'any' | 'not';
+  /** Whether the group passed */
+  passed: boolean;
+  /** Child condition explanations */
+  children: ConditionExplanation[];
+}
+
+/**
+ * Explanation of any condition (simple or logical group).
+ */
+export type ConditionExplanation =
+  | SimpleConditionExplanation
+  | LogicalGroupExplanation;
+
+/**
+ * Complete explanation of a rule evaluation.
+ *
+ * @example
+ * ```typescript
+ * const result = await engine.explain(context);
+ * for (const explanation of result) {
+ *   console.log(`Rule: ${explanation.ruleName}`);
+ *   console.log(`Matched: ${explanation.matched}`);
+ *   if (!explanation.matched) {
+ *     // Find which conditions failed
+ *     const failures = findFailures(explanation.explanation);
+ *     console.log('Failed conditions:', failures);
+ *   }
+ * }
+ * ```
+ */
+export interface RuleExplanation {
+  /** Rule ID */
+  ruleId: string;
+  /** Rule name */
+  ruleName: string;
+  /** Whether the rule matched */
+  matched: boolean;
+  /** Detailed condition explanation tree */
+  explanation: ConditionExplanation;
+}

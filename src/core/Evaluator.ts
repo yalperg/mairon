@@ -6,6 +6,9 @@ import type {
   SimpleCondition,
   LogicalGroup,
   EvaluationContext,
+  ConditionExplanation,
+  SimpleConditionExplanation,
+  LogicalGroupExplanation,
 } from '@/types';
 
 /**
@@ -119,6 +122,49 @@ class Evaluator<T = unknown> {
   }
 
   /**
+   * Evaluates a condition and returns a detailed explanation of the evaluation.
+   *
+   * This is useful for debugging rules and understanding why a condition
+   * matched or didn't match.
+   *
+   * @param condition - The condition to evaluate
+   * @param context - The evaluation context containing data
+   * @returns An explanation object with pass/fail status and details
+   *
+   * @example
+   * ```typescript
+   * const explanation = evaluator.explainCondition(
+   *   {
+   *     all: [
+   *       { field: 'age', operator: 'greaterThan', value: 18 },
+   *       { field: 'verified', operator: 'equals', value: true }
+   *     ]
+   *   },
+   *   { data: { age: 25, verified: false } }
+   * );
+   *
+   * // Result:
+   * // {
+   * //   type: 'all',
+   * //   passed: false,
+   * //   children: [
+   * //     { type: 'simple', field: 'age', operator: 'greaterThan', expected: 18, actual: 25, passed: true },
+   * //     { type: 'simple', field: 'verified', operator: 'equals', expected: true, actual: false, passed: false }
+   * //   ]
+   * // }
+   * ```
+   */
+  explainCondition(
+    condition: Condition<T>,
+    context: EvaluationContext<T>,
+  ): ConditionExplanation {
+    if (this.isSimple(condition)) {
+      return this.explainSimpleCondition(condition, context);
+    }
+    return this.explainGroup(condition, context);
+  }
+
+  /**
    * Evaluates a logical group condition (all/any/not).
    */
   private evaluateGroup(
@@ -148,6 +194,30 @@ class Evaluator<T = unknown> {
   }
 
   /**
+   * Explains a logical group evaluation.
+   */
+  private explainGroup(
+    group: LogicalGroup<T>,
+    context: EvaluationContext<T>,
+  ): LogicalGroupExplanation {
+    if (group.all) {
+      const children = group.all.map((c) => this.explainCondition(c, context));
+      const passed = children.every((c) => c.passed);
+      return { type: 'all', passed, children };
+    }
+    if (group.any) {
+      const children = group.any.map((c) => this.explainCondition(c, context));
+      const passed = children.some((c) => c.passed);
+      return { type: 'any', passed, children };
+    }
+    if (group.not) {
+      const child = this.explainCondition(group.not, context);
+      return { type: 'not', passed: !child.passed, children: [child] };
+    }
+    return { type: 'all', passed: false, children: [] };
+  }
+
+  /**
    * Evaluates a simple field-operator-value condition.
    */
   private evaluateSimpleCondition(
@@ -174,6 +244,43 @@ class Evaluator<T = unknown> {
     };
 
     return operator.evaluate(fieldValue, normalizedCondition, context);
+  }
+
+  /**
+   * Explains a simple condition evaluation.
+   */
+  private explainSimpleCondition(
+    condition: SimpleCondition,
+    context: EvaluationContext<T>,
+  ): SimpleConditionExplanation {
+    const operator = this.operators.get(condition.operator);
+    const fieldValue = this.fieldAccessor.resolvePath(
+      context.data,
+      condition.field,
+    );
+
+    let resolvedValue = condition.value;
+    if (condition.value !== undefined) {
+      resolvedValue = this.templateResolver.resolve(condition.value, context);
+    }
+
+    let passed = false;
+    if (operator) {
+      const normalizedCondition: SimpleCondition = {
+        ...condition,
+        value: resolvedValue,
+      };
+      passed = operator.evaluate(fieldValue, normalizedCondition, context);
+    }
+
+    return {
+      type: 'simple',
+      field: condition.field,
+      operator: condition.operator,
+      expected: resolvedValue,
+      actual: fieldValue,
+      passed,
+    };
   }
 
   /**

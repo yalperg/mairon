@@ -74,4 +74,135 @@ describe('Mairon', () => {
       expect(res[0].actionResults?.[0].success).toBe(false);
     });
   });
+
+  describe('explain', () => {
+    test('explains rule that matches', () => {
+      const engine = new Mairon();
+      engine.addRule({
+        id: 'r1',
+        name: 'Rule 1',
+        conditions: { field: 'age', operator: 'greaterThan', value: 18 },
+        actions: [{ type: 'noop' }],
+      });
+
+      const explanations = engine.explain({ data: { age: 25 } });
+      expect(explanations).toHaveLength(1);
+      expect(explanations[0].ruleId).toBe('r1');
+      expect(explanations[0].ruleName).toBe('Rule 1');
+      expect(explanations[0].matched).toBe(true);
+      expect(explanations[0].explanation.passed).toBe(true);
+    });
+
+    test('explains rule that does not match', () => {
+      const engine = new Mairon();
+      engine.addRule({
+        id: 'r1',
+        name: 'Rule 1',
+        conditions: { field: 'age', operator: 'greaterThan', value: 18 },
+        actions: [{ type: 'noop' }],
+      });
+
+      const explanations = engine.explain({ data: { age: 16 } });
+      expect(explanations[0].matched).toBe(false);
+      expect(explanations[0].explanation.passed).toBe(false);
+
+      const exp = explanations[0].explanation;
+      if (exp.type === 'simple') {
+        expect(exp.actual).toBe(16);
+        expect(exp.expected).toBe(18);
+      }
+    });
+
+    test('explains multiple rules', () => {
+      const engine = new Mairon();
+      engine.addRule({
+        id: 'r1',
+        name: 'Age Check',
+        conditions: { field: 'age', operator: 'greaterThan', value: 18 },
+        actions: [{ type: 'noop' }],
+      });
+      engine.addRule({
+        id: 'r2',
+        name: 'Premium Check',
+        conditions: { field: 'isPremium', operator: 'equals', value: true },
+        actions: [{ type: 'noop' }],
+      });
+
+      const explanations = engine.explain({ data: { age: 25, isPremium: false } });
+      expect(explanations).toHaveLength(2);
+      expect(explanations.find((e) => e.ruleId === 'r1')?.matched).toBe(true);
+      expect(explanations.find((e) => e.ruleId === 'r2')?.matched).toBe(false);
+    });
+
+    test('explains complex nested conditions', () => {
+      const engine = new Mairon();
+      engine.addRule({
+        id: 'r1',
+        name: 'Complex Rule',
+        conditions: {
+          all: [
+            { field: 'age', operator: 'greaterThan', value: 18 },
+            {
+              any: [
+                { field: 'role', operator: 'equals', value: 'admin' },
+                { field: 'role', operator: 'equals', value: 'manager' },
+              ],
+            },
+          ],
+        },
+        actions: [{ type: 'noop' }],
+      });
+
+      const explanations = engine.explain({
+        data: { age: 25, role: 'user' },
+      });
+
+      expect(explanations[0].matched).toBe(false);
+      const exp = explanations[0].explanation;
+      expect(exp.type).toBe('all');
+      if ('children' in exp) {
+        expect(exp.children[0].passed).toBe(true);
+        expect(exp.children[1].passed).toBe(false);
+      }
+    });
+
+    test('does not execute actions', () => {
+      const engine = new Mairon();
+      let actionCalled = false;
+      engine.registerHandler('test', () => {
+        actionCalled = true;
+      });
+      engine.addRule({
+        id: 'r1',
+        name: 'Rule 1',
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'test' }],
+      });
+
+      engine.explain({ data: { x: 1 } });
+      expect(actionCalled).toBe(false);
+    });
+
+    test('respects rule filter', () => {
+      const engine = new Mairon();
+      engine.addRule({
+        id: 'r1',
+        name: 'Enabled Rule',
+        enabled: true,
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'noop' }],
+      });
+      engine.addRule({
+        id: 'r2',
+        name: 'Disabled Rule',
+        enabled: false,
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'noop' }],
+      });
+
+      const explanations = engine.explain({ data: { x: 1 } });
+      expect(explanations).toHaveLength(1);
+      expect(explanations[0].ruleId).toBe('r1');
+    });
+  });
 });

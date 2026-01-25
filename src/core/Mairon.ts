@@ -16,6 +16,7 @@ import type {
   EngineEvent,
   EventData,
   Stats,
+  RuleExplanation,
 } from '@/types';
 
 /**
@@ -636,6 +637,68 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
     });
     this.stats.trackEvaluation(duration, true);
     return results;
+  }
+
+  /**
+   * Explains why rules matched or didn't match against the provided context.
+   *
+   * Unlike `evaluate()`, this method does NOT execute actions. It only
+   * evaluates conditions and returns detailed explanations showing:
+   * - Which conditions passed or failed
+   * - The actual values from your data
+   * - The expected values from the rule
+   *
+   * This is useful for:
+   * - Debugging why a rule isn't matching
+   * - Understanding rule behavior
+   * - User-facing explanations ("why didn't I get the discount?")
+   *
+   * @param context - The evaluation context containing data to evaluate
+   * @param filter - Optional filter to limit which rules are explained
+   * @returns Array of rule explanations with detailed condition breakdowns
+   *
+   * @example
+   * ```typescript
+   * const explanations = engine.explain({
+   *   data: { user: { age: 16, verified: true } }
+   * });
+   *
+   * for (const exp of explanations) {
+   *   console.log(`Rule: ${exp.ruleName}`);
+   *   console.log(`Matched: ${exp.matched}`);
+   *
+   *   // Find failed conditions
+   *   if (!exp.matched && exp.explanation.type !== 'simple') {
+   *     const failed = exp.explanation.children.filter(c => !c.passed);
+   *     for (const f of failed) {
+   *       if (f.type === 'simple') {
+   *         console.log(`  Failed: ${f.field} ${f.operator} ${f.expected} (actual: ${f.actual})`);
+   *       }
+   *     }
+   *   }
+   * }
+   * ```
+   */
+  explain(context: EvaluationContext<T>, filter?: RuleFilter): RuleExplanation[] {
+    const rules = this.manager.getRules(filter ?? { enabled: true });
+    const sorted = rules.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+    const limited = this.config.maxRulesPerExecution
+      ? sorted.slice(0, this.config.maxRulesPerExecution)
+      : sorted;
+
+    const explanations: RuleExplanation[] = [];
+
+    for (const rule of limited) {
+      const explanation = this.evaluator.explainCondition(rule.conditions, context);
+      explanations.push({
+        ruleId: rule.id,
+        ruleName: rule.name,
+        matched: explanation.passed,
+        explanation,
+      });
+    }
+
+    return explanations;
   }
 
   // ============================================================

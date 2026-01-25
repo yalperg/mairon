@@ -205,4 +205,229 @@ describe('Mairon', () => {
       expect(explanations[0].ruleId).toBe('r1');
     });
   });
+
+  describe('serialization', () => {
+    describe('exportRules', () => {
+      test('exports all rules', () => {
+        const engine = new Mairon();
+        engine.addRule({
+          id: 'r1',
+          name: 'Rule 1',
+          conditions: { field: 'x', operator: 'exists' },
+          actions: [{ type: 'action' }],
+        });
+        engine.addRule({
+          id: 'r2',
+          name: 'Rule 2',
+          conditions: { field: 'y', operator: 'exists' },
+          actions: [{ type: 'action' }],
+        });
+
+        const exported = engine.exportRules();
+        expect(exported).toHaveLength(2);
+        expect(exported.map((r) => r.id)).toEqual(['r1', 'r2']);
+      });
+
+      test('exported rules are JSON serializable', () => {
+        const engine = new Mairon();
+        engine.addRule({
+          id: 'r1',
+          name: 'Rule 1',
+          conditions: { field: 'x', operator: 'greaterThan', value: 10 },
+          actions: [{ type: 'action', params: { key: 'value' } }],
+          metadata: { author: 'test' },
+        });
+
+        const exported = engine.exportRules();
+        const json = JSON.stringify(exported);
+        const parsed = JSON.parse(json);
+        expect(parsed).toEqual(exported);
+      });
+    });
+
+    describe('importRules', () => {
+      test('imports rules (merge mode)', () => {
+        const engine = new Mairon();
+        engine.addRule({
+          id: 'existing',
+          name: 'Existing',
+          conditions: { field: 'x', operator: 'exists' },
+          actions: [{ type: 'action' }],
+        });
+
+        engine.importRules([
+          {
+            id: 'new',
+            name: 'New',
+            conditions: { field: 'y', operator: 'exists' },
+            actions: [{ type: 'action' }],
+          },
+        ]);
+
+        expect(engine.getRules()).toHaveLength(2);
+      });
+
+      test('imports rules (replace mode)', () => {
+        const engine = new Mairon();
+        engine.addRule({
+          id: 'existing',
+          name: 'Existing',
+          conditions: { field: 'x', operator: 'exists' },
+          actions: [{ type: 'action' }],
+        });
+
+        engine.importRules(
+          [
+            {
+              id: 'new',
+              name: 'New',
+              conditions: { field: 'y', operator: 'exists' },
+              actions: [{ type: 'action' }],
+            },
+          ],
+          { replace: true },
+        );
+
+        expect(engine.getRules()).toHaveLength(1);
+        expect(engine.getRules()[0].id).toBe('new');
+      });
+    });
+
+    describe('toJSON', () => {
+      test('exports full engine state', () => {
+        const engine = new Mairon({ strict: true, maxRulesPerExecution: 50 });
+        engine.addRule({
+          id: 'r1',
+          name: 'Rule 1',
+          conditions: { field: 'x', operator: 'exists' },
+          actions: [{ type: 'action' }],
+        });
+        engine.registerAlias('eq', 'equals');
+
+        const snapshot = engine.toJSON();
+
+        expect(snapshot.rules).toHaveLength(1);
+        expect(snapshot.rules[0].id).toBe('r1');
+        expect(snapshot.config.strict).toBe(true);
+        expect(snapshot.config.maxRulesPerExecution).toBe(50);
+        expect(snapshot.aliases).toEqual({ eq: 'equals' });
+      });
+
+      test('snapshot is JSON serializable', () => {
+        const engine = new Mairon();
+        engine.addRule({
+          id: 'r1',
+          name: 'Rule 1',
+          conditions: { field: 'x', operator: 'exists' },
+          actions: [{ type: 'action' }],
+        });
+
+        const snapshot = engine.toJSON();
+        const json = JSON.stringify(snapshot);
+        const parsed = JSON.parse(json);
+        expect(parsed).toEqual(snapshot);
+      });
+    });
+
+    describe('loadJSON', () => {
+      test('loads full engine state', () => {
+        const engine1 = new Mairon({ strict: true });
+        engine1.addRule({
+          id: 'r1',
+          name: 'Rule 1',
+          conditions: { field: 'x', operator: 'exists' },
+          actions: [{ type: 'action' }],
+        });
+        engine1.registerAlias('eq', 'equals');
+
+        const snapshot = engine1.toJSON();
+
+        const engine2 = new Mairon();
+        engine2.loadJSON(snapshot);
+
+        expect(engine2.getRules()).toHaveLength(1);
+        expect(engine2.getRules()[0].id).toBe('r1');
+        expect(engine2.getConfig().strict).toBe(true);
+        expect(engine2.hasAlias('eq')).toBe(true);
+      });
+
+      test('replaces existing rules by default', () => {
+        const engine = new Mairon();
+        engine.addRule({
+          id: 'old',
+          name: 'Old',
+          conditions: { field: 'x', operator: 'exists' },
+          actions: [{ type: 'action' }],
+        });
+
+        engine.loadJSON({
+          rules: [
+            {
+              id: 'new',
+              name: 'New',
+              conditions: { field: 'y', operator: 'exists' },
+              actions: [{ type: 'action' }],
+            },
+          ],
+        });
+
+        expect(engine.getRules()).toHaveLength(1);
+        expect(engine.getRules()[0].id).toBe('new');
+      });
+
+      test('can merge rules instead of replace', () => {
+        const engine = new Mairon();
+        engine.addRule({
+          id: 'old',
+          name: 'Old',
+          conditions: { field: 'x', operator: 'exists' },
+          actions: [{ type: 'action' }],
+        });
+
+        engine.loadJSON(
+          {
+            rules: [
+              {
+                id: 'new',
+                name: 'New',
+                conditions: { field: 'y', operator: 'exists' },
+                actions: [{ type: 'action' }],
+              },
+            ],
+          },
+          { replaceRules: false },
+        );
+
+        expect(engine.getRules()).toHaveLength(2);
+      });
+
+      test('round-trip preserves state', () => {
+        const engine1 = new Mairon({ maxRulesPerExecution: 100 });
+        engine1.addRule({
+          id: 'r1',
+          name: 'Rule 1',
+          priority: 10,
+          conditions: {
+            all: [
+              { field: 'a', operator: 'equals', value: 1 },
+              { field: 'b', operator: 'greaterThan', value: 5 },
+            ],
+          },
+          actions: [{ type: 'notify', params: { channel: 'email' } }],
+          tags: ['test'],
+          metadata: { version: 1 },
+        });
+        engine1.registerAlias('eq', 'equals');
+        engine1.registerAlias('gt', 'greaterThan');
+
+        const json = JSON.stringify(engine1.toJSON());
+        const parsed = JSON.parse(json);
+
+        const engine2 = new Mairon();
+        engine2.loadJSON(parsed);
+
+        expect(engine2.toJSON()).toEqual(engine1.toJSON());
+      });
+    });
+  });
 });

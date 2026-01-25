@@ -731,6 +731,142 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
   updateConfig(config: Partial<RuleEngineConfig>): void {
     this.config = { ...this.config, ...config };
   }
+
+  // ============================================================
+  // Serialization
+  // ============================================================
+
+  /**
+   * Exports all rules as a JSON-serializable array.
+   *
+   * @returns Array of rule objects that can be serialized to JSON
+   *
+   * @example
+   * ```typescript
+   * const rules = engine.exportRules();
+   * const json = JSON.stringify(rules);
+   * fs.writeFileSync('rules.json', json);
+   * ```
+   */
+  exportRules(): Rule<T>[] {
+    return this.manager.getRules();
+  }
+
+  /**
+   * Imports rules into the engine.
+   *
+   * @param rules - Array of rules to import
+   * @param options - Import options
+   * @param options.replace - If true, clears existing rules before import (default: false)
+   *
+   * @example
+   * ```typescript
+   * // Add to existing rules
+   * engine.importRules(loadedRules);
+   *
+   * // Replace all rules
+   * engine.importRules(loadedRules, { replace: true });
+   *
+   * // Load from JSON file
+   * const json = fs.readFileSync('rules.json', 'utf-8');
+   * engine.importRules(JSON.parse(json), { replace: true });
+   * ```
+   */
+  importRules(rules: Rule<T>[], options?: { replace?: boolean }): void {
+    if (options?.replace) {
+      this.manager.clearRules();
+    }
+    this.manager.addRules(rules);
+  }
+
+  /**
+   * Exports the complete engine state as a JSON-serializable object.
+   *
+   * Includes:
+   * - All rules
+   * - Engine configuration
+   * - Operator aliases
+   *
+   * Note: Custom operators and action handlers cannot be serialized
+   * and must be re-registered after loading.
+   *
+   * @returns Engine snapshot that can be serialized to JSON
+   *
+   * @example
+   * ```typescript
+   * const snapshot = engine.toJSON();
+   * fs.writeFileSync('engine-state.json', JSON.stringify(snapshot, null, 2));
+   * ```
+   */
+  toJSON(): {
+    rules: Rule<T>[];
+    config: RuleEngineConfig;
+    aliases: Record<string, string>;
+  } {
+    return {
+      rules: this.exportRules(),
+      config: this.getConfig(),
+      aliases: this.getAliases(),
+    };
+  }
+
+  /**
+   * Loads engine state from a previously exported snapshot.
+   *
+   * @param snapshot - Engine state from toJSON()
+   * @param options - Load options
+   * @param options.replaceRules - If true, clears existing rules (default: true)
+   * @param options.replaceConfig - If true, replaces config (default: true)
+   * @param options.replaceAliases - If true, clears existing aliases (default: true)
+   *
+   * @example
+   * ```typescript
+   * const json = fs.readFileSync('engine-state.json', 'utf-8');
+   * engine.loadJSON(JSON.parse(json));
+   * ```
+   */
+  loadJSON(
+    snapshot: {
+      rules?: Rule<T>[];
+      config?: RuleEngineConfig;
+      aliases?: Record<string, string>;
+    },
+    options?: {
+      replaceRules?: boolean;
+      replaceConfig?: boolean;
+      replaceAliases?: boolean;
+    },
+  ): void {
+    const opts = {
+      replaceRules: true,
+      replaceConfig: true,
+      replaceAliases: true,
+      ...options,
+    };
+
+    if (snapshot.rules) {
+      this.importRules(snapshot.rules, { replace: opts.replaceRules });
+    }
+
+    if (snapshot.config) {
+      if (opts.replaceConfig) {
+        this.config = snapshot.config;
+      } else {
+        this.updateConfig(snapshot.config);
+      }
+    }
+
+    if (snapshot.aliases) {
+      if (opts.replaceAliases) {
+        this.clearAliases();
+      }
+      for (const [alias, target] of Object.entries(snapshot.aliases)) {
+        if (this.operators.has(target)) {
+          this.registerAlias(alias, target);
+        }
+      }
+    }
+  }
 }
 
 export default Mairon;

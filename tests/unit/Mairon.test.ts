@@ -432,4 +432,307 @@ describe('Mairon', () => {
       });
     });
   });
+
+  describe('rule chaining', () => {
+    test('triggers another rule when first rule matches', async () => {
+      const engine = new Mairon();
+      const executedActions: string[] = [];
+
+      engine.registerHandler('action1', () => executedActions.push('action1'));
+      engine.registerHandler('action2', () => executedActions.push('action2'));
+
+      engine.addRule({
+        id: 'rule1',
+        name: 'Rule 1',
+        conditions: { field: 'x', operator: 'equals', value: 1 },
+        actions: [{ type: 'action1' }],
+        triggers: ['rule2'],
+      });
+
+      engine.addRule({
+        id: 'rule2',
+        name: 'Rule 2',
+        conditions: { field: 'y', operator: 'equals', value: 2 },
+        actions: [{ type: 'action2' }],
+      });
+
+      const results = await engine.evaluate({ data: { x: 1, y: 2 } });
+
+      expect(executedActions).toEqual(['action1', 'action2']);
+      expect(results).toHaveLength(2);
+      expect(results[0].ruleId).toBe('rule1');
+      expect(results[0].matched).toBe(true);
+      expect(results[1].ruleId).toBe('rule2');
+      expect(results[1].matched).toBe(true);
+      expect(results[1].triggeredBy).toBe('rule1');
+    });
+
+    test('does not trigger rule if source rule does not match', async () => {
+      const engine = new Mairon();
+      const executedActions: string[] = [];
+
+      engine.registerHandler('action1', () => executedActions.push('action1'));
+      engine.registerHandler('action2', () => executedActions.push('action2'));
+
+      engine.addRule({
+        id: 'rule1',
+        name: 'Rule 1',
+        conditions: { field: 'x', operator: 'equals', value: 999 },
+        actions: [{ type: 'action1' }],
+        triggers: ['rule2'],
+      });
+
+      engine.addRule({
+        id: 'rule2',
+        name: 'Rule 2',
+        enabled: false,
+        conditions: { field: 'y', operator: 'equals', value: 2 },
+        actions: [{ type: 'action2' }],
+      });
+
+      const results = await engine.evaluate({ data: { x: 1, y: 2 } });
+
+      // rule1 doesn't match, so action1 is not executed
+      // rule2 is disabled so it won't be evaluated in main loop
+      // rule1 doesn't match so it won't trigger rule2
+      expect(executedActions).toEqual([]);
+      expect(results).toHaveLength(1);
+      expect(results[0].matched).toBe(false);
+    });
+
+    test('triggered rule condition can fail', async () => {
+      const engine = new Mairon();
+      const executedActions: string[] = [];
+
+      engine.registerHandler('action1', () => executedActions.push('action1'));
+      engine.registerHandler('action2', () => executedActions.push('action2'));
+
+      engine.addRule({
+        id: 'rule1',
+        name: 'Rule 1',
+        conditions: { field: 'x', operator: 'equals', value: 1 },
+        actions: [{ type: 'action1' }],
+        triggers: ['rule2'],
+      });
+
+      engine.addRule({
+        id: 'rule2',
+        name: 'Rule 2',
+        conditions: { field: 'y', operator: 'equals', value: 999 },
+        actions: [{ type: 'action2' }],
+      });
+
+      const results = await engine.evaluate({ data: { x: 1, y: 2 } });
+
+      expect(executedActions).toEqual(['action1']);
+      expect(results).toHaveLength(2);
+      expect(results[0].matched).toBe(true);
+      expect(results[1].matched).toBe(false);
+      expect(results[1].triggeredBy).toBe('rule1');
+    });
+
+    test('supports chaining multiple rules', async () => {
+      const engine = new Mairon();
+      const executedActions: string[] = [];
+
+      engine.registerHandler('action1', () => executedActions.push('action1'));
+      engine.registerHandler('action2', () => executedActions.push('action2'));
+      engine.registerHandler('action3', () => executedActions.push('action3'));
+
+      engine.addRule({
+        id: 'rule1',
+        name: 'Rule 1',
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'action1' }],
+        triggers: ['rule2'],
+      });
+
+      engine.addRule({
+        id: 'rule2',
+        name: 'Rule 2',
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'action2' }],
+        triggers: ['rule3'],
+      });
+
+      engine.addRule({
+        id: 'rule3',
+        name: 'Rule 3',
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'action3' }],
+      });
+
+      const results = await engine.evaluate({ data: { x: 1 } });
+
+      expect(executedActions).toEqual(['action1', 'action2', 'action3']);
+      expect(results).toHaveLength(3);
+    });
+
+    test('prevents infinite loops with cycle detection', async () => {
+      const engine = new Mairon();
+      const executedActions: string[] = [];
+
+      engine.registerHandler('action1', () => executedActions.push('action1'));
+      engine.registerHandler('action2', () => executedActions.push('action2'));
+
+      engine.addRule({
+        id: 'rule1',
+        name: 'Rule 1',
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'action1' }],
+        triggers: ['rule2'],
+      });
+
+      engine.addRule({
+        id: 'rule2',
+        name: 'Rule 2',
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'action2' }],
+        triggers: ['rule1'],
+      });
+
+      const results = await engine.evaluate({ data: { x: 1 } });
+
+      expect(executedActions).toEqual(['action1', 'action2']);
+      expect(results).toHaveLength(2);
+    });
+
+    test('self-triggering rule executes only once', async () => {
+      const engine = new Mairon();
+      let executionCount = 0;
+
+      engine.registerHandler('action', () => executionCount++);
+
+      engine.addRule({
+        id: 'self-trigger',
+        name: 'Self Trigger',
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'action' }],
+        triggers: ['self-trigger'],
+      });
+
+      await engine.evaluate({ data: { x: 1 } });
+
+      expect(executionCount).toBe(1);
+    });
+
+    test('emits ruleTriggered event', async () => {
+      const engine = new Mairon();
+      const triggeredEvents: { source: string; target: string }[] = [];
+
+      engine.registerHandler('action', () => {});
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      engine.on('ruleTriggered', (data: any) => {
+        triggeredEvents.push({
+          source: data.sourceRule.id,
+          target: data.triggeredRule.id,
+        });
+      });
+
+      engine.addRule({
+        id: 'rule1',
+        name: 'Rule 1',
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'action' }],
+        triggers: ['rule2'],
+      });
+
+      engine.addRule({
+        id: 'rule2',
+        name: 'Rule 2',
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'action' }],
+      });
+
+      await engine.evaluate({ data: { x: 1 } });
+
+      expect(triggeredEvents).toHaveLength(1);
+      expect(triggeredEvents[0]).toEqual({ source: 'rule1', target: 'rule2' });
+    });
+
+    test('skips disabled triggered rules', async () => {
+      const engine = new Mairon();
+      const executedActions: string[] = [];
+
+      engine.registerHandler('action1', () => executedActions.push('action1'));
+      engine.registerHandler('action2', () => executedActions.push('action2'));
+
+      engine.addRule({
+        id: 'rule1',
+        name: 'Rule 1',
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'action1' }],
+        triggers: ['rule2'],
+      });
+
+      engine.addRule({
+        id: 'rule2',
+        name: 'Rule 2',
+        enabled: false,
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'action2' }],
+      });
+
+      const results = await engine.evaluate({ data: { x: 1 } });
+
+      expect(executedActions).toEqual(['action1']);
+      expect(results).toHaveLength(1);
+    });
+
+    test('ignores non-existent triggered rule IDs', async () => {
+      const engine = new Mairon();
+      const executedActions: string[] = [];
+
+      engine.registerHandler('action1', () => executedActions.push('action1'));
+
+      engine.addRule({
+        id: 'rule1',
+        name: 'Rule 1',
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'action1' }],
+        triggers: ['non-existent-rule'],
+      });
+
+      const results = await engine.evaluate({ data: { x: 1 } });
+
+      expect(executedActions).toEqual(['action1']);
+      expect(results).toHaveLength(1);
+    });
+
+    test('triggers multiple rules from single source', async () => {
+      const engine = new Mairon();
+      const executedActions: string[] = [];
+
+      engine.registerHandler('action1', () => executedActions.push('action1'));
+      engine.registerHandler('action2', () => executedActions.push('action2'));
+      engine.registerHandler('action3', () => executedActions.push('action3'));
+
+      engine.addRule({
+        id: 'rule1',
+        name: 'Rule 1',
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'action1' }],
+        triggers: ['rule2', 'rule3'],
+      });
+
+      engine.addRule({
+        id: 'rule2',
+        name: 'Rule 2',
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'action2' }],
+      });
+
+      engine.addRule({
+        id: 'rule3',
+        name: 'Rule 3',
+        conditions: { field: 'x', operator: 'exists' },
+        actions: [{ type: 'action3' }],
+      });
+
+      const results = await engine.evaluate({ data: { x: 1 } });
+
+      expect(executedActions).toEqual(['action1', 'action2', 'action3']);
+      expect(results).toHaveLength(3);
+    });
+  });
 });

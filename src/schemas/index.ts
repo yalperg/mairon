@@ -95,6 +95,7 @@ export const ruleSchema = z.object({
   stopOnError: z.boolean().optional(),
   conditions: conditionSchema,
   actions: z.array(actionSchema).min(1),
+  triggers: z.array(z.string()).optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
   tags: z.array(z.string()).optional(),
   version: z
@@ -128,6 +129,7 @@ export const evaluationResultSchema = z.object({
   error: z.instanceof(Error).optional(),
   executionTime: z.number(),
   errorPhase: z.enum(['condition', 'action']).optional(),
+  triggeredBy: z.string().optional(),
 });
 
 export const validationErrorSchema = z.object({

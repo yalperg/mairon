@@ -118,6 +118,20 @@ export interface Rule<T = unknown> {
   conditions: Condition<T>;
   /** Actions to execute when conditions are met */
   actions: Action[];
+  /**
+   * Rule IDs to trigger when this rule matches.
+   * Triggered rules are evaluated and executed if their conditions match.
+   * Supports chaining for workflow automation.
+   *
+   * @example
+   * ```typescript
+   * {
+   *   id: 'calculate-discount',
+   *   triggers: ['apply-loyalty-bonus', 'send-notification']
+   * }
+   * ```
+   */
+  triggers?: string[];
   /** Arbitrary metadata for the rule */
   metadata?: Record<string, unknown>;
   /** Tags for categorization and filtering */
@@ -204,6 +218,7 @@ export type EngineEvent =
   | 'afterEvaluate'
   | 'ruleMatched'
   | 'ruleSkipped'
+  | 'ruleTriggered'
   | 'actionExecuted'
   | 'actionFailed'
   | 'error';
@@ -237,6 +252,13 @@ export interface EventData {
     reason: string;
     context: EvaluationContext;
     error?: Error;
+    timestamp: number;
+  };
+  /** Emitted when a rule triggers another rule */
+  ruleTriggered: {
+    sourceRule: Rule;
+    triggeredRule: Rule;
+    context: EvaluationContext;
     timestamp: number;
   };
   /** Emitted when an action executes successfully */

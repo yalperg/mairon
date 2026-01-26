@@ -495,7 +495,12 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
    * Rules are evaluated in priority order (highest first). For each rule:
    * 1. Conditions are evaluated against the context data
    * 2. If conditions match, registered action handlers are executed
-   * 3. Results are collected and returned
+   * 3. If the rule has triggers, triggered rules are also evaluated
+   * 4. Results are collected and returned
+   *
+   * Rule chaining is supported via the `triggers` field. When a rule matches,
+   * any rules specified in its triggers array are automatically evaluated.
+   * Cycle detection prevents infinite loops.
    *
    * @param context - The evaluation context containing data to evaluate
    * @returns Promise resolving to array of evaluation results
@@ -539,93 +544,15 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
     });
 
     const results: EvaluationResult[] = [];
+    const executedRuleIds = new Set<string>();
 
     for (const rule of limited) {
-      const ruleStart = Date.now();
-      try {
-        const matched = await this.evaluator.evaluateCondition(
-          rule.conditions,
-          context,
-        );
-        if (!matched) {
-          const res: EvaluationResult = {
-            ruleId: rule.id,
-            ruleName: rule.name,
-            matched: false,
-            actionsExecuted: [],
-            executionTime: Date.now() - ruleStart,
-            skipped: true,
-            skipReason: 'condition-failed',
-          };
-          this.emit('ruleSkipped', {
-            rule,
-            reason: 'condition-failed',
-            context,
-            timestamp: Date.now(),
-          });
-          this.stats.trackRuleExecution(res.executionTime, false);
-          results.push(res);
-          continue;
-        }
-
-        this.emit('ruleMatched', { rule, context, timestamp: Date.now() });
-
-        const actionResults = await this.executor.executeActions(
-          rule.actions,
-          rule,
-          context,
-          rule.stopOnError === true,
-          this.config.strict === true,
-        );
-
-        for (const ar of actionResults) {
-          if (ar.success) {
-            this.emit('actionExecuted', {
-              rule,
-              action: { type: ar.type },
-              result: ar,
-              timestamp: Date.now(),
-            });
-          } else {
-            this.emit('actionFailed', {
-              rule,
-              action: { type: ar.type },
-              error: ar.error as Error,
-              timestamp: Date.now(),
-            });
-          }
-          this.stats.trackActionExecution(ar.executionTime, ar.success);
-        }
-
-        const res: EvaluationResult = {
-          ruleId: rule.id,
-          ruleName: rule.name,
-          matched: true,
-          actionsExecuted: rule.actions.map((a) => a.type),
-          actionResults,
-          executionTime: Date.now() - ruleStart,
-        };
-        this.stats.trackRuleExecution(res.executionTime, true);
-        results.push(res);
-      } catch (err) {
-        const res: EvaluationResult = {
-          ruleId: rule.id,
-          ruleName: rule.name,
-          matched: false,
-          actionsExecuted: [],
-          executionTime: Date.now() - ruleStart,
-          error: err as Error,
-          errorPhase: 'condition',
-        };
-        this.emit('error', {
-          error: err as Error,
-          phase: 'condition',
-          context,
-          timestamp: Date.now(),
-        });
-        this.stats.trackRuleExecution(res.executionTime, false);
-        results.push(res);
-      }
+      const ruleResults = await this.evaluateRuleWithTriggers(
+        rule,
+        context,
+        executedRuleIds,
+      );
+      results.push(...ruleResults);
     }
 
     const duration = Date.now() - start;
@@ -636,6 +563,139 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
       timestamp: Date.now(),
     });
     this.stats.trackEvaluation(duration, true);
+    return results;
+  }
+
+  /**
+   * Evaluates a single rule and its triggered rules recursively.
+   * Uses executedRuleIds set for cycle detection.
+   */
+  private async evaluateRuleWithTriggers(
+    rule: Rule<T>,
+    context: EvaluationContext<T>,
+    executedRuleIds: Set<string>,
+    sourceRule?: Rule<T>,
+  ): Promise<EvaluationResult[]> {
+    // Cycle detection: skip if already executed
+    if (executedRuleIds.has(rule.id)) {
+      return [];
+    }
+    executedRuleIds.add(rule.id);
+
+    const results: EvaluationResult[] = [];
+    const ruleStart = Date.now();
+
+    try {
+      const matched = await this.evaluator.evaluateCondition(
+        rule.conditions,
+        context,
+      );
+
+      if (!matched) {
+        const res: EvaluationResult = {
+          ruleId: rule.id,
+          ruleName: rule.name,
+          matched: false,
+          actionsExecuted: [],
+          executionTime: Date.now() - ruleStart,
+          skipped: true,
+          skipReason: 'condition-failed',
+          triggeredBy: sourceRule?.id,
+        };
+        this.emit('ruleSkipped', {
+          rule,
+          reason: 'condition-failed',
+          context,
+          timestamp: Date.now(),
+        });
+        this.stats.trackRuleExecution(res.executionTime, false);
+        results.push(res);
+        return results;
+      }
+
+      this.emit('ruleMatched', { rule, context, timestamp: Date.now() });
+
+      const actionResults = await this.executor.executeActions(
+        rule.actions,
+        rule,
+        context,
+        rule.stopOnError === true,
+        this.config.strict === true,
+      );
+
+      for (const ar of actionResults) {
+        if (ar.success) {
+          this.emit('actionExecuted', {
+            rule,
+            action: { type: ar.type },
+            result: ar,
+            timestamp: Date.now(),
+          });
+        } else {
+          this.emit('actionFailed', {
+            rule,
+            action: { type: ar.type },
+            error: ar.error as Error,
+            timestamp: Date.now(),
+          });
+        }
+        this.stats.trackActionExecution(ar.executionTime, ar.success);
+      }
+
+      const res: EvaluationResult = {
+        ruleId: rule.id,
+        ruleName: rule.name,
+        matched: true,
+        actionsExecuted: rule.actions.map((a) => a.type),
+        actionResults,
+        executionTime: Date.now() - ruleStart,
+        triggeredBy: sourceRule?.id,
+      };
+      this.stats.trackRuleExecution(res.executionTime, true);
+      results.push(res);
+
+      // Process triggered rules
+      if (rule.triggers && rule.triggers.length > 0) {
+        for (const triggeredRuleId of rule.triggers) {
+          const triggeredRule = this.manager.getRule(triggeredRuleId);
+          if (triggeredRule && triggeredRule.enabled !== false) {
+            this.emit('ruleTriggered', {
+              sourceRule: rule,
+              triggeredRule,
+              context,
+              timestamp: Date.now(),
+            });
+            const triggeredResults = await this.evaluateRuleWithTriggers(
+              triggeredRule,
+              context,
+              executedRuleIds,
+              rule,
+            );
+            results.push(...triggeredResults);
+          }
+        }
+      }
+    } catch (err) {
+      const res: EvaluationResult = {
+        ruleId: rule.id,
+        ruleName: rule.name,
+        matched: false,
+        actionsExecuted: [],
+        executionTime: Date.now() - ruleStart,
+        error: err as Error,
+        errorPhase: 'condition',
+        triggeredBy: sourceRule?.id,
+      };
+      this.emit('error', {
+        error: err as Error,
+        phase: 'condition',
+        context,
+        timestamp: Date.now(),
+      });
+      this.stats.trackRuleExecution(res.executionTime, false);
+      results.push(res);
+    }
+
     return results;
   }
 

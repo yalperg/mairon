@@ -76,7 +76,7 @@ describe('Mairon', () => {
   });
 
   describe('explain', () => {
-    test('explains rule that matches', () => {
+    test('explains rule that matches', async () => {
       const engine = new Mairon();
       engine.addRule({
         id: 'r1',
@@ -85,7 +85,7 @@ describe('Mairon', () => {
         actions: [{ type: 'noop' }],
       });
 
-      const explanations = engine.explain({ data: { age: 25 } });
+      const explanations = await engine.explain({ data: { age: 25 } });
       expect(explanations).toHaveLength(1);
       expect(explanations[0].ruleId).toBe('r1');
       expect(explanations[0].ruleName).toBe('Rule 1');
@@ -93,7 +93,7 @@ describe('Mairon', () => {
       expect(explanations[0].explanation.passed).toBe(true);
     });
 
-    test('explains rule that does not match', () => {
+    test('explains rule that does not match', async () => {
       const engine = new Mairon();
       engine.addRule({
         id: 'r1',
@@ -102,7 +102,7 @@ describe('Mairon', () => {
         actions: [{ type: 'noop' }],
       });
 
-      const explanations = engine.explain({ data: { age: 16 } });
+      const explanations = await engine.explain({ data: { age: 16 } });
       expect(explanations[0].matched).toBe(false);
       expect(explanations[0].explanation.passed).toBe(false);
 
@@ -113,7 +113,7 @@ describe('Mairon', () => {
       }
     });
 
-    test('explains multiple rules', () => {
+    test('explains multiple rules', async () => {
       const engine = new Mairon();
       engine.addRule({
         id: 'r1',
@@ -128,13 +128,15 @@ describe('Mairon', () => {
         actions: [{ type: 'noop' }],
       });
 
-      const explanations = engine.explain({ data: { age: 25, isPremium: false } });
+      const explanations = await engine.explain({
+        data: { age: 25, isPremium: false },
+      });
       expect(explanations).toHaveLength(2);
       expect(explanations.find((e) => e.ruleId === 'r1')?.matched).toBe(true);
       expect(explanations.find((e) => e.ruleId === 'r2')?.matched).toBe(false);
     });
 
-    test('explains complex nested conditions', () => {
+    test('explains complex nested conditions', async () => {
       const engine = new Mairon();
       engine.addRule({
         id: 'r1',
@@ -153,7 +155,7 @@ describe('Mairon', () => {
         actions: [{ type: 'noop' }],
       });
 
-      const explanations = engine.explain({
+      const explanations = await engine.explain({
         data: { age: 25, role: 'user' },
       });
 
@@ -166,7 +168,7 @@ describe('Mairon', () => {
       }
     });
 
-    test('does not execute actions', () => {
+    test('does not execute actions', async () => {
       const engine = new Mairon();
       let actionCalled = false;
       engine.registerHandler('test', () => {
@@ -179,11 +181,11 @@ describe('Mairon', () => {
         actions: [{ type: 'test' }],
       });
 
-      engine.explain({ data: { x: 1 } });
+      await engine.explain({ data: { x: 1 } });
       expect(actionCalled).toBe(false);
     });
 
-    test('respects rule filter', () => {
+    test('respects rule filter', async () => {
       const engine = new Mairon();
       engine.addRule({
         id: 'r1',
@@ -200,7 +202,7 @@ describe('Mairon', () => {
         actions: [{ type: 'noop' }],
       });
 
-      const explanations = engine.explain({ data: { x: 1 } });
+      const explanations = await engine.explain({ data: { x: 1 } });
       expect(explanations).toHaveLength(1);
       expect(explanations[0].ruleId).toBe('r1');
     });

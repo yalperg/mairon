@@ -411,4 +411,119 @@ describe('Mairon Custom Operators', () => {
       expect(engine2.hasOperator('op2')).toBe(true);
     });
   });
+
+  describe('async operators', () => {
+    test('registers and evaluates async operator', async () => {
+      engine.registerOperator('asyncCheck', async (value) => {
+        await new Promise((r) => setTimeout(r, 10));
+        return value === 'valid';
+      });
+      engine.registerHandler('action', () => {});
+      engine.addRule({
+        id: 'async-test',
+        name: 'Async Test',
+        conditions: { field: 'status', operator: 'asyncCheck' },
+        actions: [{ type: 'action' }],
+      });
+
+      const results = await engine.evaluate({ data: { status: 'valid' } });
+      expect(results[0].matched).toBe(true);
+
+      const results2 = await engine.evaluate({ data: { status: 'invalid' } });
+      expect(results2[0].matched).toBe(false);
+    });
+
+    test('async operator with condition value', async () => {
+      engine.registerOperator('asyncEquals', async (fieldValue, condition) => {
+        await new Promise((r) => setTimeout(r, 10));
+        return fieldValue === condition.value;
+      });
+      engine.registerHandler('action', () => {});
+      engine.addRule({
+        id: 'async-equals-test',
+        name: 'Async Equals Test',
+        conditions: { field: 'status', operator: 'asyncEquals', value: 'active' },
+        actions: [{ type: 'action' }],
+      });
+
+      const results = await engine.evaluate({ data: { status: 'active' } });
+      expect(results[0].matched).toBe(true);
+    });
+
+    test('async operator with external lookup simulation', async () => {
+      const permissionsDb: Record<string, string[]> = {
+        user1: ['read', 'write'],
+        user2: ['read'],
+      };
+
+      engine.registerOperator('hasPermission', async (userId, condition) => {
+        await new Promise((r) => setTimeout(r, 10));
+        const permissions = permissionsDb[userId as string] || [];
+        return permissions.includes(condition.value as string);
+      });
+      engine.registerHandler('action', () => {});
+      engine.addRule({
+        id: 'permission-check',
+        name: 'Permission Check',
+        conditions: { field: 'userId', operator: 'hasPermission', value: 'write' },
+        actions: [{ type: 'action' }],
+      });
+
+      const results = await engine.evaluate({ data: { userId: 'user1' } });
+      expect(results[0].matched).toBe(true);
+
+      const results2 = await engine.evaluate({ data: { userId: 'user2' } });
+      expect(results2[0].matched).toBe(false);
+    });
+
+    test('mixed sync and async operators in same rule', async () => {
+      engine.registerOperator('asyncGt', async (value, condition) => {
+        await new Promise((r) => setTimeout(r, 10));
+        return (value as number) > (condition.value as number);
+      });
+      engine.registerHandler('action', () => {});
+      engine.addRule({
+        id: 'mixed-test',
+        name: 'Mixed Test',
+        conditions: {
+          all: [
+            { field: 'status', operator: 'equals', value: 'active' },
+            { field: 'score', operator: 'asyncGt', value: 50 },
+          ],
+        },
+        actions: [{ type: 'action' }],
+      });
+
+      const results = await engine.evaluate({
+        data: { status: 'active', score: 75 },
+      });
+      expect(results[0].matched).toBe(true);
+
+      const results2 = await engine.evaluate({
+        data: { status: 'active', score: 25 },
+      });
+      expect(results2[0].matched).toBe(false);
+    });
+
+    test('explain works with async operators', async () => {
+      engine.registerOperator('asyncCheck', async (value) => {
+        await new Promise((r) => setTimeout(r, 10));
+        return value === 'valid';
+      });
+      engine.addRule({
+        id: 'async-explain',
+        name: 'Async Explain',
+        conditions: { field: 'status', operator: 'asyncCheck' },
+        actions: [{ type: 'action' }],
+      });
+
+      const explanations = await engine.explain({ data: { status: 'valid' } });
+      expect(explanations[0].matched).toBe(true);
+      expect(explanations[0].explanation.passed).toBe(true);
+
+      const explanations2 = await engine.explain({ data: { status: 'invalid' } });
+      expect(explanations2[0].matched).toBe(false);
+      expect(explanations2[0].explanation.passed).toBe(false);
+    });
+  });
 });

@@ -543,7 +543,7 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
     for (const rule of limited) {
       const ruleStart = Date.now();
       try {
-        const matched = this.evaluator.evaluateCondition(
+        const matched = await this.evaluator.evaluateCondition(
           rule.conditions,
           context,
         );
@@ -648,6 +648,8 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
    * - The actual values from your data
    * - The expected values from the rule
    *
+   * Supports async operators for conditions that require external lookups.
+   *
    * This is useful for:
    * - Debugging why a rule isn't matching
    * - Understanding rule behavior
@@ -655,11 +657,11 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
    *
    * @param context - The evaluation context containing data to evaluate
    * @param filter - Optional filter to limit which rules are explained
-   * @returns Array of rule explanations with detailed condition breakdowns
+   * @returns Promise resolving to array of rule explanations with detailed condition breakdowns
    *
    * @example
    * ```typescript
-   * const explanations = engine.explain({
+   * const explanations = await engine.explain({
    *   data: { user: { age: 16, verified: true } }
    * });
    *
@@ -679,7 +681,10 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
    * }
    * ```
    */
-  explain(context: EvaluationContext<T>, filter?: RuleFilter): RuleExplanation[] {
+  async explain(
+    context: EvaluationContext<T>,
+    filter?: RuleFilter,
+  ): Promise<RuleExplanation[]> {
     const rules = this.manager.getRules(filter ?? { enabled: true });
     const sorted = rules.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
     const limited = this.config.maxRulesPerExecution
@@ -689,7 +694,10 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
     const explanations: RuleExplanation[] = [];
 
     for (const rule of limited) {
-      const explanation = this.evaluator.explainCondition(rule.conditions, context);
+      const explanation = await this.evaluator.explainCondition(
+        rule.conditions,
+        context,
+      );
       explanations.push({
         ruleId: rule.id,
         ruleName: rule.name,

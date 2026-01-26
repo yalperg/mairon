@@ -74,20 +74,23 @@ class Evaluator<T = unknown> {
   /**
    * Evaluates a condition (simple or logical group) against a context.
    *
+   * Supports both synchronous and asynchronous operators. If any operator
+   * in the condition tree returns a Promise, the entire evaluation becomes async.
+   *
    * @param condition - The condition to evaluate
    * @param context - The evaluation context containing data
-   * @returns true if the condition matches, false otherwise
+   * @returns Promise resolving to true if the condition matches, false otherwise
    *
    * @example
    * ```typescript
    * // Simple condition
-   * evaluator.evaluateCondition(
+   * await evaluator.evaluateCondition(
    *   { field: 'status', operator: 'equals', value: 'active' },
    *   { data: { status: 'active' } }
    * ); // true
    *
    * // Logical AND
-   * evaluator.evaluateCondition(
+   * await evaluator.evaluateCondition(
    *   { all: [
    *     { field: 'age', operator: 'greaterThan', value: 18 },
    *     { field: 'country', operator: 'equals', value: 'US' }
@@ -96,7 +99,7 @@ class Evaluator<T = unknown> {
    * ); // true
    *
    * // Logical OR
-   * evaluator.evaluateCondition(
+   * await evaluator.evaluateCondition(
    *   { any: [
    *     { field: 'role', operator: 'equals', value: 'admin' },
    *     { field: 'role', operator: 'equals', value: 'moderator' }
@@ -105,16 +108,16 @@ class Evaluator<T = unknown> {
    * ); // true
    *
    * // Logical NOT
-   * evaluator.evaluateCondition(
+   * await evaluator.evaluateCondition(
    *   { not: { field: 'banned', operator: 'equals', value: true } },
    *   { data: { banned: false } }
    * ); // true
    * ```
    */
-  evaluateCondition(
+  async evaluateCondition(
     condition: Condition<T>,
     context: EvaluationContext<T>,
-  ): boolean {
+  ): Promise<boolean> {
     if (this.isSimple(condition)) {
       return this.evaluateSimpleCondition(condition, context);
     }
@@ -125,15 +128,15 @@ class Evaluator<T = unknown> {
    * Evaluates a condition and returns a detailed explanation of the evaluation.
    *
    * This is useful for debugging rules and understanding why a condition
-   * matched or didn't match.
+   * matched or didn't match. Supports async operators.
    *
    * @param condition - The condition to evaluate
    * @param context - The evaluation context containing data
-   * @returns An explanation object with pass/fail status and details
+   * @returns Promise resolving to an explanation object with pass/fail status and details
    *
    * @example
    * ```typescript
-   * const explanation = evaluator.explainCondition(
+   * const explanation = await evaluator.explainCondition(
    *   {
    *     all: [
    *       { field: 'age', operator: 'greaterThan', value: 18 },
@@ -154,10 +157,10 @@ class Evaluator<T = unknown> {
    * // }
    * ```
    */
-  explainCondition(
+  async explainCondition(
     condition: Condition<T>,
     context: EvaluationContext<T>,
-  ): ConditionExplanation {
+  ): Promise<ConditionExplanation> {
     if (this.isSimple(condition)) {
       return this.explainSimpleCondition(condition, context);
     }
@@ -167,13 +170,13 @@ class Evaluator<T = unknown> {
   /**
    * Evaluates a logical group condition (all/any/not).
    */
-  private evaluateGroup(
+  private async evaluateGroup(
     group: LogicalGroup<T>,
     context: EvaluationContext<T>,
-  ): boolean {
+  ): Promise<boolean> {
     if (group.all) {
       for (const c of group.all) {
-        if (!this.evaluateCondition(c, context)) {
+        if (!(await this.evaluateCondition(c, context))) {
           return false;
         }
       }
@@ -181,14 +184,14 @@ class Evaluator<T = unknown> {
     }
     if (group.any) {
       for (const c of group.any) {
-        if (this.evaluateCondition(c, context)) {
+        if (await this.evaluateCondition(c, context)) {
           return true;
         }
       }
       return false;
     }
     if (group.not) {
-      return !this.evaluateCondition(group.not, context);
+      return !(await this.evaluateCondition(group.not, context));
     }
     return false;
   }
@@ -196,22 +199,26 @@ class Evaluator<T = unknown> {
   /**
    * Explains a logical group evaluation.
    */
-  private explainGroup(
+  private async explainGroup(
     group: LogicalGroup<T>,
     context: EvaluationContext<T>,
-  ): LogicalGroupExplanation {
+  ): Promise<LogicalGroupExplanation> {
     if (group.all) {
-      const children = group.all.map((c) => this.explainCondition(c, context));
+      const children = await Promise.all(
+        group.all.map((c) => this.explainCondition(c, context)),
+      );
       const passed = children.every((c) => c.passed);
       return { type: 'all', passed, children };
     }
     if (group.any) {
-      const children = group.any.map((c) => this.explainCondition(c, context));
+      const children = await Promise.all(
+        group.any.map((c) => this.explainCondition(c, context)),
+      );
       const passed = children.some((c) => c.passed);
       return { type: 'any', passed, children };
     }
     if (group.not) {
-      const child = this.explainCondition(group.not, context);
+      const child = await this.explainCondition(group.not, context);
       return { type: 'not', passed: !child.passed, children: [child] };
     }
     return { type: 'all', passed: false, children: [] };
@@ -220,10 +227,10 @@ class Evaluator<T = unknown> {
   /**
    * Evaluates a simple field-operator-value condition.
    */
-  private evaluateSimpleCondition(
+  private async evaluateSimpleCondition(
     condition: SimpleCondition,
     context: EvaluationContext<T>,
-  ): boolean {
+  ): Promise<boolean> {
     const operator = this.operators.get(condition.operator);
     if (!operator) {
       return false;
@@ -249,10 +256,10 @@ class Evaluator<T = unknown> {
   /**
    * Explains a simple condition evaluation.
    */
-  private explainSimpleCondition(
+  private async explainSimpleCondition(
     condition: SimpleCondition,
     context: EvaluationContext<T>,
-  ): SimpleConditionExplanation {
+  ): Promise<SimpleConditionExplanation> {
     const operator = this.operators.get(condition.operator);
     const fieldValue = this.fieldAccessor.resolvePath(
       context.data,
@@ -270,7 +277,7 @@ class Evaluator<T = unknown> {
         ...condition,
         value: resolvedValue,
       };
-      passed = operator.evaluate(fieldValue, normalizedCondition, context);
+      passed = await operator.evaluate(fieldValue, normalizedCondition, context);
     }
 
     return {

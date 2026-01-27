@@ -490,6 +490,29 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
   // ============================================================
 
   /**
+   * Prepares evaluation context by cloning data if immutable mode is enabled.
+   *
+   * @param context - The raw evaluation context
+   * @returns Prepared context with cloned data if immutable, otherwise original context
+   */
+  private prepareContext(context: EvaluationContext<T>): EvaluationContext<T> {
+    if (!this.config.immutable) {
+      return context;
+    }
+
+    const preparedContext: EvaluationContext<T> = {
+      ...context,
+      data: structuredClone(context.data),
+    };
+
+    if (context.previousData !== undefined) {
+      preparedContext.previousData = structuredClone(context.previousData);
+    }
+
+    return preparedContext;
+  }
+
+  /**
    * Evaluates all enabled rules against the provided context.
    *
    * Rules are evaluated in priority order (highest first). For each rule:
@@ -527,8 +550,10 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
    */
   async evaluate(context: EvaluationContext<T>): Promise<EvaluationResult[]> {
     const start = Date.now();
+    const evalContext = this.prepareContext(context);
+
     const enabledRules = this.config.enableIndexing
-      ? this.manager.getRelevantRules(context.data)
+      ? this.manager.getRelevantRules(evalContext.data)
       : this.manager.getRules({ enabled: true });
     const sorted = enabledRules.sort(
       (a, b) => (b.priority ?? 0) - (a.priority ?? 0),
@@ -538,7 +563,7 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
       : sorted;
 
     this.emit('beforeEvaluate', {
-      context,
+      context: evalContext,
       ruleCount: limited.length,
       timestamp: Date.now(),
     });
@@ -549,7 +574,7 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
     for (const rule of limited) {
       const ruleResults = await this.evaluateRuleWithTriggers(
         rule,
-        context,
+        evalContext,
         executedRuleIds,
       );
       results.push(...ruleResults);
@@ -557,7 +582,7 @@ class Mairon<T = unknown> extends EventEmitter<EngineEvent, EventData> {
 
     const duration = Date.now() - start;
     this.emit('afterEvaluate', {
-      context,
+      context: evalContext,
       results,
       duration,
       timestamp: Date.now(),

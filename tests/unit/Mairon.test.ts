@@ -735,4 +735,140 @@ describe('Mairon', () => {
       expect(results).toHaveLength(3);
     });
   });
+
+  describe('immutable mode', () => {
+    test('mutates original data when immutable is false (default)', async () => {
+      const engine = new Mairon();
+      engine.registerHandler('mutate', (ctx) => {
+        (ctx.data as { value: number }).value = 999;
+      });
+      engine.addRule({
+        id: 'r1',
+        name: 'R1',
+        conditions: { field: 'value', operator: 'exists' },
+        actions: [{ type: 'mutate' }],
+      });
+
+      const data = { value: 1 };
+      await engine.evaluate({ data });
+
+      // Original data is mutated
+      expect(data.value).toBe(999);
+    });
+
+    test('protects original data when immutable is true', async () => {
+      const engine = new Mairon({ immutable: true });
+      engine.registerHandler('mutate', (ctx) => {
+        (ctx.data as { value: number }).value = 999;
+      });
+      engine.addRule({
+        id: 'r1',
+        name: 'R1',
+        conditions: { field: 'value', operator: 'exists' },
+        actions: [{ type: 'mutate' }],
+      });
+
+      const data = { value: 1 };
+      await engine.evaluate({ data });
+
+      // Original data is NOT mutated
+      expect(data.value).toBe(1);
+    });
+
+    test('protects nested objects in immutable mode', async () => {
+      const engine = new Mairon({ immutable: true });
+      engine.registerHandler('mutate', (ctx) => {
+        (ctx.data as { user: { name: string } }).user.name = 'CHANGED';
+      });
+      engine.addRule({
+        id: 'r1',
+        name: 'R1',
+        conditions: { field: 'user.name', operator: 'exists' },
+        actions: [{ type: 'mutate' }],
+      });
+
+      const data = { user: { name: 'original' } };
+      await engine.evaluate({ data });
+
+      // Original nested data is NOT mutated
+      expect(data.user.name).toBe('original');
+    });
+
+    test('protects arrays in immutable mode', async () => {
+      const engine = new Mairon({ immutable: true });
+      engine.registerHandler('mutate', (ctx) => {
+        (ctx.data as { items: string[] }).items.push('new-item');
+      });
+      engine.addRule({
+        id: 'r1',
+        name: 'R1',
+        conditions: { field: 'items', operator: 'exists' },
+        actions: [{ type: 'mutate' }],
+      });
+
+      const data = { items: ['a', 'b'] };
+      await engine.evaluate({ data });
+
+      // Original array is NOT mutated
+      expect(data.items).toEqual(['a', 'b']);
+    });
+
+    test('protects previousData in immutable mode', async () => {
+      const engine = new Mairon({ immutable: true });
+      engine.registerHandler('mutate', (ctx) => {
+        if (ctx.previousData) {
+          (ctx.previousData as { value: number }).value = 999;
+        }
+      });
+      engine.addRule({
+        id: 'r1',
+        name: 'R1',
+        conditions: { field: 'value', operator: 'exists' },
+        actions: [{ type: 'mutate' }],
+      });
+
+      const data = { value: 2 };
+      const previousData = { value: 1 };
+      await engine.evaluate({ data, previousData });
+
+      // Original previousData is NOT mutated
+      expect(previousData.value).toBe(1);
+    });
+
+    test('mutations in handlers still work within the cloned context', async () => {
+      const engine = new Mairon({ immutable: true });
+      let capturedValue: number | null = null;
+
+      engine.registerHandler('rule1-action', (ctx) => {
+        (ctx.data as { value: number }).value = 100;
+      });
+      engine.registerHandler('rule2-action', (ctx) => {
+        // This should see the mutated value within the same evaluation
+        capturedValue = (ctx.data as { value: number }).value;
+      });
+
+      engine.addRule({
+        id: 'rule1',
+        name: 'Rule 1',
+        priority: 10,
+        conditions: { field: 'value', operator: 'exists' },
+        actions: [{ type: 'rule1-action' }],
+      });
+      engine.addRule({
+        id: 'rule2',
+        name: 'Rule 2',
+        priority: 5,
+        conditions: { field: 'value', operator: 'exists' },
+        actions: [{ type: 'rule2-action' }],
+      });
+
+      const data = { value: 1 };
+      await engine.evaluate({ data });
+
+      // Original data is NOT mutated
+      expect(data.value).toBe(1);
+      // But mutations are visible within the same evaluation
+      expect(capturedValue).toBe(100);
+    });
+  });
 });

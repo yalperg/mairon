@@ -145,6 +145,18 @@ export const validationResultSchema = z.object({
   errors: z.array(validationErrorSchema).optional(),
 });
 
+/**
+ * Configuration schema for the rule engine.
+ *
+ * @property strict - Throw on missing handlers (default: false)
+ * @property enableLogging - Enable debug logging (default: false)
+ * @property maxRulesPerExecution - Limit rules per evaluation
+ * @property enableIndexing - Performance optimization for large rule sets (default: false)
+ * @property stopOnFirstError - Stop evaluation on first error (default: false)
+ * @property maxConditionDepth - Maximum nesting depth for conditions
+ * @property collectDetailedResults - Collect detailed action results (default: false)
+ * @property immutable - Protect original data from mutation by action handlers (default: false)
+ */
 export const ruleEngineConfigSchema = z.object({
   strict: z.boolean().optional(),
   enableLogging: z.boolean().optional(),
@@ -153,6 +165,7 @@ export const ruleEngineConfigSchema = z.object({
   stopOnFirstError: z.boolean().optional(),
   maxConditionDepth: z.number().optional(),
   collectDetailedResults: z.boolean().optional(),
+  immutable: z.boolean().optional(),
 });
 
 export const ruleFilterSchema = z.object({

@@ -11,12 +11,17 @@ Mairon is a lightweight, type-safe rule engine. Define complex business rules de
 
 ## Features
 
-✨ **Declarative Rules**: Define rules as JSON-like objects  
-🔍 **43+ Operators**: Comprehensive set of comparison, string, array, and type-checking operators  
-🎯 **Type-Safe**: Full TypeScript support with generic types  
-🔄 **Change Detection**: Track changes between data states  
-📝 **Templates**: Dynamic values with time expressions and data references  
-🎨 **Event System**: Hook into the evaluation lifecycle  
+✨ **Declarative Rules**: Define rules as JSON-like objects
+🔍 **45+ Operators**: Comprehensive set of comparison, string, array, and type-checking operators
+🎯 **Type-Safe**: Full TypeScript support with generic types
+🔄 **Change Detection**: Track changes between data states
+📝 **Templates**: Dynamic values with time expressions and data references
+🎨 **Event System**: Hook into the evaluation lifecycle
+🔒 **Immutable Mode**: Protect original data from mutation
+⚡ **Async Operators**: Support for operators that call external APIs
+🔗 **Rule Chaining**: Trigger dependent rules automatically
+🔍 **Explainability**: Debug why rules matched or didn't match
+💾 **Serialization**: Export/import rules as JSON
 
 ## Installation
 
@@ -161,6 +166,7 @@ A rule consists of:
 - **Conditions**: Logic tree that evaluates to true/false
 - **Actions**: Operations to perform when conditions match
 - **Priority**: Higher priority rules execute first
+- **Triggers**: Other rules to chain when this rule matches
 - **Metadata**: Tags, description, and custom data
 
 ```typescript
@@ -176,7 +182,8 @@ A rule consists of:
   },
   actions: [
     { type: 'actionName', params: { key: 'value' } }
-  ]
+  ],
+  triggers: ['another-rule-id']  // Optional: chain to other rules
 }
 ```
 
@@ -187,7 +194,7 @@ A rule consists of:
 { field: 'age', operator: 'greaterThan', value: 21 }
 ```
 
-**Logical Groups (all = AND, any = OR):**
+**Logical Groups (all = AND, any = OR, not = NOT):**
 ```typescript
 {
   any: [  // OR logic
@@ -200,11 +207,16 @@ A rule consists of:
     }
   ]
 }
+
+// NOT logic
+{
+  not: { field: 'banned', operator: 'equals', value: true }
+}
 ```
 
 ### Operators
 
-Mairon includes 43+ operators across multiple categories:
+Mairon includes 45+ operators across multiple categories:
 
 - **Comparison**: `equals`, `greaterThan`, `lessThan`, `between`, etc.
 - **String**: `contains`, `startsWith`, `endsWith`, `matches` (regex)
@@ -321,6 +333,9 @@ const handlers = engine.getRegisteredHandlers(); // ['action1', 'action2']
 const results = await engine.evaluate({ data });
 const results = await engine.evaluate({ data, previousData, context });
 
+// Explain (debug why rules matched/didn't match)
+const explanations = await engine.explain({ data });
+
 // Events
 engine.on('ruleMatched', (data) => console.log(data));
 engine.on('actionExecuted', (data) => console.log(data));
@@ -334,6 +349,7 @@ const stats = engine.getStats();
 ```typescript
 const engine = new Mairon({
   strict: true,              // Throw on missing handlers
+  immutable: true,           // Protect original data from mutation
   enableIndexing: true,      // Performance optimization for large rule sets
   maxRulesPerExecution: 100, // Limit rules per evaluation
   stopOnFirstError: false,   // Continue on action errors
@@ -353,6 +369,10 @@ engine.on('beforeEvaluate', (data) => {
 
 engine.on('ruleMatched', (data) => {
   console.log(`Rule ${data.rule.name} matched`);
+});
+
+engine.on('ruleTriggered', (data) => {
+  console.log(`${data.sourceRule.name} triggered ${data.triggeredRule.name}`);
 });
 
 engine.on('actionFailed', (data) => {
@@ -400,3 +420,99 @@ await engine.evaluate({
 // Access in templates
 { field: 'environment', operator: 'equals', value: '{{ context.environment }}' }
 ```
+
+### Immutable Mode
+
+Protect your data from accidental mutation by action handlers:
+
+```typescript
+const engine = new Mairon({ immutable: true });
+
+engine.registerHandler('modify', (ctx) => {
+  ctx.data.value = 999; // This modifies a clone, not original
+});
+
+const data = { value: 1 };
+await engine.evaluate({ data });
+console.log(data.value); // Still 1
+```
+
+### Custom Operators
+
+Add domain-specific operators:
+
+```typescript
+engine.registerOperator('isWeekend', (value) => {
+  const day = new Date(value).getDay();
+  return day === 0 || day === 6;
+});
+
+// Use in rules
+{ field: 'timestamp', operator: 'isWeekend' }
+```
+
+### Async Operators
+
+Operators can call external services:
+
+```typescript
+engine.registerOperator('hasPermission', async (value, condition, ctx) => {
+  const perms = await fetchPermissions(value);
+  return perms.includes(condition.value);
+});
+```
+
+### Rule Chaining
+
+Trigger dependent rules automatically:
+
+```typescript
+engine.addRule({
+  id: 'calculate-discount',
+  name: 'Calculate Discount',
+  conditions: { field: 'total', operator: 'greaterThan', value: 100 },
+  actions: [{ type: 'applyDiscount' }],
+  triggers: ['send-notification', 'update-loyalty-points']
+});
+```
+
+### Explainability
+
+Debug why rules matched or didn't:
+
+```typescript
+const explanations = await engine.explain({ data: user });
+
+for (const exp of explanations) {
+  console.log(`Rule: ${exp.ruleName}, Matched: ${exp.matched}`);
+  // Inspect exp.explanation for detailed condition breakdown
+}
+```
+
+### Serialization
+
+Export and import rules:
+
+```typescript
+// Export
+const snapshot = engine.toJSON();
+fs.writeFileSync('rules.json', JSON.stringify(snapshot));
+
+// Import
+engine.loadJSON(JSON.parse(fs.readFileSync('rules.json')));
+
+// Or just rules
+const rules = engine.exportRules();
+engine.importRules(rules, { replace: true });
+```
+
+## Examples
+
+See the [examples](./examples) directory for complete real-world examples:
+
+- **React Form Validation** - Using Mairon with React for dynamic form validation
+- **E-commerce Pricing** - Dynamic pricing and discount rules
+
+## License
+
+MIT

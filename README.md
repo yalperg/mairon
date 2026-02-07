@@ -12,16 +12,27 @@ Mairon is a lightweight, type-safe rule engine. Define complex business rules de
 ## Features
 
 ✨ **Declarative Rules**: Define rules as JSON-like objects with `all`, `any`, and `not` logic
+
 🔍 **45+ Built-in Operators**: Comparison, string, array, type-checking, change detection, and more
+
 🧩 **Custom Operators**: Register your own sync/async operators with alias support
+
 🎯 **Type-Safe**: Full TypeScript support with generic types
+
 🔄 **Change Detection**: Track changes between data states
+
 📝 **Templates**: Dynamic values with time expressions and data references
+
 🎨 **Event System**: Hook into the evaluation lifecycle
+
 🔒 **Immutable Mode**: Protect original data from mutation
+
 ⚡ **Async Operators**: Support for operators that call external APIs
+
 🔗 **Rule Chaining**: Trigger dependent rules automatically
+
 🔍 **Explainability**: Debug why rules matched or didn't match
+
 💾 **Serialization**: Export/import rules and engine state as JSON
 
 ## Installation
@@ -337,8 +348,8 @@ engine.registerOperator('isWeekend', (value) => {
 });
 
 // Evaluate
-const results = await engine.evaluate({ data });
-const results = await engine.evaluate({ data, previousData, context });
+let results = await engine.evaluate({ data });
+results = await engine.evaluate({ data, previousData, context });
 
 // Explain (debug why rules matched/didn't match)
 const explanations = await engine.explain({ data });

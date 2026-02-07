@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-02-07
+
+### Added
+
+- **Custom Operators**: Register domain-specific operators with `registerOperator()`, supporting both sync and async functions
+- **Operator Aliases**: Define alternative names for operators via `registerOperator()` with alias support
+- **NOT Conditions**: Logical `not` group for negating condition blocks alongside `all` and `any`
+- **Explainability**: `engine.explain()` method provides detailed breakdowns of why rules matched or didn't match
+- **Rule Serialization**: Export/import engine state with `toJSON()`, `loadJSON()`, `exportRules()`, and `importRules()` methods
+- **Async Operators**: Operators can now return Promises, enabling external API calls during evaluation
+- **Rule Chaining**: Rules can trigger dependent rules automatically via the `triggers` array
+- **Immutable Mode**: New `immutable` config option clones data before action execution, protecting original objects from mutation
+
+### Changed
+
+- Operators registry is now instance-based instead of a global singleton, allowing isolated engine instances
+- `getRegisteredActions()` renamed to `getRegisteredHandlers()` for consistency
+- `PerformanceMetrics` replaced with `Stats` and `StatsTracker` for cleaner statistics API
+- Removed `enableTemplates` configuration option (templates are always enabled)
+- Removed schema validation configuration option for simpler setup
+
+### Documentation
+
+- Added comprehensive JSDoc documentation across all public APIs
+
 ## [1.0.0] - 2025-10-21
 
 ### Added
@@ -47,7 +72,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Strict mode for missing handlers
   - Schema validation
   - Indexing toggle
-  - Template toggle
   - Max rules per execution limit
 
 #### Type Safety
@@ -58,7 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Documentation
 - **README**: Feature overview, quick start, and examples
-- **Operators Guide**: Detailed documentation for all 43 operators
+- **Operators Guide**: Detailed documentation for all operators
 - **Templates Guide**: Complete template system documentation
 
 ### Technical Details
@@ -72,13 +96,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **License**: MIT
 - **Author**: Yunus Alper Göl
 - **Repository**: https://github.com/yalperg/mairon
-
----
-
-## Future Releases
-
-See [GitHub Issues](https://github.com/yalperg/mairon/issues) for planned features and improvements.
-
----
-
-**Note**: This is the initial release (1.0.0) of Mairon rule engine.

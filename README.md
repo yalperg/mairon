@@ -11,8 +11,9 @@ Mairon is a lightweight, type-safe rule engine. Define complex business rules de
 
 ## Features
 
-✨ **Declarative Rules**: Define rules as JSON-like objects
-🔍 **45+ Operators**: Comprehensive set of comparison, string, array, and type-checking operators
+✨ **Declarative Rules**: Define rules as JSON-like objects with `all`, `any`, and `not` logic
+🔍 **45+ Built-in Operators**: Comparison, string, array, type-checking, change detection, and more
+🧩 **Custom Operators**: Register your own sync/async operators with alias support
 🎯 **Type-Safe**: Full TypeScript support with generic types
 🔄 **Change Detection**: Track changes between data states
 📝 **Templates**: Dynamic values with time expressions and data references
@@ -21,7 +22,7 @@ Mairon is a lightweight, type-safe rule engine. Define complex business rules de
 ⚡ **Async Operators**: Support for operators that call external APIs
 🔗 **Rule Chaining**: Trigger dependent rules automatically
 🔍 **Explainability**: Debug why rules matched or didn't match
-💾 **Serialization**: Export/import rules as JSON
+💾 **Serialization**: Export/import rules and engine state as JSON
 
 ## Installation
 
@@ -329,12 +330,24 @@ engine.registerHandlers({ action1: handler1, action2: handler2 });
 engine.unregisterHandler('actionType');
 const handlers = engine.getRegisteredHandlers(); // ['action1', 'action2']
 
+// Custom operators
+engine.registerOperator('isWeekend', (value) => {
+  const day = new Date(value).getDay();
+  return day === 0 || day === 6;
+});
+
 // Evaluate
 const results = await engine.evaluate({ data });
 const results = await engine.evaluate({ data, previousData, context });
 
 // Explain (debug why rules matched/didn't match)
 const explanations = await engine.explain({ data });
+
+// Serialization
+const snapshot = engine.toJSON();
+engine.loadJSON(snapshot);
+const rules = engine.exportRules();
+engine.importRules(rules, { replace: true });
 
 // Events
 engine.on('ruleMatched', (data) => console.log(data));
@@ -439,7 +452,7 @@ console.log(data.value); // Still 1
 
 ### Custom Operators
 
-Add domain-specific operators:
+Add domain-specific operators, with optional aliases:
 
 ```typescript
 engine.registerOperator('isWeekend', (value) => {
@@ -449,6 +462,14 @@ engine.registerOperator('isWeekend', (value) => {
 
 // Use in rules
 { field: 'timestamp', operator: 'isWeekend' }
+
+// With aliases
+engine.registerOperator('greaterThan', (a, cond) => a > cond.value, {
+  aliases: ['gt', 'moreThan']
+});
+
+// Both work
+{ field: 'age', operator: 'gt', value: 18 }
 ```
 
 ### Async Operators
@@ -505,13 +526,6 @@ engine.loadJSON(JSON.parse(fs.readFileSync('rules.json')));
 const rules = engine.exportRules();
 engine.importRules(rules, { replace: true });
 ```
-
-## Examples
-
-See the [examples](./examples) directory for complete real-world examples:
-
-- **React Form Validation** - Using Mairon with React for dynamic form validation
-- **E-commerce Pricing** - Dynamic pricing and discount rules
 
 ## License
 

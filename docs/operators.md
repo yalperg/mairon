@@ -1,6 +1,6 @@
 # Operators Reference
 
-Complete guide to all 43 operators available in Mairon.
+Complete guide to all 45+ operators available in Mairon.
 
 ## Table of Contents
 

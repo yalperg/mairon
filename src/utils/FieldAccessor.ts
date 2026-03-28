@@ -14,7 +14,7 @@ class FieldAccessor {
     this.cache = new Cache<unknown>(options);
   }
 
-  resolvePath(obj: unknown, path: string): unknown {
+  private resolvePath(obj: unknown, path: string): unknown {
     if (obj === null || obj === undefined) {
       return undefined;
     }

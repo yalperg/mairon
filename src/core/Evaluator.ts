@@ -236,7 +236,7 @@ class Evaluator<T = unknown> {
       return false;
     }
 
-    const fieldValue = this.fieldAccessor.resolvePath(
+    const fieldValue = this.fieldAccessor.get(
       context.data,
       condition.field,
     );
@@ -261,7 +261,7 @@ class Evaluator<T = unknown> {
     context: EvaluationContext<T>,
   ): Promise<SimpleConditionExplanation> {
     const operator = this.operators.get(condition.operator);
-    const fieldValue = this.fieldAccessor.resolvePath(
+    const fieldValue = this.fieldAccessor.get(
       context.data,
       condition.field,
     );

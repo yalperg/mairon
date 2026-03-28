@@ -18,7 +18,7 @@ const changed = new Operator(
     if (!context.previousData) {
       return false;
     }
-    const previousValue = fieldAccessor.resolvePath(
+    const previousValue = fieldAccessor.get(
       context.previousData,
       condition.field,
     );
@@ -36,7 +36,7 @@ const changedFrom = new Operator(
     if (!context.previousData) {
       return false;
     }
-    const previousValue = fieldAccessor.resolvePath(
+    const previousValue = fieldAccessor.get(
       context.previousData,
       condition.field,
     );
@@ -57,7 +57,7 @@ const changedTo = new Operator(
     if (!context.previousData) {
       return false;
     }
-    const previousValue = fieldAccessor.resolvePath(
+    const previousValue = fieldAccessor.get(
       context.previousData,
       condition.field,
     );
@@ -78,7 +78,7 @@ const changedFromTo = new Operator(
     if (!context.previousData) {
       return false;
     }
-    const previousValue = fieldAccessor.resolvePath(
+    const previousValue = fieldAccessor.get(
       context.previousData,
       condition.field,
     );
@@ -98,7 +98,7 @@ const increased = new Operator(
     if (!context.previousData) {
       return false;
     }
-    const previousValue = fieldAccessor.resolvePath(
+    const previousValue = fieldAccessor.get(
       context.previousData,
       condition.field,
     );
@@ -121,7 +121,7 @@ const decreased = new Operator(
     if (!context.previousData) {
       return false;
     }
-    const previousValue = fieldAccessor.resolvePath(
+    const previousValue = fieldAccessor.get(
       context.previousData,
       condition.field,
     );

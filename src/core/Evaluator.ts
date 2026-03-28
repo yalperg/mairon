@@ -241,13 +241,13 @@ class Evaluator<T = unknown> {
       condition.field,
     );
 
-    if (condition.value !== undefined) {
-      condition.value = this.templateResolver.resolve(condition.value, context);
-    }
+    const resolvedValue = condition.value !== undefined
+      ? this.templateResolver.resolve(condition.value, context)
+      : condition.value;
 
     const normalizedCondition: SimpleCondition = {
       ...condition,
-      value: condition.value,
+      value: resolvedValue,
     };
 
     return operator.evaluate(fieldValue, normalizedCondition, context);

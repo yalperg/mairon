@@ -242,6 +242,44 @@ describe('Evaluator', () => {
     });
   });
 
+  describe('condition mutation safety', () => {
+    test('should not mutate the original condition value after evaluation with template', async () => {
+      const evaluator = new Evaluator();
+      const condition = {
+        field: 'greeting',
+        operator: 'equals',
+        value: '{{ data.name }}',
+      };
+
+      await evaluator.evaluateCondition(condition, {
+        data: { greeting: 'Alice', name: 'Alice' },
+      });
+
+      // The original condition should still have the template, not the resolved value
+      expect(condition.value).toBe('{{ data.name }}');
+    });
+
+    test('should resolve template correctly on repeated evaluations with different data', async () => {
+      const evaluator = new Evaluator();
+      const condition = {
+        field: 'greeting',
+        operator: 'equals',
+        value: '{{ data.name }}',
+      };
+
+      const result1 = await evaluator.evaluateCondition(condition, {
+        data: { greeting: 'Alice', name: 'Alice' },
+      });
+
+      const result2 = await evaluator.evaluateCondition(condition, {
+        data: { greeting: 'Bob', name: 'Bob' },
+      });
+
+      expect(result1).toBe(true);
+      expect(result2).toBe(true);
+    });
+  });
+
   describe('async operators', () => {
     test('evaluates async operator that resolves to true', async () => {
       const { Operators, Operator } = await import('@/core');

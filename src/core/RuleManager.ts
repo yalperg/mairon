@@ -173,9 +173,10 @@ class RuleManager<T = unknown> {
     if (existing.enabled) {
       return;
     }
-    existing.enabled = true;
+    const updated = { ...existing, enabled: true };
+    this.rules.set(ruleId, updated);
     if (this.config.enableIndexing) {
-      this.indexer.indexRule(existing);
+      this.indexer.indexRule(updated);
     }
   }
 
@@ -187,7 +188,8 @@ class RuleManager<T = unknown> {
     if (!existing.enabled) {
       return;
     }
-    existing.enabled = false;
+    const updated = { ...existing, enabled: false };
+    this.rules.set(ruleId, updated);
     if (this.config.enableIndexing) {
       this.indexer.removeRule(ruleId);
     }

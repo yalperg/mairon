@@ -77,6 +77,34 @@ describe('RuleManager', () => {
       expect(manager.getRule('t')!.enabled).toBe(false);
     });
 
+    test('enableRule/disableRule should not mutate the original rule reference', () => {
+      const manager = new RuleManager();
+      const originalRule = sampleRule('m', false);
+      manager.addRule(originalRule);
+
+      manager.enableRule('m');
+
+      // The original rule object we passed in should not be mutated
+      expect(originalRule.enabled).toBe(false);
+    });
+
+    test('enableRule/disableRule should not mutate a previously retrieved rule reference', () => {
+      const manager = new RuleManager();
+      manager.addRule(sampleRule('m', false));
+
+      // Get a reference to the stored rule
+      const ruleBeforeEnable = manager.getRule('m')!;
+      expect(ruleBeforeEnable.enabled).toBe(false);
+
+      manager.enableRule('m');
+
+      // The previously retrieved reference should not be mutated
+      expect(ruleBeforeEnable.enabled).toBe(false);
+
+      // But getting the rule again should return the updated version
+      expect(manager.getRule('m')!.enabled).toBe(true);
+    });
+
     test('getRules with filters', () => {
       const manager = new RuleManager();
       manager.addRules([

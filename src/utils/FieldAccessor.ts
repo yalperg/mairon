@@ -58,7 +58,9 @@ class FieldAccessor {
       return this.cache.get(cacheKey);
     }
     const value = this.resolvePath(obj, path);
-    this.cache.set(cacheKey, value);
+    if (value !== undefined) {
+      this.cache.set(cacheKey, value);
+    }
     return value;
   }
 

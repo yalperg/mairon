@@ -153,6 +153,20 @@ describe('FieldAccessor', () => {
       expect(fa.get(obj, 'a.c')).toBeUndefined();
     });
 
+    test('get() should return fresh value when object is mutated after caching undefined', () => {
+      const fa = new FieldAccessor();
+      const obj: Record<string, unknown> = { a: 1 };
+
+      // First call: path doesn't exist, returns undefined
+      expect(fa.get(obj, 'b')).toBeUndefined();
+
+      // Mutate object: path now exists
+      obj.b = 42;
+
+      // Should return the new value, not cached undefined
+      expect(fa.get(obj, 'b')).toBe(42);
+    });
+
     test('get() with primitive roots and empty path', () => {
       const fa = new FieldAccessor();
       expect(fa.get(5 as unknown as object, '')).toBe(5 as unknown as object);

@@ -60,13 +60,12 @@ class TemplateResolver {
   }
 
   private resolveExpression(expr: string, context: EvaluationContext): unknown {
-    const cacheKey = `${expr}|${Boolean(context.previousData)}|${Object.keys(context.context ?? {}).length}`;
-    const cached = this.exprCache.get(cacheKey);
-    if (cached !== undefined) {
-      return cached;
-    }
-
     if (expr.startsWith('now')) {
+      const cacheKey = `time|${expr}`;
+      const cached = this.exprCache.get(cacheKey);
+      if (cached !== undefined) {
+        return cached;
+      }
       const val = this.resolveTimeExpression(expr);
       this.exprCache.set(cacheKey, val, 200);
       return val;
@@ -74,23 +73,17 @@ class TemplateResolver {
 
     if (expr.startsWith('data.')) {
       const path = expr.substring(5);
-      const val = this.fieldAccessor.resolvePath(context.data, path);
-      this.exprCache.set(cacheKey, val);
-      return val;
+      return this.fieldAccessor.get(context.data, path);
     }
 
     if (expr.startsWith('previousData.')) {
       const path = expr.substring(13);
-      const val = this.fieldAccessor.resolvePath(context.previousData, path);
-      this.exprCache.set(cacheKey, val);
-      return val;
+      return this.fieldAccessor.get(context.previousData, path);
     }
 
     if (expr.startsWith('context.')) {
       const path = expr.substring(8);
-      const val = this.fieldAccessor.resolvePath(context.context, path);
-      this.exprCache.set(cacheKey, val);
-      return val;
+      return this.fieldAccessor.get(context.context, path);
     }
 
     return `{{${expr}}}`;

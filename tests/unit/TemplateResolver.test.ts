@@ -320,4 +320,76 @@ describe('TemplateResolver', () => {
       expect(() => resolver.clearCache()).not.toThrow();
     });
   });
+
+  describe('cache correctness across different data', () => {
+    it('should resolve to correct value when same template is used with different data', () => {
+      const context1: EvaluationContext = {
+        data: { email: 'alice@example.com' },
+      };
+      const context2: EvaluationContext = {
+        data: { email: 'bob@example.com' },
+      };
+
+      const result1 = resolver.resolve('{{ data.email }}', context1);
+      const result2 = resolver.resolve('{{ data.email }}', context2);
+
+      expect(result1).toBe('alice@example.com');
+      expect(result2).toBe('bob@example.com');
+    });
+
+    it('should resolve nested fields correctly with different data objects', () => {
+      const context1: EvaluationContext = {
+        data: { user: { name: 'Alice', tier: 'gold' } },
+      };
+      const context2: EvaluationContext = {
+        data: { user: { name: 'Bob', tier: 'bronze' } },
+      };
+
+      expect(resolver.resolve('{{ data.user.name }}', context1)).toBe('Alice');
+      expect(resolver.resolve('{{ data.user.tier }}', context1)).toBe('gold');
+      expect(resolver.resolve('{{ data.user.name }}', context2)).toBe('Bob');
+      expect(resolver.resolve('{{ data.user.tier }}', context2)).toBe('bronze');
+    });
+
+    it('should resolve multi-template strings correctly with different data', () => {
+      const context1: EvaluationContext = {
+        data: { id: 'ORD-001', customer: 'Alice' },
+      };
+      const context2: EvaluationContext = {
+        data: { id: 'ORD-002', customer: 'Bob' },
+      };
+
+      const template = 'Order {{ data.id }} for {{ data.customer }}';
+      expect(resolver.resolve(template, context1)).toBe('Order ORD-001 for Alice');
+      expect(resolver.resolve(template, context2)).toBe('Order ORD-002 for Bob');
+    });
+
+    it('should resolve previousData correctly with different data objects', () => {
+      const context1: EvaluationContext = {
+        data: { status: 'active' },
+        previousData: { status: 'pending' },
+      };
+      const context2: EvaluationContext = {
+        data: { status: 'cancelled' },
+        previousData: { status: 'active' },
+      };
+
+      expect(resolver.resolve('{{ previousData.status }}', context1)).toBe('pending');
+      expect(resolver.resolve('{{ previousData.status }}', context2)).toBe('active');
+    });
+
+    it('should resolve context references correctly with different contexts', () => {
+      const context1: EvaluationContext = {
+        data: {},
+        context: { requestId: 'req-001' },
+      };
+      const context2: EvaluationContext = {
+        data: {},
+        context: { requestId: 'req-002' },
+      };
+
+      expect(resolver.resolve('{{ context.requestId }}', context1)).toBe('req-001');
+      expect(resolver.resolve('{{ context.requestId }}', context2)).toBe('req-002');
+    });
+  });
 });
